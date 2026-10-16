@@ -20,3 +20,5 @@ Newest last. Each entry: what, why.
 - **Harness treats WebGPU validation warnings as errors**, not just `console.error` (WebGPU reports broken pipelines as warnings).
 - **Frame time is measured uncapped** (render N frames back-to-back and wait for the GPU queue), because headless Chrome is vsync-capped at 60.
 - **CI only builds and deploys.** GitHub runners have no GPU, so the screenshot/console-error/perf gate (`npm test`) runs locally before every push.
+- **Glossy floors get almost no HDRI reflection (env 0.06).** The HDRI's own bright windows smeared as white streaks across the clear-coated floor; SSR already reflects the real room. Ceiling-wash lights have no specular for the same reason.
+- **Preview hosting is pending the director's OK.** Free GitHub Pages needs a public repository; creating a public repo is an outward-facing step, so it waits for an explicit yes.

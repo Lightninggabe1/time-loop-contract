@@ -1,0 +1,30 @@
+// Screenshots of the real UI (loading screen, HUD, settings, touch controls).
+import { chromium, devices } from "playwright";
+import { createServer } from "vite";
+import { fileURLToPath } from "node:url";
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const server = await createServer({ root: ROOT, server: { port: 5292, strictPort: false }, logLevel: "error" });
+await server.listen();
+const url = server.resolvedUrls.local[0];
+const browser = await chromium.launch({ args: ["--use-angle=metal", "--enable-gpu", "--ignore-gpu-blocklist", "--enable-unsafe-webgpu"] });
+const errors = [];
+const run = async (ctxOpts, name, fn) => {
+  const ctx = await browser.newContext(ctxOpts);
+  const page = await ctx.newPage();
+  page.on("pageerror", (e) => errors.push(e.message));
+  page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+  await page.goto(url + "?quality=" + (ctxOpts.isMobile ? "low" : "high"));
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: `screenshots/ui_${name}_loading.png` });
+  await page.waitForFunction(() => window.__ready === true, null, { timeout: 180000 });
+  await page.waitForTimeout(800);
+  await fn?.(page);
+  await page.screenshot({ path: `screenshots/ui_${name}.png` });
+  await ctx.close();
+};
+await run({ viewport: { width: 1440, height: 900 } }, "desktop");
+await run({ viewport: { width: 1440, height: 900 } }, "settings", (p) => p.click("#settings-btn"));
+await run({ ...devices["iPhone 13 landscape"] }, "phone");
+await browser.close();
+await server.close();
+console.log(errors.length ? "errors: " + errors.join("\n") : "✓ no console errors");

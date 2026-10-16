@@ -31,7 +31,7 @@ export function setupLighting(scene: Scene, room: BuiltRoom, casters: AbstractMe
   const moon = new DirectionalLight("moon", moonDir, scene);
   moon.position = new Vector3(-22, 12, -4);
   moon.diffuse = Palette.moon;
-  moon.specular = Palette.moon.scale(0.25);
+  moon.specular = Palette.moon.scale(0.04);
   moon.intensity = 24;
   moon.shadowMinZ = 1;
   moon.shadowMaxZ = 60;
@@ -45,7 +45,8 @@ export function setupLighting(scene: Scene, room: BuiltRoom, casters: AbstractMe
   const spots = room.chandeliers.map((p, i) => {
     const s = new SpotLight(`chand${i}`, p.add(new Vector3(0, -0.4, 0)), Vector3.Down(), 2.3, 1.6, scene);
     s.diffuse = Palette.tungsten;
-    s.specular = Palette.tungsten;
+    // big wide spots: keep their highlight from smearing across the glossy floor
+    s.specular = Palette.tungsten.scale(0.12);
     s.intensity = 220;
     s.range = 22;
     s.shadowMinZ = 0.3;
@@ -56,10 +57,10 @@ export function setupLighting(scene: Scene, room: BuiltRoom, casters: AbstractMe
   // cheap lights → clustered
   const points: PointLight[] = [];
   const candles: PointLight[] = [];
-  const mk = (name: string, pos: Vector3, color: Color3, intensity: number, range: number) => {
+  const mk = (name: string, pos: Vector3, color: Color3, intensity: number, range: number, spec = 1) => {
     const l = new PointLight(name, pos, scene);
     l.diffuse = color;
-    l.specular = color;
+    l.specular = color.scale(spec);
     l.intensity = intensity;
     l.range = range;
     points.push(l);
@@ -69,7 +70,7 @@ export function setupLighting(scene: Scene, room: BuiltRoom, casters: AbstractMe
     switch (s.kind) {
       case "sconce": mk(`sconce${i}`, s.pos, Palette.tungsten, 7, 6); break;
       case "foot": mk(`foot${i}`, s.pos, Palette.glowWarm, 9, 7); break;
-      case "cove": mk(`cove${i}`, s.pos.add(new Vector3(0, -1.2, 0)), Palette.tungsten, 7, 12); break;
+      case "cove": mk(`cove${i}`, s.pos.add(new Vector3(0, -1.2, 0)), Palette.tungsten, 7, 12, 0.05); break;
       case "clock": mk(`clock${i}`, s.pos, Palette.glowWarm, 5, 4); break;
       case "candle": mk(`candle${i}`, s.pos, Palette.candle, 2, 3); break;
     }
@@ -77,8 +78,9 @@ export function setupLighting(scene: Scene, room: BuiltRoom, casters: AbstractMe
   room.candles.forEach((p, i) => candles.push(mk(`candle${i}`, p, Palette.candle, 3.5, 4)));
   // up-light from each chandelier onto the ceiling
   room.chandeliers.forEach((p, i) => {
-    mk(`chandUpL${i}`, p.add(new Vector3(-2.8, 0.9, 0)), Palette.tungsten, 16, 8);
-    mk(`chandUpR${i}`, p.add(new Vector3(2.8, 0.9, 0)), Palette.tungsten, 16, 8);
+    // ceiling wash only: no specular, or it streaks across the glossy floor
+    mk(`chandUpL${i}`, p.add(new Vector3(-2.8, 0.9, 0)), Palette.tungsten, 16, 8, 0.0);
+    mk(`chandUpR${i}`, p.add(new Vector3(2.8, 0.9, 0)), Palette.tungsten, 16, 8, 0.0);
   });
 
   let cluster: ClusteredLightContainer | null = null;

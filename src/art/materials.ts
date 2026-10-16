@@ -19,8 +19,8 @@ interface TexSet {
 export const TILE: Record<string, number> = {};
 
 const sets: Record<string, TexSet> = {
-  floorDeco: { dir: "gen_floor_deco", tile: 4, clearCoat: 0.6, bump: 0.6, env: 0.35 },
-  parquet: { dir: "herringbone_parquet", tile: 2.2, tint: hexTint("#D9B38C"), clearCoat: 0.8, roughness: 0.6, bump: 0.5, env: 0.35 },
+  floorDeco: { dir: "gen_floor_deco", tile: 4, clearCoat: 0.6, bump: 0.6, env: 0.06 },
+  parquet: { dir: "herringbone_parquet", tile: 2.2, tint: hexTint("#D9B38C"), clearCoat: 0.8, roughness: 0.6, bump: 0.5, env: 0.06 },
   wallFan: { dir: "gen_wall_fan", tile: 1.2, bump: 0.6 },
   gold: { dir: "gen_gold", tile: 1, bump: 0.3 },
   marbleEmerald: { dir: "gen_marble_emerald", tile: 1.6, clearCoat: 0.7 },
