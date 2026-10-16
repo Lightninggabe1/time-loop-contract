@@ -22,3 +22,9 @@ Newest last. Each entry: what, why.
 - **CI only builds and deploys.** GitHub runners have no GPU, so the screenshot/console-error/perf gate (`npm test`) runs locally before every push.
 - **Glossy floors get almost no HDRI reflection (env 0.06).** The HDRI's own bright windows smeared as white streaks across the clear-coated floor; SSR already reflects the real room. Ceiling-wash lights have no specular for the same reason.
 - **Preview hosting is pending the director's OK.** Free GitHub Pages needs a public repository; creating a public repo is an outward-facing step, so it waits for an explicit yes.
+- **Checkpoint 1 approved by the director (2026-10-16).** Look is locked as the art bar for the rest of the manor. Preview: https://lightninggabe1.github.io/time-loop-contract/
+
+## Phase 2 (core systems)
+- **Game logic lives in `src/core/` as pure TypeScript with no Babylon imports**, so the bot/test harness can run whole loops in Node in milliseconds and determinism is unit-testable.
+- **Time unit is the game minute (18:00 = 1080 … 24:00 = 1440).** The loop runs 9 real minutes, i.e. 40× real time.
+- **Conditions are a tiny JSON language** (`flag`, `not`, `all`, `any`, `after`, `before`, `intel`), shared by events, contracts, intel leads and dialogue, so content never needs code.
