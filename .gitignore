@@ -1,0 +1,10 @@
+node_modules
+dist
+assets-src
+.DS_Store
+screenshots/_tmp
+test-results
+screenshots/check
+screenshots/webgl
+screenshots/phone
+screenshots/presets

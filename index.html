@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#0E0A0C" />
+    <title>Time-Loop Contract</title>
+    <link rel="stylesheet" href="./src/ui/hud.css" />
+  </head>
+  <body>
+    <canvas id="game" tabindex="0"></canvas>
+
+    <div id="loading">
+      <div class="deco-frame">
+        <div class="sun"></div>
+        <h1>Time-Loop <span>Contract</span></h1>
+        <p class="tag">New Year's Eve, 1929. Again.</p>
+        <div class="bar"><div id="loadbar"></div></div>
+        <p id="loadmsg">Polishing the chandeliers…</p>
+      </div>
+    </div>
+
+    <div id="hud" hidden>
+      <div id="clock"><span id="clocktime">6:00</span><small>PM</small><em id="room">The Ballroom</em></div>
+      <div id="crosshair"></div>
+      <div id="hint">Click to look around · WASD to move · Shift to sprint</div>
+      <button id="settings-btn" aria-label="Settings">⚙</button>
+      <div id="settings" hidden>
+        <h2>Graphics</h2>
+        <div class="seg" id="quality">
+          <button data-q="low">Low</button><button data-q="medium">Medium</button><button data-q="high">High</button>
+        </div>
+        <p id="fps"></p>
+        <button id="settings-close">Back to the party</button>
+      </div>
+      <div id="touch">
+        <div id="stick"><div></div></div>
+        <button id="btn-context" aria-label="Interact">E</button>
+        <button id="btn-item" aria-label="Use item">Q</button>
+      </div>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

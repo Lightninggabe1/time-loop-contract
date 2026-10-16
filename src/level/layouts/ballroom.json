@@ -1,0 +1,82 @@
+{
+  "id": "ballroom",
+  "name": "The Ballroom",
+  "size": [20, 9, 30],
+  "floor": { "material": "floorDeco", "danceFloor": { "material": "parquet", "size": [10, 14], "center": [0, 0] } },
+  "walls": [
+    {
+      "id": "north", "from": [10, 15], "to": [-10, 15],
+      "modules": [
+        { "type": "panel", "w": 1 }, { "type": "pilaster", "w": 1 },
+        { "type": "stage", "w": 16 },
+        { "type": "pilaster", "w": 1 }, { "type": "panel", "w": 1 }
+      ]
+    },
+    {
+      "id": "west", "from": [-10, 15], "to": [-10, -15],
+      "modules": [
+        { "type": "panel", "w": 3.5, "sconce": true }, { "type": "pilaster", "w": 1 },
+        { "type": "window", "w": 3.4 }, { "type": "pilaster", "w": 1 },
+        { "type": "window", "w": 3.4 }, { "type": "pilaster", "w": 1 },
+        { "type": "window", "w": 3.4 }, { "type": "pilaster", "w": 1 },
+        { "type": "window", "w": 3.4 }, { "type": "pilaster", "w": 1 },
+        { "type": "window", "w": 3.4 }, { "type": "pilaster", "w": 1 },
+        { "type": "panel", "w": 3.5, "sconce": true }
+      ]
+    },
+    {
+      "id": "south", "from": [-10, -15], "to": [10, -15],
+      "modules": [
+        { "type": "panel", "w": 2, "sconce": true }, { "type": "pilaster", "w": 1 },
+        { "type": "mirror", "w": 3 }, { "type": "pilaster", "w": 1 },
+        { "type": "door", "w": 6, "opening": 3.6, "height": 4.6, "to": "foyer" },
+        { "type": "pilaster", "w": 1 },
+        { "type": "mirror", "w": 3 }, { "type": "pilaster", "w": 1 },
+        { "type": "panel", "w": 2, "sconce": true }
+      ]
+    },
+    {
+      "id": "east", "from": [10, -15], "to": [10, 15],
+      "modules": [
+        { "type": "panel", "w": 3.5, "sconce": true }, { "type": "pilaster", "w": 1 },
+        { "type": "mirror", "w": 3.4 }, { "type": "pilaster", "w": 1 },
+        { "type": "mirror", "w": 3.4 }, { "type": "pilaster", "w": 1 },
+        { "type": "door", "w": 3.4, "opening": 2.4, "height": 3.6, "to": "study" },
+        { "type": "pilaster", "w": 1 },
+        { "type": "mirror", "w": 3.4 }, { "type": "pilaster", "w": 1 },
+        { "type": "mirror", "w": 3.4 }, { "type": "pilaster", "w": 1 },
+        { "type": "panel", "w": 3.5, "sconce": true }
+      ]
+    }
+  ],
+  "ceiling": { "beamsZ": [-11, -6.6, -2.2, 2.2, 6.6, 11], "beamsX": [-5, 5] },
+  "chandeliers": [[-2.8, -8.8], [2.8, -8.8], [-2.8, 0], [2.8, 0], [-2.8, 8.8], [2.8, 8.8]],
+  "tables": [
+    [-7, -9], [-7, -4], [-7, 1], [-7, 6],
+    [7, -9], [7, -4], [7, 1], [7, 6]
+  ],
+  "champagneTower": [0, 9.6],
+  "props": [
+    { "model": "Sofa_01", "pos": [-8.9, 0, -12.6], "rotY": 90, "scale": 1.25 },
+    { "model": "ArmChair_01", "pos": [-8.6, 0, -10.6], "rotY": 120, "scale": 1.2 },
+    { "model": "Sofa_01", "pos": [8.9, 0, -12.6], "rotY": -90, "scale": 1.25 },
+    { "model": "ArmChair_01", "pos": [8.6, 0, -10.6], "rotY": -120, "scale": 1.2 },
+    { "model": "coffee_table_round_01", "pos": [-7.8, 0, -12.4], "scale": 0.8 },
+    { "model": "coffee_table_round_01", "pos": [7.8, 0, -12.4], "scale": 0.8 },
+    { "model": "potted_plant_01", "pos": [-9.2, 0, 13.8], "scale": 1.6 },
+    { "model": "potted_plant_01", "pos": [9.2, 0, 13.8], "scale": 1.6, "rotY": 140 },
+    { "model": "potted_plant_01", "pos": [-3.2, 0, -14.2], "scale": 1.4, "rotY": 60 },
+    { "model": "potted_plant_01", "pos": [3.2, 0, -14.2], "scale": 1.4, "rotY": 200 },
+    { "model": "vintage_grandfather_clock_01", "pos": [9.55, 0, 13.0], "rotY": -90, "scale": 1.15 },
+    { "model": "marble_bust_01", "pos": [-9.3, 1.1, 9.9], "rotY": 90, "scale": 1.6, "plinth": true },
+    { "model": "marble_bust_01", "pos": [9.3, 1.1, 2.2], "rotY": -90, "scale": 1.6, "plinth": true }
+  ],
+  "spawn": { "pos": [0, 0, -12.5], "yaw": 0 },
+  "shots": [
+    { "name": "01_entrance", "pos": [0, 1.7, -13.2], "target": [0, 3.2, 10] },
+    { "name": "02_windows", "pos": [6.5, 1.7, -10.5], "target": [-10, 2.8, 4] },
+    { "name": "03_stage", "pos": [-3.5, 1.7, 3.5], "target": [1.0, 4.0, 15] },
+    { "name": "04_table", "pos": [-4.6, 1.55, -2.2], "target": [-7.0, 0.9, -4.0] },
+    { "name": "05_back", "pos": [2.0, 2.3, 12.0], "target": [-1.0, 2.2, -15] }
+  ]
+}
