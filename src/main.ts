@@ -83,8 +83,11 @@ async function main() {
   const mirrors = new Mirrors(scene, new Plane(1, 0, 0, -(layout.size[0] / 2 - 0.035)));
 
   let quality: Quality = initialQuality();
+  let booted = false;
   const applyQuality = (q: Quality) => {
     quality = q;
+    // frozen materials would keep binding the old shadow maps: thaw, switch, re-freeze
+    for (const m of scene.materials) m.unfreeze();
     const p = PRESETS[q];
     const dpr = Math.min(devicePixelRatio || 1, p.maxDpr) * p.renderScale;
     engine.setHardwareScalingLevel(1 / dpr);
@@ -96,6 +99,8 @@ async function main() {
     const pre = scene.prePassRenderer;
     if (pre) for (const m of [shafts.mesh.material!, ...scene.materials.filter((x) => x.alpha < 1)]) if (!pre.excludedMaterials.includes(m)) pre.excludedMaterials.push(m);
     hud.setQuality(q);
+    scene.markAllMaterialsAsDirty(1 /* all */);
+    if (booted) scene.whenReadyAsync().then(() => freezeMaterials());
   };
   hud.onQuality = (q) => {
     saveQuality(q);
@@ -104,6 +109,7 @@ async function main() {
   applyQuality(quality);
 
   freezeMaterials();
+  booted = true;
   progress(0.85, "Compiling shaders…");
   await scene.whenReadyAsync();
 
@@ -197,14 +203,20 @@ async function main() {
 
   // probe: step down quality automatically if the device struggles
   if (!savedQuality() && !shot) {
-    setTimeout(() => {
-      const next = stepDown(quality, avg(90));
-      if (next) applyQuality(next);
+    // median of recent frames: ignores shader-compile and asset-streaming hitches
+    const median = (n: number) => {
+      const s = frameTimes.slice(-n).sort((a, b) => a - b);
+      return s[Math.floor(s.length / 2)] ?? 0;
+    };
+    const probe = (left: number) =>
       setTimeout(() => {
-        const next2 = stepDown(quality, avg(90));
-        if (next2) applyQuality(next2);
-      }, 2500);
-    }, 2500);
+        const next = stepDown(quality, median(90));
+        if (next) {
+          applyQuality(next);
+          if (left > 1) probe(left - 1);
+        }
+      }, 4000);
+    probe(2);
   }
 
   // navmesh in the background (deviations only)

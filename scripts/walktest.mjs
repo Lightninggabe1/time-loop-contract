@@ -26,6 +26,11 @@ await page.waitForTimeout(6000);
 await page.keyboard.up("KeyW");
 await page.keyboard.up("ShiftLeft");
 const p2 = await pos();
+// runtime quality switching (the auto-probe does this on real devices)
+for (const q of ["high", "medium", "low", "high"]) {
+  await page.evaluate((q) => window.__game.setQuality(q), q);
+  await page.waitForTimeout(1500);
+}
 const navOk = await page.waitForFunction(() => window.__nav === true, null, { timeout: 60000 }).then(() => true, () => false);
 await browser.close();
 await server.close();
