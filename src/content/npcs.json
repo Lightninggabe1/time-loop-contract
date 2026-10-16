@@ -1,0 +1,715 @@
+{
+ "_doc": "Each entry: [time, spot, act, tag?]. Optional 'loop' blocks repeat a route every N minutes. Tags are what intel/events/interactions key on. Schedules are the whole truth: position = f(time).",
+ "npcs": [
+  {
+   "id": "ashcombe",
+   "name": "Lord Edmund Ashcombe",
+   "role": "The host",
+   "body": "male",
+   "blurb": "Owns the manor. For now.",
+   "schedule": [
+    [
+     "18:00",
+     "b_greet",
+     "talk",
+     "greet"
+    ],
+    [
+     "19:00",
+     "tE2",
+     "talk"
+    ],
+    [
+     "19:40",
+     "b_center2",
+     "talk"
+    ],
+    [
+     "20:20",
+     "mic",
+     "talk",
+     "speech"
+    ],
+    [
+     "20:45",
+     "s_fire",
+     "talk",
+     "deal"
+    ],
+    [
+     "21:25",
+     "tW3",
+     "talk"
+    ],
+    [
+     "22:05",
+     "tower2",
+     "idle",
+     "watch_song"
+    ],
+    [
+     "22:30",
+     "p_rail",
+     "idle",
+     "alone"
+    ],
+    [
+     "23:05",
+     "tE1",
+     "talk"
+    ],
+    [
+     "23:42",
+     "tower3",
+     "talk",
+     "glass"
+    ],
+    [
+     "23:52",
+     "mic",
+     "talk",
+     "toast"
+    ]
+   ]
+  },
+  {
+   "id": "vivienne",
+   "name": "Lady Vivienne Ashcombe",
+   "role": "The hostess",
+   "body": "female",
+   "blurb": "Knows everyone's secrets except her husband's.",
+   "schedule": [
+    [
+     "18:00",
+     "b_greet2",
+     "talk",
+     "greet"
+    ],
+    [
+     "19:00",
+     "d2",
+     "dance"
+    ],
+    [
+     "19:45",
+     "tW2",
+     "talk"
+    ],
+    [
+     "21:00",
+     "bw_win2",
+     "idle",
+     "alone"
+    ],
+    [
+     "21:40",
+     "tower",
+     "talk"
+    ],
+    [
+     "22:00",
+     "tW4",
+     "idle",
+     "watch_song"
+    ],
+    [
+     "22:40",
+     "tW2",
+     "talk"
+    ],
+    [
+     "23:00",
+     "p_table",
+     "talk",
+     "balcony_chat"
+    ],
+    [
+     "23:40",
+     "b_center3",
+     "idle"
+    ]
+   ]
+  },
+  {
+   "id": "calloway",
+   "name": "Mr Silas Calloway",
+   "role": "The banker",
+   "body": "male",
+   "blurb": "Smiles like a closing door.",
+   "schedule": [
+    [
+     "18:00",
+     "tE1",
+     "talk"
+    ],
+    [
+     "19:00",
+     "p_table2",
+     "talk",
+     "tryst"
+    ],
+    [
+     "19:30",
+     "tower",
+     "talk",
+     "tipsy"
+    ],
+    [
+     "20:15",
+     "tE3",
+     "talk"
+    ],
+    [
+     "20:40",
+     "s_fire2",
+     "talk",
+     "deal"
+    ],
+    [
+     "21:00",
+     "s_safe",
+     "work",
+     "safe_in"
+    ],
+    [
+     "21:10",
+     "s_desk_front",
+     "idle"
+    ],
+    [
+     "21:30",
+     "tE3",
+     "talk"
+    ],
+    [
+     "22:00",
+     "p_corner_s",
+     "idle",
+     "alone"
+    ],
+    [
+     "22:30",
+     "tW1",
+     "talk"
+    ],
+    [
+     "23:00",
+     "s_safe",
+     "work",
+     "safe_out"
+    ],
+    [
+     "23:22",
+     "k_passage",
+     "idle",
+     "hiding"
+    ],
+    [
+     "23:45",
+     "tower",
+     "idle"
+    ]
+   ]
+  },
+  {
+   "id": "dolly",
+   "name": "Miss Dolores \"Dolly\" Vane",
+   "role": "The singer",
+   "body": "female",
+   "blurb": "Ten o'clock, one song, no encores.",
+   "schedule": [
+    [
+     "18:00",
+     "p_rail_n",
+     "idle",
+     "rehearse"
+    ],
+    [
+     "18:40",
+     "tW1",
+     "talk"
+    ],
+    [
+     "19:30",
+     "d1",
+     "dance"
+    ],
+    [
+     "20:30",
+     "tW4",
+     "talk"
+    ],
+    [
+     "21:30",
+     "k_cake",
+     "idle",
+     "cake"
+    ],
+    [
+     "21:50",
+     "stage_wing",
+     "idle",
+     "prep"
+    ],
+    [
+     "22:00",
+     "mic",
+     "talk",
+     "song"
+    ],
+    [
+     "22:25",
+     "tower3",
+     "talk"
+    ],
+    [
+     "23:00",
+     "d3",
+     "dance"
+    ],
+    [
+     "23:45",
+     "b_center2",
+     "idle"
+    ]
+   ]
+  },
+  {
+   "id": "rupert",
+   "name": "Rupert Ashcombe",
+   "role": "The nephew",
+   "body": "male",
+   "blurb": "Heir to nothing, owner of opinions.",
+   "schedule": [
+    [
+     "18:00",
+     "tE3",
+     "talk"
+    ],
+    [
+     "19:00",
+     "d1",
+     "dance"
+    ],
+    [
+     "20:00",
+     "tower2",
+     "talk",
+     "brag"
+    ],
+    [
+     "20:35",
+     "p_table",
+     "talk"
+    ],
+    [
+     "21:30",
+     "d4",
+     "dance",
+     "dance_floor"
+    ],
+    [
+     "22:05",
+     "tE2",
+     "idle",
+     "watch_song"
+    ],
+    [
+     "22:50",
+     "k_island_w",
+     "idle",
+     "raid"
+    ],
+    [
+     "23:20",
+     "d4",
+     "dance"
+    ],
+    [
+     "23:48",
+     "b_center3",
+     "idle"
+    ]
+   ]
+  },
+  {
+   "id": "hale",
+   "name": "Inspector Hale",
+   "role": "Off duty. Allegedly.",
+   "body": "male",
+   "blurb": "Notices things for a living.",
+   "schedule": [
+    [
+     "18:00",
+     "b_door_s",
+     "idle"
+    ],
+    [
+     "19:00",
+     "bw_win4",
+     "idle"
+    ],
+    [
+     "20:00",
+     "tE4",
+     "talk"
+    ],
+    [
+     "21:00",
+     "b_aisle_e0",
+     "idle",
+     "watching"
+    ],
+    [
+     "22:00",
+     "tW4",
+     "idle",
+     "watch_song"
+    ],
+    [
+     "23:00",
+     "b_balcony_door",
+     "idle",
+     "watching"
+    ],
+    [
+     "23:45",
+     "b_center",
+     "idle"
+    ]
+   ]
+  },
+  {
+   "id": "pryce",
+   "name": "Mrs Penelope Pryce",
+   "role": "The gossip columnist",
+   "body": "female",
+   "blurb": "Prints what she hears, and hears everything.",
+   "schedule": [
+    [
+     "18:00",
+     "tW2",
+     "talk"
+    ],
+    [
+     "19:00",
+     "p_table",
+     "talk",
+     "tryst"
+    ],
+    [
+     "19:30",
+     "b_center",
+     "talk"
+    ],
+    [
+     "20:05",
+     "tW2",
+     "talk"
+    ],
+    [
+     "21:12",
+     "s_shelf",
+     "idle",
+     "snoop"
+    ],
+    [
+     "21:40",
+     "tower2",
+     "talk"
+    ],
+    [
+     "22:05",
+     "tW3",
+     "idle",
+     "watch_song"
+    ],
+    [
+     "23:05",
+     "p_table2",
+     "talk",
+     "balcony_chat"
+    ],
+    [
+     "23:48",
+     "b_center",
+     "idle"
+    ]
+   ]
+  },
+  {
+   "id": "hobbs",
+   "name": "Hobbs",
+   "role": "The butler",
+   "body": "male",
+   "blurb": "Carries the study key and a grudge.",
+   "schedule": [
+    [
+     "18:00",
+     "b_door_s",
+     "idle",
+     "announce"
+    ],
+    [
+     "19:00",
+     "k_mid",
+     "work"
+    ],
+    [
+     "19:20",
+     "tE2",
+     "idle"
+    ],
+    [
+     "20:00",
+     "k_counter_s",
+     "sit",
+     "nap"
+    ],
+    [
+     "20:45",
+     "b_study_door",
+     "idle",
+     "unlock"
+    ],
+    [
+     "21:31",
+     "b_study_door",
+     "idle",
+     "lock"
+    ],
+    [
+     "21:40",
+     "tE1",
+     "idle"
+    ],
+    [
+     "22:05",
+     "b_study_door",
+     "idle",
+     "guard"
+    ],
+    [
+     "23:05",
+     "k_island_e",
+     "work"
+    ],
+    [
+     "23:40",
+     "tower",
+     "work",
+     "pour"
+    ],
+    [
+     "23:52",
+     "stage_foot",
+     "idle"
+    ]
+   ]
+  },
+  {
+   "id": "pierre",
+   "name": "Pierre",
+   "role": "Waiter",
+   "body": "male",
+   "blurb": "Has dropped nothing since 1924.",
+   "schedule": [
+    [
+     "18:00",
+     "k_island_w",
+     "work"
+    ]
+   ],
+   "loop": {
+    "from": "18:10",
+    "to": "23:50",
+    "every": 24,
+    "route": [
+     [
+      "tW1",
+      "work"
+     ],
+     [
+      "tW3",
+      "work"
+     ],
+     [
+      "tE4",
+      "work"
+     ],
+     [
+      "tE2",
+      "work"
+     ],
+     [
+      "k_island_w",
+      "work"
+     ],
+     [
+      "tower3",
+      "work"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "marcel",
+   "name": "Chef Marcel",
+   "role": "The chef",
+   "body": "male",
+   "blurb": "Keeps a tonic 'for the souffl\u00e9'.",
+   "schedule": [
+    [
+     "18:00",
+     "k_stove",
+     "work"
+    ],
+    [
+     "19:00",
+     "k_island_e",
+     "work"
+    ],
+    [
+     "20:00",
+     "k_stove",
+     "work"
+    ],
+    [
+     "21:00",
+     "k_stove",
+     "work",
+     "flambe"
+    ],
+    [
+     "21:20",
+     "k_island_e",
+     "work"
+    ],
+    [
+     "22:30",
+     "k_corner",
+     "idle",
+     "smoke"
+    ],
+    [
+     "22:50",
+     "k_stove",
+     "work"
+    ],
+    [
+     "23:30",
+     "k_island_e",
+     "work"
+    ]
+   ]
+  },
+  {
+   "id": "brock",
+   "name": "Brock",
+   "role": "Doorman & muscle",
+   "body": "male",
+   "blurb": "Paid to stop trouble. Enjoys it.",
+   "schedule": [
+    [
+     "18:00",
+     "b_door_s",
+     "idle",
+     "door"
+    ]
+   ],
+   "loop": {
+    "from": "18:30",
+    "to": "23:40",
+    "every": 30,
+    "route": [
+     [
+      "b_aisle_ws",
+      "idle",
+      "patrol"
+     ],
+     [
+      "b_aisle_wn",
+      "idle",
+      "patrol"
+     ],
+     [
+      "b_aisle_en",
+      "idle",
+      "patrol"
+     ],
+     [
+      "b_aisle_es",
+      "idle",
+      "patrol"
+     ],
+     [
+      "b_door_s",
+      "idle",
+      "door"
+     ]
+    ]
+   }
+  },
+  {
+   "id": "elsie",
+   "name": "Elsie",
+   "role": "Housemaid",
+   "body": "female",
+   "blurb": "Dusts the study at half past eight.",
+   "schedule": [
+    [
+     "18:00",
+     "k_counter_s",
+     "work"
+    ],
+    [
+     "18:30",
+     "tW2",
+     "work"
+    ],
+    [
+     "19:00",
+     "tE3",
+     "work"
+    ],
+    [
+     "19:30",
+     "k_counter_s",
+     "work"
+    ],
+    [
+     "20:15",
+     "s_shelf",
+     "work",
+     "dusting"
+    ],
+    [
+     "20:40",
+     "k_counter_s",
+     "work"
+    ],
+    [
+     "21:55",
+     "p_table",
+     "work",
+     "tidy"
+    ],
+    [
+     "22:30",
+     "k_counter_s",
+     "work"
+    ],
+    [
+     "23:05",
+     "tE4",
+     "work"
+    ],
+    [
+     "23:35",
+     "k_counter_s",
+     "work"
+    ]
+   ]
+  }
+ ]
+}

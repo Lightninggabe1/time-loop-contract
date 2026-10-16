@@ -1,0 +1,370 @@
+{
+ "_doc": "Intel items + how they are noticed. 'observe' rules fire automatically when the player is within radius of an NPC whose current schedule tag matches (or looks at an anchor). The board fills itself.",
+ "intel": [
+  {
+   "id": "i.calloway",
+   "kind": "person",
+   "title": "Silas Calloway",
+   "text": "Banker. Smiles like a closing door. Somebody wants his ledger.",
+   "lead": 1,
+   "hint": "He's the man by the east tables in the white dinner jacket.",
+   "contract": "ledger",
+   "links": [
+    "i.ledger"
+   ]
+  },
+  {
+   "id": "i.ledger",
+   "kind": "secret",
+   "title": "The ledger",
+   "text": "Calloway's real books. He locks them in the study safe at 9:00 and takes them out again at 11:00.",
+   "lead": 2,
+   "requires": {
+    "intel": "i.calloway"
+   },
+   "hint": "Listen in when he and Lord Ashcombe talk by the study fire at 8:45.",
+   "contract": "ledger",
+   "links": [
+    "i.safe",
+    "i.combo"
+   ]
+  },
+  {
+   "id": "i.safe",
+   "kind": "place",
+   "title": "Wall safe",
+   "text": "Behind the sunset painting in the study. Five-digit dial.",
+   "lead": 3,
+   "requires": {
+    "intel": "i.ledger"
+   },
+   "hint": "Look behind the painting in the study.",
+   "contract": "ledger",
+   "links": [
+    "i.combo"
+   ]
+  },
+  {
+   "id": "i.combo",
+   "kind": "key",
+   "title": "Lucky numbers",
+   "text": "Calloway, three champagnes in: \"Ten, twenty-nine, twenty-nine. My lucky numbers.\" A banker's sense of humour.",
+   "lead": 4,
+   "requires": {
+    "intel": "i.ledger"
+   },
+   "hint": "At 7:30 he gets tipsy at the champagne tower. Stand close.",
+   "contract": "ledger"
+  },
+  {
+   "id": "i.passage",
+   "kind": "place",
+   "title": "Servants' passage",
+   "text": "A small door links the kitchen to the study. Staff use it when the study is locked.",
+   "lead": 5,
+   "hint": "Watch where Elsie the maid goes at 8:15.",
+   "links": [
+    "i.safe"
+   ]
+  },
+  {
+   "id": "i.key",
+   "kind": "key",
+   "title": "Hobbs's key",
+   "text": "The butler carries the study key. He naps in the kitchen from 8:00 to 8:30.",
+   "lead": 6,
+   "hint": "Find Hobbs in the kitchen around 8:00.",
+   "links": [
+    "i.passage"
+   ]
+  },
+  {
+   "id": "i.affair",
+   "kind": "secret",
+   "title": "A secret tryst",
+   "text": "Calloway and Mrs Pryce, holding hands on the balcony at 7:00. Mr Pryce would be fascinated.",
+   "lead": 7,
+   "requires": {
+    "intel": "i.calloway"
+   },
+   "hint": "Be on the balcony at 7:00.",
+   "contract": "ledger",
+   "links": [
+    "i.alone"
+   ]
+  },
+  {
+   "id": "i.alone",
+   "kind": "schedule",
+   "title": "Calloway's cigarette",
+   "text": "He smokes alone on the balcony at 10:00. Nobody to save his blushes.",
+   "lead": 8,
+   "requires": {
+    "intel": "i.calloway"
+   },
+   "hint": "Check the balcony at 10:00.",
+   "contract": "ledger"
+  },
+  {
+   "id": "i.fusebox",
+   "kind": "place",
+   "title": "Fuse box",
+   "text": "In the kitchen. Pull the main fuse and the whole wing goes dark for ten minutes.",
+   "lead": 9,
+   "hint": "It's on the kitchen's east wall, by the window."
+  },
+  {
+   "id": "i.dolly",
+   "kind": "person",
+   "title": "Dolly Vane",
+   "text": "The singer. Ten o'clock, one song. Lady Vivienne would rather she didn't.",
+   "lead": 10,
+   "hint": "She's the one in gold beads.",
+   "contract": "song",
+   "links": [
+    "i.hollywood",
+    "i.mic"
+   ]
+  },
+  {
+   "id": "i.hollywood",
+   "kind": "secret",
+   "title": "Hollywood dreams",
+   "text": "Dolly rehearses on the balcony at 6:00: \"One day a picture man will hear me...\"",
+   "lead": 11,
+   "requires": {
+    "intel": "i.dolly"
+   },
+   "hint": "Be on the balcony right at the start of the evening.",
+   "contract": "song",
+   "links": [
+    "i.scout"
+   ]
+  },
+  {
+   "id": "i.scout",
+   "kind": "secret",
+   "title": "The 'picture man'",
+   "text": "Rupert tells anyone who'll listen he's 'practically in pictures'. Dolly hasn't met him yet.",
+   "lead": 12,
+   "requires": {
+    "intel": "i.dolly"
+   },
+   "hint": "Rupert brags at the champagne tower around 8:00.",
+   "contract": "song"
+  },
+  {
+   "id": "i.mic",
+   "kind": "place",
+   "title": "One microphone",
+   "text": "The stage has a single microphone with a single cable. Fragile things, cables.",
+   "lead": 13,
+   "requires": {
+    "intel": "i.dolly"
+   },
+   "hint": "Have a look at the microphone on stage.",
+   "contract": "song"
+  },
+  {
+   "id": "i.ashcombe",
+   "kind": "person",
+   "title": "Lord Ashcombe",
+   "text": "The host. Toasts the New Year at five to midnight, whatever happens.",
+   "lead": 14,
+   "hint": "He gives a speech on stage at 8:30.",
+   "contract": "toast",
+   "links": [
+    "i.debts",
+    "i.rope"
+   ]
+  },
+  {
+   "id": "i.debts",
+   "kind": "secret",
+   "title": "Gambled away",
+   "text": "Ashcombe has lost the manor to Calloway at cards. He'll announce it in the toast. Vivienne has no idea.",
+   "lead": 15,
+   "requires": {
+    "intel": "i.ashcombe"
+   },
+   "hint": "Listen in by the study fire at 8:45.",
+   "contract": "toast",
+   "links": [
+    "i.calloway"
+   ]
+  },
+  {
+   "id": "i.drops",
+   "kind": "key",
+   "title": "Chef's tonic",
+   "text": "Marcel's 'souffl\u00e9 tonic' sends anyone to sleep. A bottle sits by the stove.",
+   "lead": 16,
+   "requires": {
+    "intel": "i.ashcombe"
+   },
+   "hint": "Marcel talks about it at the stove at 9:00.",
+   "contract": "toast",
+   "links": [
+    "i.jacket"
+   ]
+  },
+  {
+   "id": "i.jacket",
+   "kind": "key",
+   "title": "Spare waiter's jacket",
+   "text": "Hangs by the kitchen door. Nobody looks twice at a waiter.",
+   "lead": 17,
+   "requires": {
+    "intel": "i.ashcombe"
+   },
+   "hint": "Look by the kitchen door.",
+   "contract": "toast"
+  },
+  {
+   "id": "i.rope",
+   "kind": "place",
+   "title": "Chandelier rope",
+   "text": "Behind the stage curtain, one rope holds the chandelier over the stage steps. Somebody should check that knot.",
+   "lead": 18,
+   "requires": {
+    "intel": "i.ashcombe"
+   },
+   "hint": "Look behind the right-hand stage curtain.",
+   "contract": "toast"
+  }
+ ],
+ "observe": [
+  {
+   "intel": "i.calloway",
+   "npc": "calloway",
+   "radius": 6,
+   "line": "Money never sleeps. Neither do I, apparently."
+  },
+  {
+   "intel": "i.ledger",
+   "npc": "calloway",
+   "tag": "deal",
+   "radius": 6,
+   "line": "It's all in my ledger, Edmund. Safe at nine, and nobody the wiser."
+  },
+  {
+   "intel": "i.debts",
+   "npc": "ashcombe",
+   "tag": "deal",
+   "radius": 6,
+   "line": "Vivienne mustn't know I've lost the house. I'll tell them all at midnight."
+  },
+  {
+   "intel": "i.combo",
+   "npc": "calloway",
+   "tag": "tipsy",
+   "radius": 3.5,
+   "line": "Ten... twenty-nine... twenty-nine! Lucky numbers. Hic."
+  },
+  {
+   "intel": "i.affair",
+   "npc": "calloway",
+   "tag": "tryst",
+   "radius": 6,
+   "line": "Penelope, darling, nobody can see us out here."
+  },
+  {
+   "intel": "i.alone",
+   "npc": "calloway",
+   "tag": "alone",
+   "radius": 8,
+   "line": "Finally. Peace and a cigarette."
+  },
+  {
+   "intel": "i.passage",
+   "npc": "elsie",
+   "tag": "dusting",
+   "radius": 7,
+   "line": "Through the little door, dust the books, out before His Lordship."
+  },
+  {
+   "intel": "i.key",
+   "npc": "hobbs",
+   "tag": "nap",
+   "radius": 4,
+   "line": "Zzz... key's safe... in my pocket... zzz."
+  },
+  {
+   "intel": "i.dolly",
+   "npc": "dolly",
+   "radius": 6,
+   "line": "Ten o'clock, darling. Don't be late."
+  },
+  {
+   "intel": "i.hollywood",
+   "npc": "dolly",
+   "tag": "rehearse",
+   "radius": 7,
+   "line": "One day a picture man will hear me, and it's goodbye to all this."
+  },
+  {
+   "intel": "i.scout",
+   "npc": "rupert",
+   "tag": "brag",
+   "radius": 5,
+   "line": "Pictures, old boy. I'm practically in pictures."
+  },
+  {
+   "intel": "i.ashcombe",
+   "npc": "ashcombe",
+   "radius": 6,
+   "line": "Welcome, welcome! Stay for the toast at five to midnight."
+  },
+  {
+   "intel": "i.ashcombe",
+   "npc": "ashcombe",
+   "tag": "speech",
+   "radius": 14,
+   "line": "Friends! At five to midnight I shall raise a glass, and an announcement."
+  },
+  {
+   "intel": "i.drops",
+   "npc": "marcel",
+   "tag": "flambe",
+   "radius": 6,
+   "line": "Three drops of tonic in the souffl\u00e9 and the critics sleep like babies. Voil\u00e0!"
+  }
+ ],
+ "look": [
+  {
+   "intel": "i.safe",
+   "anchor": "safe",
+   "radius": 2.5
+  },
+  {
+   "intel": "i.fusebox",
+   "anchor": "fusebox",
+   "radius": 3
+  },
+  {
+   "intel": "i.mic",
+   "anchor": "microphone",
+   "radius": 3
+  },
+  {
+   "intel": "i.rope",
+   "anchor": "rope",
+   "radius": 3
+  },
+  {
+   "intel": "i.jacket",
+   "anchor": "jacket",
+   "radius": 3
+  },
+  {
+   "intel": "i.drops",
+   "anchor": "stove",
+   "radius": 2.5
+  },
+  {
+   "intel": "i.passage",
+   "anchor": "door.passage",
+   "radius": 2.5
+  }
+ ]
+}

@@ -50,24 +50,23 @@ describe("schedules are a pure function of time", () => {
       expect(evalSchedule(npc, m, spots)).toEqual(evalSchedule(npc, m, spots));
     }
   });
-  it("walks between spots and arrives", () => {
-    const start = evalSchedule(npc, 1140, spots);
-    expect(start.moving).toBe(true);
-    expect(start.pos[0]).toBeCloseTo(0, 3);
-    const mid = evalSchedule(npc, 1142, spots);
-    expect(mid.pos[0]).toBeGreaterThan(0);
-    expect(mid.pos[0]).toBeLessThan(10);
-    const there = evalSchedule(npc, 1170, spots);
+  it("schedule times are arrivals: walks beforehand and is there on time", () => {
+    const there = evalSchedule(npc, 1140, spots);
     expect(there).toMatchObject({ pos: [10, 0, 0], act: "smoke", tag: "alone", moving: false });
+    const before = evalSchedule(npc, 1137, spots);
+    expect(before.moving).toBe(true);
+    expect(before.pos[0]).toBeGreaterThan(0);
+    expect(before.pos[0]).toBeLessThan(10);
+    expect(evalSchedule(npc, 1120, spots)).toMatchObject({ pos: [0, 0, 0], act: "drink" });
   });
   it("follows waypoints", () => {
-    // 20:00 leaves door via mid; after ~4.7 m it reaches mid
     let sawMid = false;
-    for (let m = 1200; m < 1215; m += 0.1) {
+    for (let m = 1185; m < 1200; m += 0.05) {
       const p = evalSchedule(npc, m, spots).pos;
       if (Math.abs(p[0] - 5) < 0.2 && Math.abs(p[2] - 5) < 0.2) sawMid = true;
     }
     expect(sawMid).toBe(true);
+    expect(evalSchedule(npc, 1200, spots).pos).toEqual([0, 0, 0]);
   });
 });
 

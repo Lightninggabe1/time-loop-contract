@@ -1,0 +1,79 @@
+{
+  "contracts": [
+    {
+      "id": "ledger", "title": "The Ledger", "client": "A nervous shareholder", "target": "calloway", "reward": 6,
+      "brief": "Get Silas Calloway's ledger before midnight. How is your business.",
+      "approaches": [
+        { "id": "quiet", "kind": "quiet", "title": "Crack the safe",
+          "steps": [ { "text": "Learn the combination", "done": { "intel": "i.combo" } },
+                     { "text": "Get into the study", "done": { "flag": "visited.study" } },
+                     { "text": "Open the safe after 9:00", "done": { "flag": "c1.quiet" } } ],
+          "complete": { "flag": "c1.quiet" } },
+        { "id": "social", "kind": "social", "title": "A word about Mrs Pryce",
+          "steps": [ { "text": "Discover his secret", "done": { "intel": "i.affair" } },
+                     { "text": "Catch him alone at 10:00", "done": { "flag": "blackmail.calloway" } },
+                     { "text": "Collect from the safe", "done": { "flag": "c1.social" } } ],
+          "complete": { "flag": "c1.social" } },
+        { "id": "loud", "kind": "loud", "title": "Take it off him",
+          "steps": [ { "text": "Wait until he takes it out (11:00)", "done": { "after": "23:05" } },
+                     { "text": "Knock him flat", "done": { "flag": "c1.loud" } } ],
+          "complete": { "flag": "c1.loud" } },
+        { "id": "chaos", "kind": "chaos", "title": "Lights out",
+          "steps": [ { "text": "Find the fuse box", "done": { "intel": "i.fusebox" } },
+                     { "text": "Cut the power while he's at the safe (11:00)", "done": { "flag": "ledger.dropped" } },
+                     { "text": "Grab it in the dark", "done": { "flag": "c1.chaos" } } ],
+          "complete": { "flag": "c1.chaos" } }
+      ]
+    },
+    {
+      "id": "song", "title": "The Last Song", "client": "Lady Vivienne (discreetly)", "target": "dolly", "reward": 5,
+      "brief": "Miss Vane must not sing at ten. Nobody gets hurt, darling.",
+      "approaches": [
+        { "id": "quiet", "kind": "quiet", "title": "Dead microphone",
+          "steps": [ { "text": "Find the microphone", "done": { "intel": "i.mic" } },
+                     { "text": "Cut the cable before 10:00", "done": { "flag": "mic.cut" } },
+                     { "text": "Let her try", "done": { "flag": "c2.quiet" } } ],
+          "complete": { "flag": "c2.quiet" } },
+        { "id": "social", "kind": "social", "title": "A picture man",
+          "steps": [ { "text": "Learn her dream", "done": { "intel": "i.hollywood" } },
+                     { "text": "Learn who the 'picture man' is", "done": { "intel": "i.scout" } },
+                     { "text": "Send her to the balcony (9:20–9:58)", "done": { "flag": "dolly.lured" } } ],
+          "complete": { "flag": "c2.social" } },
+        { "id": "loud", "kind": "loud", "title": "Start a brawl",
+          "steps": [ { "text": "Throw a punch in the ballroom (9:30–10:00)", "done": { "flag": "brawl" } } ],
+          "complete": { "flag": "c2.loud" } },
+        { "id": "chaos", "kind": "chaos", "title": "Blackout",
+          "steps": [ { "text": "Find the fuse box", "done": { "intel": "i.fusebox" } },
+                     { "text": "Cut the power as she starts (9:58–10:05)", "done": { "flag": "c2.chaos" } } ],
+          "complete": { "flag": "c2.chaos" } }
+      ]
+    },
+    {
+      "id": "toast", "title": "The Midnight Toast", "client": "An unsigned telegram", "target": "ashcombe", "reward": 8,
+      "brief": "Lord Ashcombe must not give his toast at five to midnight.",
+      "approaches": [
+        { "id": "quiet", "kind": "quiet", "title": "A special vintage",
+          "steps": [ { "text": "Find the chef's tonic", "done": { "flag": "has.drops" } },
+                     { "text": "Dress as a waiter", "done": { "flag": "has.jacket" } },
+                     { "text": "Serve him at the tower (11:42)", "done": { "flag": "c3.quiet" } } ],
+          "complete": { "flag": "c3.quiet" } },
+        { "id": "social", "kind": "social", "title": "Tell Vivienne",
+          "steps": [ { "text": "Learn what he's hiding", "done": { "intel": "i.debts" } },
+                     { "text": "Tell Lady Vivienne (after 11:00)", "done": { "flag": "c3.social" } } ],
+          "complete": { "flag": "c3.social" } },
+        { "id": "loud", "kind": "loud", "title": "Lights out, Your Lordship",
+          "steps": [ { "text": "Find him alone (10:30 balcony)", "done": { "flag": "seen.ashcombe.alone" } },
+                     { "text": "Knock him out before the toast", "done": { "flag": "c3.loud" } } ],
+          "complete": { "flag": "c3.loud" } },
+        { "id": "chaos", "kind": "chaos", "title": "Drop the chandelier",
+          "steps": [ { "text": "Find the chandelier rope", "done": { "intel": "i.rope" } },
+                     { "text": "Untie it during the toast", "done": { "flag": "c3.chaos" } } ],
+          "complete": { "flag": "c3.chaos" } }
+      ]
+    }
+  ],
+  "perks": [
+    { "id": "quickfeet", "title": "Quick Feet", "text": "You've run this route before. Sprint 25% faster.", "cost": 3, "mods": { "sprint": 0.25 } },
+    { "id": "sparekey", "title": "Butler's Spare Key", "text": "Start every evening with a copy of the study key.", "cost": 5, "startFlags": { "has.key": true } }
+  ]
+}

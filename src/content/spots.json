@@ -1,0 +1,745 @@
+{
+ "_doc": "Named places NPC schedules walk between. pos = feet [x,y,z] in world metres, yaw in degrees (0 = facing +z / north).",
+ "spots": {
+  "b_door_s": {
+   "pos": [
+    0,
+    0,
+    -13.4
+   ],
+   "yaw": 0
+  },
+  "b_greet": {
+   "pos": [
+    1.4,
+    0,
+    -12.2
+   ],
+   "yaw": -40
+  },
+  "b_greet2": {
+   "pos": [
+    -1.4,
+    0,
+    -12.2
+   ],
+   "yaw": 40
+  },
+  "b_center": {
+   "pos": [
+    0,
+    0,
+    0
+   ],
+   "yaw": 0
+  },
+  "b_center2": {
+   "pos": [
+    1.0,
+    0,
+    1.0
+   ],
+   "yaw": -135
+  },
+  "b_center3": {
+   "pos": [
+    -1.0,
+    0,
+    1.2
+   ],
+   "yaw": 135
+  },
+  "b_aisle_wn": {
+   "pos": [
+    -4.6,
+    0,
+    10.6
+   ]
+  },
+  "b_aisle_w0": {
+   "pos": [
+    -4.6,
+    0,
+    0
+   ]
+  },
+  "b_aisle_ws": {
+   "pos": [
+    -4.6,
+    0,
+    -11.6
+   ]
+  },
+  "b_aisle_en": {
+   "pos": [
+    4.6,
+    0,
+    10.6
+   ]
+  },
+  "b_aisle_e0": {
+   "pos": [
+    4.6,
+    0,
+    0
+   ]
+  },
+  "b_aisle_es": {
+   "pos": [
+    4.6,
+    0,
+    -11.6
+   ]
+  },
+  "tW1": {
+   "pos": [
+    -5.45,
+    0,
+    -9
+   ],
+   "yaw": -90
+  },
+  "tW2": {
+   "pos": [
+    -5.45,
+    0,
+    -4
+   ],
+   "yaw": -90
+  },
+  "tW3": {
+   "pos": [
+    -5.45,
+    0,
+    1
+   ],
+   "yaw": -90
+  },
+  "tW4": {
+   "pos": [
+    -5.45,
+    0,
+    6
+   ],
+   "yaw": -90
+  },
+  "tE1": {
+   "pos": [
+    5.45,
+    0,
+    -9
+   ],
+   "yaw": 90
+  },
+  "tE2": {
+   "pos": [
+    5.45,
+    0,
+    -4
+   ],
+   "yaw": 90
+  },
+  "tE3": {
+   "pos": [
+    5.45,
+    0,
+    1
+   ],
+   "yaw": 90
+  },
+  "tE4": {
+   "pos": [
+    5.45,
+    0,
+    6
+   ],
+   "yaw": 90
+  },
+  "d1": {
+   "pos": [
+    -1.2,
+    0,
+    -3.0
+   ],
+   "yaw": 60
+  },
+  "d2": {
+   "pos": [
+    -0.4,
+    0,
+    -2.5
+   ],
+   "yaw": -120
+  },
+  "d3": {
+   "pos": [
+    1.6,
+    0,
+    3.4
+   ],
+   "yaw": 200
+  },
+  "d4": {
+   "pos": [
+    1.0,
+    0,
+    2.6
+   ],
+   "yaw": 20
+  },
+  "tower": {
+   "pos": [
+    0,
+    0,
+    8.2
+   ],
+   "yaw": 0
+  },
+  "tower2": {
+   "pos": [
+    -1.1,
+    0,
+    8.8
+   ],
+   "yaw": 60
+  },
+  "tower3": {
+   "pos": [
+    1.1,
+    0,
+    8.8
+   ],
+   "yaw": -60
+  },
+  "stage_foot": {
+   "pos": [
+    0,
+    0,
+    9.0
+   ],
+   "yaw": 0
+  },
+  "stage_up": {
+   "pos": [
+    0,
+    0.9,
+    10.7
+   ],
+   "yaw": 180
+  },
+  "mic": {
+   "pos": [
+    0,
+    0.9,
+    11.5
+   ],
+   "yaw": 180
+  },
+  "stage_wing": {
+   "pos": [
+    -4.8,
+    0.9,
+    12.6
+   ],
+   "yaw": 150
+  },
+  "curtain_rope": {
+   "pos": [
+    5.4,
+    0.9,
+    13.6
+   ],
+   "yaw": 0
+  },
+  "bw_win2": {
+   "pos": [
+    -8.7,
+    0,
+    4.4
+   ],
+   "yaw": -90
+  },
+  "bw_win4": {
+   "pos": [
+    -8.7,
+    0,
+    -4.4
+   ],
+   "yaw": -90
+  },
+  "be_mirror": {
+   "pos": [
+    8.6,
+    0,
+    -4.4
+   ],
+   "yaw": 90
+  },
+  "sofa_w": {
+   "pos": [
+    -8.3,
+    0,
+    -12.6
+   ],
+   "yaw": 90
+  },
+  "sofa_e": {
+   "pos": [
+    8.3,
+    0,
+    -12.6
+   ],
+   "yaw": -90
+  },
+  "b_study_door": {
+   "pos": [
+    8.6,
+    0,
+    0
+   ],
+   "yaw": 90
+  },
+  "b_kitchen_door": {
+   "pos": [
+    8.7,
+    0,
+    13.25
+   ],
+   "yaw": 90
+  },
+  "b_balcony_door": {
+   "pos": [
+    -8.6,
+    0,
+    0
+   ],
+   "yaw": -90
+  },
+  "s_door_in": {
+   "pos": [
+    11.7,
+    0,
+    0
+   ],
+   "yaw": 90
+  },
+  "s_desk": {
+   "pos": [
+    18.4,
+    0,
+    0
+   ],
+   "yaw": -90
+  },
+  "s_desk_front": {
+   "pos": [
+    16.0,
+    0,
+    0
+   ],
+   "yaw": 90
+  },
+  "s_safe": {
+   "pos": [
+    19.75,
+    0,
+    0.0
+   ],
+   "yaw": 90
+  },
+  "s_fire": {
+   "pos": [
+    15.9,
+    0,
+    4.4
+   ],
+   "yaw": 0
+  },
+  "s_fire2": {
+   "pos": [
+    14.9,
+    0,
+    4.0
+   ],
+   "yaw": 30
+  },
+  "s_shelf": {
+   "pos": [
+    12.0,
+    0,
+    -4.8
+   ],
+   "yaw": 180
+  },
+  "s_mid": {
+   "pos": [
+    14.0,
+    0,
+    0
+   ],
+   "yaw": 90
+  },
+  "s_passage": {
+   "pos": [
+    18.7,
+    0,
+    5.0
+   ],
+   "yaw": 0
+  },
+  "k_door_in": {
+   "pos": [
+    11.8,
+    0,
+    13.25
+   ],
+   "yaw": 90
+  },
+  "k_mid": {
+   "pos": [
+    12.6,
+    0,
+    12.6
+   ]
+  },
+  "k_stove": {
+   "pos": [
+    18.5,
+    0,
+    14.0
+   ],
+   "yaw": 0
+  },
+  "k_island_w": {
+   "pos": [
+    13.3,
+    0,
+    12.0
+   ],
+   "yaw": 180
+  },
+  "k_island_e": {
+   "pos": [
+    17.6,
+    0,
+    12.0
+   ],
+   "yaw": 180
+  },
+  "k_cake": {
+   "pos": [
+    15.5,
+    0,
+    12.0
+   ],
+   "yaw": 180
+  },
+  "k_counter_s": {
+   "pos": [
+    13.4,
+    0,
+    7.4
+   ],
+   "yaw": 180
+  },
+  "k_fuse": {
+   "pos": [
+    19.75,
+    0,
+    13.4
+   ],
+   "yaw": 90
+  },
+  "k_passage": {
+   "pos": [
+    18.7,
+    0,
+    7.5
+   ],
+   "yaw": 180
+  },
+  "k_corner": {
+   "pos": [
+    19.6,
+    0,
+    9.2
+   ],
+   "yaw": 120
+  },
+  "p_door_out": {
+   "pos": [
+    -11.4,
+    0,
+    0
+   ],
+   "yaw": -90
+  },
+  "p_rail": {
+   "pos": [
+    -15.2,
+    0,
+    0.6
+   ],
+   "yaw": -90
+  },
+  "p_rail_n": {
+   "pos": [
+    -15.2,
+    0,
+    4.2
+   ],
+   "yaw": -60
+  },
+  "p_table": {
+   "pos": [
+    -13.0,
+    0,
+    2.0
+   ],
+   "yaw": -120
+  },
+  "p_table2": {
+   "pos": [
+    -14.3,
+    0,
+    3.2
+   ],
+   "yaw": 60
+  },
+  "p_corner_s": {
+   "pos": [
+    -15.0,
+    0,
+    -4.8
+   ],
+   "yaw": -130
+  },
+  "p_fireworks": {
+   "pos": [
+    -14.4,
+    0,
+    -2.0
+   ],
+   "yaw": -90
+  }
+ },
+ "hubs": {
+  "ballroom": [
+   "b_aisle_wn",
+   "b_aisle_w0",
+   "b_aisle_ws",
+   "b_aisle_en",
+   "b_aisle_e0",
+   "b_aisle_es",
+   "b_center",
+   "stage_foot"
+  ],
+  "study": [
+   "s_door_in",
+   "s_mid"
+  ],
+  "kitchen": [
+   "k_door_in",
+   "k_mid"
+  ],
+  "balcony": [
+   "p_door_out"
+  ]
+ },
+ "links": [
+  [
+   "b_aisle_wn",
+   "b_aisle_w0"
+  ],
+  [
+   "b_aisle_w0",
+   "b_aisle_ws"
+  ],
+  [
+   "b_aisle_en",
+   "b_aisle_e0"
+  ],
+  [
+   "b_aisle_e0",
+   "b_aisle_es"
+  ],
+  [
+   "b_aisle_w0",
+   "b_center"
+  ],
+  [
+   "b_aisle_e0",
+   "b_center"
+  ],
+  [
+   "b_center",
+   "stage_foot"
+  ],
+  [
+   "b_aisle_wn",
+   "stage_foot"
+  ],
+  [
+   "b_aisle_en",
+   "stage_foot"
+  ],
+  [
+   "b_aisle_ws",
+   "b_door_s"
+  ],
+  [
+   "b_aisle_es",
+   "b_door_s"
+  ],
+  [
+   "b_center",
+   "b_door_s"
+  ],
+  [
+   "b_aisle_e0",
+   "b_study_door"
+  ],
+  [
+   "b_study_door",
+   "s_door_in"
+  ],
+  [
+   "b_aisle_en",
+   "b_kitchen_door"
+  ],
+  [
+   "b_kitchen_door",
+   "k_door_in"
+  ],
+  [
+   "b_aisle_w0",
+   "b_balcony_door"
+  ],
+  [
+   "b_balcony_door",
+   "p_door_out"
+  ],
+  [
+   "stage_foot",
+   "stage_up"
+  ],
+  [
+   "stage_up",
+   "mic"
+  ],
+  [
+   "stage_up",
+   "stage_wing"
+  ],
+  [
+   "stage_up",
+   "curtain_rope"
+  ],
+  [
+   "s_door_in",
+   "s_mid"
+  ],
+  [
+   "s_passage",
+   "k_passage"
+  ],
+  [
+   "k_door_in",
+   "k_mid"
+  ],
+  [
+   "s_passage",
+   "s_mid"
+  ],
+  [
+   "k_passage",
+   "k_mid"
+  ]
+ ],
+ "rooms": {
+  "ballroom": [
+   -10,
+   -15,
+   10,
+   15
+  ],
+  "study": [
+   10.5,
+   -6,
+   20.5,
+   6
+  ],
+  "kitchen": [
+   10.5,
+   6.5,
+   20.5,
+   15
+  ],
+  "balcony": [
+   -16,
+   -6,
+   -10.5,
+   6
+  ]
+ },
+ "anchors": {
+  "safe": [
+   20.4,
+   3.15,
+   0.0
+  ],
+  "fusebox": [
+   20.1,
+   1.7,
+   13.4
+  ],
+  "microphone": [
+   0,
+   2.2,
+   11.6
+  ],
+  "stove": [
+   18.5,
+   1.0,
+   14.05
+  ],
+  "rope": [
+   5.6,
+   1.8,
+   13.9
+  ],
+  "jacket": [
+   11.0,
+   1.5,
+   11.6
+  ],
+  "door.study": [
+   9.7,
+   1.2,
+   0.0
+  ],
+  "door.kitchen": [
+   9.7,
+   1.2,
+   13.25
+  ],
+  "door.balcony": [
+   -9.7,
+   1.2,
+   0.0
+  ],
+  "door.passage": [
+   18.7,
+   1.2,
+   5.7
+  ]
+ },
+ "spawn": {
+  "pos": [
+   0,
+   0,
+   -12.5
+  ],
+  "yaw": 0
+ }
+}

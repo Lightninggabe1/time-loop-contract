@@ -1,7 +1,7 @@
 // Loop manager: starts/ends loops, carries memory (intel, perks, points)
 // across resets through a storage adapter.
 import { World, EventDef } from "./world";
-import { NpcDef, Spot } from "./schedule";
+import { NpcDef, Spot, Router } from "./schedule";
 import { ContractDef, contractStatus } from "./contracts";
 import { FlagValue } from "./conditions";
 import { Storage } from "./storage";
@@ -70,6 +70,7 @@ export interface Content {
   events: EventDef[];
   contracts: ContractDef[];
   perks: PerkDef[];
+  router?: Router;
 }
 
 export class LoopManager {
@@ -89,7 +90,7 @@ export class LoopManager {
     const startFlags: Record<string, FlagValue> = { "loop.first": this.meta.loop === 1, "loop.n": this.meta.loop };
     for (const id of this.meta.perks) Object.assign(startFlags, this.perk(id)?.startFlags);
     for (const [c, a] of Object.entries(this.meta.completed)) startFlags[`remember.${c}.${a}`] = true;
-    this.world = new World(this.content.npcs, this.content.spots, this.content.events, this.meta.intel, startFlags);
+    this.world = new World(this.content.npcs, this.content.spots, this.content.events, this.meta.intel, startFlags, this.content.router);
     this.world.advance(this.world.minute); // fire 18:00 events
     this.persist();
     return this.world;

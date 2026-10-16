@@ -1,8 +1,8 @@
 // One loop's mutable state + the event system. Everything that changes during
 // a loop lives here, so a reset is just "make a new World".
 import { Cond, CondCtx, FlagValue, test } from "./conditions";
-import { NpcDef, NpcPose, Spot, evalSchedule, Vec3 } from "./schedule";
-import { LOOP_START } from "./clock";
+import { NpcDef, NpcPose, Spot, evalSchedule, Vec3, Router, WALK_SPEED } from "./schedule";
+import { LOOP_START, RATE } from "./clock";
 
 export type Awareness = "calm" | "suspicious" | "alarmed";
 
@@ -12,10 +12,14 @@ export interface NpcOverride {
   until?: number; // game minute it wears off (absent = rest of loop)
   pos?: Vec3; // where they are held (ko, distracted, detained)
   yaw?: number;
+  /** walk to this spot (from where they were when the override began) */
+  goto?: string;
+  from?: Vec3;
+  at?: number;
 }
 
 export type Action =
-  | { set: string; value?: FlagValue }
+  | { set: string; value?: FlagValue; for?: number }
   | { add: string; by: number }
   | { learn: string } // discover an intel item
   | { npc: string; override: NpcOverride | null }
@@ -39,6 +43,7 @@ export class World {
   readonly overrides: Record<string, NpcOverride> = {};
   readonly awareness: Record<string, Awareness> = {};
   private fired = new Set<string>();
+  private expiry = new Map<string, number>();
   private outbox: Output[] = [];
 
   constructor(
@@ -47,6 +52,7 @@ export class World {
     readonly events: EventDef[],
     remembered: Iterable<string> = [],
     startFlags: Record<string, FlagValue> = {},
+    readonly router?: Router,
   ) {
     for (const i of remembered) this.intel.add(i);
     Object.assign(this.flags, startFlags);
@@ -66,6 +72,12 @@ export class World {
     this.minute = Math.max(this.minute, toMinute);
     for (const [id, o] of Object.entries(this.overrides)) {
       if (o.until !== undefined && this.minute >= o.until) delete this.overrides[id];
+    }
+    for (const [k, t] of this.expiry) {
+      if (this.minute >= t) {
+        this.flags[k] = false;
+        this.expiry.delete(k);
+      }
     }
     this.runEvents();
   }
@@ -93,12 +105,23 @@ export class World {
   }
 
   private exec(a: Action) {
-    if ("set" in a) this.flags[a.set] = a.value ?? true;
+    if ("set" in a) {
+      this.flags[a.set] = a.value ?? true;
+      if (a.for) this.expiry.set(a.set, this.minute + a.for);
+    }
     else if ("add" in a) this.flags[a.add] = ((this.flags[a.add] as number) || 0) + a.by;
     else if ("learn" in a) this.learn(a.learn);
     else if ("npc" in a) {
-      if (a.override) this.overrides[a.npc] = { ...a.override };
-      else delete this.overrides[a.npc];
+      if (a.override) {
+        const o: NpcOverride = { ...a.override };
+        if (o.goto) {
+          o.from = [...this.npcPose(a.npc).pos];
+          o.at = this.minute;
+        }
+        if (o.state === "ko" && !o.pos) o.pos = [...this.npcPose(a.npc).pos];
+        if (o.state === "ko") this.flags[`ko.${a.npc}`] = true;
+        this.overrides[a.npc] = o;
+      } else delete this.overrides[a.npc];
     } else if ("say" in a) this.outbox.push({ kind: "say", npc: a.say, line: a.line });
     else if ("toast" in a) this.outbox.push({ kind: "toast", text: a.toast });
   }
@@ -121,10 +144,33 @@ export class World {
   npcPose(id: string): NpcPose & { override?: NpcOverride } {
     const def = this.npcs.find((n) => n.id === id);
     if (!def) throw new Error(`Unknown npc ${id}`);
-    const pose = evalSchedule(def, this.minute, this.spots);
+    const pose = evalSchedule(def, this.minute, this.spots, this.router);
     const o = this.overrides[id];
     if (!o) return pose;
+    if (o.goto && o.from && o.at !== undefined) return { ...this.walkTo(o.from, o.goto, this.minute - o.at, pose), override: o };
     if (o.pos) return { ...pose, pos: [...o.pos], yaw: o.yaw ?? pose.yaw, moving: false, act: "idle", override: o };
     return { ...pose, override: o };
+  }
+
+  /** Deterministic off-schedule walk: from a point, via the waypoint graph, to a spot. */
+  private walkTo(from: Vec3, spotId: string, elapsed: number, base: NpcPose): NpcPose {
+    const target = this.spots[spotId];
+    const near = Object.entries(this.spots).reduce((b, [k, s]) => {
+      const d = Math.hypot(s.pos[0] - from[0], s.pos[2] - from[2]);
+      return d < b.d ? { k, d } : b;
+    }, { k: spotId, d: Infinity }).k;
+    const ids = this.router ? this.router.route(near, spotId) : [spotId];
+    const pts: Vec3[] = [from, ...ids.map((k) => this.spots[k].pos)];
+    let d = (elapsed / RATE) * WALK_SPEED; // game minutes → real seconds → metres
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i];
+      const seg = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+      if (d <= seg && seg > 1e-6) {
+        const t = d / seg;
+        return { ...base, pos: [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t], yaw: Math.atan2(b[0] - a[0], b[2] - a[2]), act: "walk", moving: true, spot: spotId };
+      }
+      d -= seg;
+    }
+    return { ...base, pos: [...target.pos], yaw: ((target.yaw ?? 0) * Math.PI) / 180, act: "talk", moving: false, spot: spotId };
   }
 }

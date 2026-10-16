@@ -1,0 +1,68 @@
+{
+  "_doc": "Context actions (E). target: npc | anchor. npcTag: only while that NPC's schedule tag matches. when: must hold to show; requires: must hold to succeed (else 'denied' toast). crime: witnesses within sight become alarmed. Actions: set (+for minutes), learn, npc override (state, until, goto spot), say, toast.",
+  "interactions": [
+    { "id": "hobbs.key", "label": "Lift the study key", "target": { "npc": "hobbs" }, "npcTag": ["nap"], "when": { "not": { "flag": "has.key" } }, "crime": true,
+      "do": [{ "set": "has.key" }, { "learn": "i.key" }, { "toast": "One study key, gently borrowed." }] },
+
+    { "id": "study.unlock", "label": "Unlock the study", "target": { "anchor": "door.study" }, "when": { "flag": "door.study.locked" },
+      "requires": { "flag": "has.key" }, "denied": "Locked. Hobbs has the key. Or there's always the servants' door...",
+      "do": [{ "set": "door.study.locked", "value": false }, { "set": "door.study.open" }, { "set": "door.study.player" }] },
+
+    { "id": "safe.open", "label": "Dial the safe", "target": { "anchor": "safe" }, "when": { "all": [{ "not": { "flag": "has.ledger" } }, { "not": { "flag": "safe.opened" } }] }, "crime": true,
+      "requires": { "any": [{ "intel": "i.combo" }, { "flag": "combo.given" }] }, "denied": "Five digits. Your lucky numbers aren't his.",
+      "do": [{ "set": "safe.opened" }, { "learn": "i.safe" }] },
+    { "id": "safe.take", "label": "Take the ledger", "target": { "anchor": "safe" }, "when": { "all": [{ "flag": "safe.opened" }, { "flag": "ledger.inSafe" }] }, "crime": true,
+      "do": [{ "set": "has.ledger" }, { "set": "ledger.inSafe", "value": false }, { "set": "ledger.taken.safe" }, { "toast": "One ledger, slightly incriminating." }] },
+    { "id": "safe.empty", "label": "Look in the safe", "target": { "anchor": "safe" }, "when": { "all": [{ "flag": "safe.opened" }, { "not": { "flag": "ledger.inSafe" } }, { "not": { "flag": "has.ledger" } }] },
+      "do": [{ "toast": "Empty. He puts the ledger in at 9:00." }] },
+
+    { "id": "calloway.blackmail", "label": "Mention Mrs Pryce", "target": { "npc": "calloway" }, "npcTag": ["alone"], "when": { "all": [{ "intel": "i.affair" }, { "not": { "flag": "blackmail.calloway" } }] },
+      "do": [{ "say": "calloway", "line": "...How much do you want? Fine. Safe's in the study: ten, twenty-nine, twenty-nine. Now go away." },
+             { "set": "blackmail.calloway" }, { "set": "combo.given" }, { "learn": "i.combo" }] },
+    { "id": "calloway.rob", "label": "Knock him flat (and take the ledger)", "target": { "npc": "calloway" }, "when": { "all": [{ "flag": "ledger.carried" }, { "not": { "flag": "has.ledger" } }] }, "crime": true, "gesture": "punch",
+      "do": [{ "npc": "calloway", "override": { "state": "ko", "until": 1440 } }, { "set": "has.ledger" }, { "set": "c1.loud" }, { "set": "ledger.carried", "value": false },
+             { "say": "calloway", "line": "Oof! My... my ledger..." }] },
+    { "id": "ledger.grab", "label": "Grab the ledger in the dark", "target": { "npc": "calloway" }, "when": { "all": [{ "flag": "ledger.dropped" }, { "not": { "flag": "has.ledger" } }] },
+      "do": [{ "set": "has.ledger" }, { "set": "c1.chaos" }, { "set": "ledger.dropped", "value": false }, { "toast": "Finders keepers. Especially in the dark." }] },
+
+    { "id": "fuse.pull", "label": "Pull the main fuse", "target": { "anchor": "fusebox" }, "when": { "not": { "flag": "lights.out" } }, "crime": true,
+      "do": [{ "set": "lights.out", "for": 10 }, { "learn": "i.fusebox" }, { "toast": "Click. Somewhere, a hundred guests say \"Oh!\"" }] },
+
+    { "id": "mic.cut", "label": "Snip the microphone cable", "target": { "anchor": "microphone" }, "when": { "all": [{ "before": "22:00" }, { "not": { "flag": "mic.cut" } }] }, "crime": true,
+      "do": [{ "set": "mic.cut" }, { "learn": "i.mic" }, { "toast": "Snip. The microphone is now a decorative object." }] },
+
+    { "id": "dolly.lure", "label": "\"A picture man is waiting on the balcony\"", "target": { "npc": "dolly" }, "when": { "all": [{ "intel": "i.hollywood" }, { "intel": "i.scout" }, { "after": "21:20" }, { "before": "21:58" }, { "not": { "flag": "dolly.lured" } }] },
+      "do": [{ "say": "dolly", "line": "A picture man? Here? Out of my way, sugar!" }, { "set": "dolly.lured" },
+             { "npc": "dolly", "override": { "state": "distracted", "goto": "p_rail", "until": 1335 } },
+             { "npc": "rupert", "override": { "state": "distracted", "goto": "p_rail_n", "until": 1335 } }] },
+
+    { "id": "jacket.take", "label": "Put on the waiter's jacket", "target": { "anchor": "jacket" }, "when": { "not": { "flag": "has.jacket" } },
+      "do": [{ "set": "has.jacket" }, { "learn": "i.jacket" }, { "toast": "Disguised as a waiter. Try to look busy." }] },
+    { "id": "drops.take", "label": "Pocket the soufflé tonic", "target": { "anchor": "stove" }, "when": { "not": { "flag": "has.drops" } }, "crime": true,
+      "do": [{ "set": "has.drops" }, { "learn": "i.drops" }, { "toast": "A small brown bottle labelled \"SOUFFLÉ\". Hm." }] },
+    { "id": "ashcombe.serve", "label": "Serve His Lordship a glass", "target": { "npc": "ashcombe" }, "npcTag": ["glass", "toast"], "when": { "all": [{ "flag": "has.drops" }, { "not": { "flag": "c3.quiet" } }] },
+      "requires": { "flag": "has.jacket" }, "denied": "\"I don't take drinks from guests, old chap.\" Perhaps if you were staff...",
+      "do": [{ "say": "ashcombe", "line": "Ah, splendid. Bit of a kick to it... zzz." }, { "npc": "ashcombe", "override": { "state": "ko", "until": 1440 } }, { "set": "c3.quiet" }] },
+    { "id": "vivienne.tell", "label": "Tell her about the card game", "target": { "npc": "vivienne" }, "when": { "all": [{ "intel": "i.debts" }, { "after": "23:00" }, { "not": { "flag": "c3.social" } }] },
+      "do": [{ "say": "vivienne", "line": "He WHAT? Edmund. Study. NOW." }, { "set": "c3.social" },
+             { "npc": "vivienne", "override": { "state": "distracted", "goto": "s_fire", "until": 1440 } },
+             { "npc": "ashcombe", "override": { "state": "distracted", "goto": "s_fire2", "until": 1440 } }] },
+    { "id": "rope.untie", "label": "Untie the chandelier rope", "target": { "anchor": "rope" }, "when": { "not": { "flag": "chandelier.dropped" } }, "crime": true,
+      "do": [{ "set": "chandelier.dropped" }, { "learn": "i.rope" }, { "toast": "CRASH. Crystal everywhere. Nobody hurt; several monocles lost." }] }
+  ],
+  "barks": {
+    "default": ["Lovely party.", "Have you tried the champagne?", "What a year it's been.", "Mm? Oh, quite."],
+    "ashcombe": ["Welcome to Ashcombe Manor!", "Splendid, splendid.", "Do stay for the toast."],
+    "vivienne": ["Darling, you simply must dance.", "Edmund's been odd all week.", "Pearls, darling. Real ones."],
+    "calloway": ["Interest is my favourite subject.", "Are you a shareholder?", "Lovely house. Lovely."],
+    "dolly": ["Ten o'clock, sugar.", "Don't crowd the talent.", "Got any cake?"],
+    "rupert": ["Pictures, old boy.", "Uncle's going to make an announcement. Ghastly.", "Do you dance?"],
+    "hale": ["Just here for the canapés.", "I notice things. Bad habit.", "Evening."],
+    "pryce": ["Anything for my column?", "I hear EVERYTHING.", "Oh, you're nobody. Lovely."],
+    "hobbs": ["Sir.", "The study is private, sir.", "Champagne at half past eleven, sir."],
+    "pierre": ["Champagne, monsieur?", "Mind the tray.", "Oui, oui."],
+    "marcel": ["Out of my kitchen!", "The soufflé is sleeping. Shh.", "Non, non, non."],
+    "brock": ["Move along.", "No trouble tonight.", "I've got my eye on you."],
+    "elsie": ["Mind the floor, it's just been done.", "Oh! Sorry, sir.", "So many stairs in this house."]
+  }
+}
