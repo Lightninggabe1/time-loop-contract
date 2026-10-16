@@ -238,20 +238,24 @@ async function main() {
 
   // probe: step down quality automatically if the device struggles
   if (!savedQuality() && !shot) {
-    // median of recent frames: ignores shader-compile and asset-streaming hitches
+    // median of recent frames ignores hitches; step down only if two windows in a
+    // row are slow (textures and shaders may still be streaming in at first)
     const median = (n: number) => {
-      const s = frameTimes.slice(-n).sort((a, b) => a - b);
-      return s[Math.floor(s.length / 2)] ?? 0;
+      const xs = frameTimes.slice(-n).sort((a, b) => a - b);
+      return xs[Math.floor(xs.length / 2)] ?? 0;
     };
-    const probe = (left: number) =>
-      setTimeout(() => {
-        const next = stepDown(quality, median(90));
-        if (next) {
-          applyQuality(next);
-          if (left > 1) probe(left - 1);
-        }
-      }, 4000);
-    probe(2);
+    let strikes = 0;
+    const probe = () => {
+      if (game?.ui && (document.querySelector(".g-intro:not([hidden])") || document.hidden)) return setTimeout(probe, 2000);
+      const next = stepDown(quality, median(120));
+      strikes = next ? strikes + 1 : 0;
+      if (next && strikes >= 2) {
+        applyQuality(next);
+        strikes = 0;
+      }
+      if (quality !== "low") setTimeout(probe, 3000);
+    };
+    setTimeout(probe, 7000);
   }
 
   // navmesh in the background (deviations only)
