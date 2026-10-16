@@ -28,3 +28,7 @@ Newest last. Each entry: what, why.
 - **Game logic lives in `src/core/` as pure TypeScript with no Babylon imports**, so the bot/test harness can run whole loops in Node in milliseconds and determinism is unit-testable.
 - **Time unit is the game minute (18:00 = 1080 … 24:00 = 1440).** The loop runs 9 real minutes, i.e. 40× real time.
 - **Conditions are a tiny JSON language** (`flag`, `not`, `all`, `any`, `after`, `before`, `intel`), shared by events, contracts, intel leads and dialogue, so content never needs code.
+- **Characters: Quaternius Universal Base Characters + Universal Animation Library (both CC0, verified in the bundled licence files).** Sculpted stylized faces/hands, ~13k tris each — the quality bar the director asked for (no blocky placeholders).
+- **Outfits are generated, not modelled by hand** (`scripts/build-characters.mjs`): per-NPC 1024² textures are baked by painting each texel from its 3D bind-pose position (crisp necklines, lapels, studs, pinstripes, beading); cloth regions are smoothed *along normals only* (so painted lines stay straight) and inflated; limbs are slimmed and the waist filled for a tailored 1929 silhouette; skirts/fringe/hats/pearls/bow ties are generated geometry skinned to the same rig. Cloth inherits body weights, so it cannot clip.
+- **Animations are retargeted at runtime** with Babylon's `AnimatorAvatar` (Rigify `DEF-*` → Unreal-style bone names, rest-pose differences handled).
+- **NPC textures sit beside the .gltf files** (`npc/tex/`): Babylon's glTF loader rejects `../` URIs.

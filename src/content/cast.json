@@ -1,0 +1,29 @@
+{
+  "_doc": "Character looks. Built into public/assets/characters/npc/<id>.gltf by scripts/build-characters.mjs. Colours are sRGB hex.",
+  "looks": [
+    { "id": "ashcombe", "body": "male", "skin": "Light", "hair": "Hair_SimpleParted", "hairColor": "#B8B4AE", "beard": false,
+      "outfit": "tuxedo", "colors": { "jacket": "#121214", "accent": "#7A1F2E" }, "scale": 1.0 },
+    { "id": "vivienne", "body": "female", "skin": "Light", "hair": "Hair_Buns", "hairColor": "#3A2418",
+      "outfit": "gown", "colors": { "dress": "#0F5A44", "trim": "#E2B25C", "gloves": "#F2ECE0" }, "length": "floor", "pearls": true, "scale": 1.0 },
+    { "id": "calloway", "body": "male", "skin": "Light", "hair": "Hair_SimpleParted", "hairColor": "#1A1512", "beard": false,
+      "outfit": "dinnerjacket", "colors": { "jacket": "#EDE6D6", "accent": "#121214" }, "scale": 1.02 },
+    { "id": "dolly", "body": "female", "skin": "Dark", "hair": "Hair_Long", "hairColor": "#1C120E",
+      "outfit": "flapper", "colors": { "dress": "#D9A441", "trim": "#FFF1C8", "gloves": "#121214" }, "length": "calf", "headband": "#121214", "scale": 0.98 },
+    { "id": "rupert", "body": "male", "skin": "Light", "hair": "Hair_Buzzed", "hairColor": "#6B4426", "beard": false,
+      "outfit": "smoking", "colors": { "jacket": "#5C1222", "accent": "#E2B25C" }, "scale": 0.97 },
+    { "id": "hale", "body": "male", "skin": "Dark", "hair": "Hair_Buzzed", "hairColor": "#141010", "beard": true,
+      "outfit": "lounge", "colors": { "jacket": "#4A3B2C", "accent": "#7A5A2E" }, "scale": 1.0 },
+    { "id": "pryce", "body": "female", "skin": "Light", "hair": "Hair_Long", "hairColor": "#8A3B1E",
+      "outfit": "gown", "colors": { "dress": "#5C1222", "trim": "#E2B25C", "gloves": "#121214" }, "length": "floor", "pearls": false, "headband": "#E2B25C", "scale": 0.97 },
+    { "id": "hobbs", "body": "male", "skin": "Light", "hair": "Hair_Buzzed", "hairColor": "#9A968F", "beard": true,
+      "outfit": "tails", "colors": { "jacket": "#0E0E10", "accent": "#F2ECE0" }, "scale": 1.01 },
+    { "id": "pierre", "body": "male", "skin": "Light", "hair": "Hair_SimpleParted", "hairColor": "#2A1C12", "beard": false,
+      "outfit": "waiter", "colors": { "jacket": "#F2ECE0", "accent": "#121214" }, "scale": 0.97 },
+    { "id": "marcel", "body": "male", "skin": "Light", "hair": "Hair_Buzzed", "hairColor": "#3A2A1E", "beard": true,
+      "outfit": "chef", "colors": { "jacket": "#F4F1EA", "accent": "#2A2A2E" }, "scale": 1.03 },
+    { "id": "brock", "body": "male", "skin": "Dark", "hair": "Hair_Buzzed", "hairColor": "#120E0C", "beard": false,
+      "outfit": "doorman", "colors": { "jacket": "#5C1222", "accent": "#E2B25C" }, "scale": 1.06 },
+    { "id": "elsie", "body": "female", "skin": "Light", "hair": "Hair_Buns", "hairColor": "#C99A5B",
+      "outfit": "maid", "colors": { "dress": "#141216", "trim": "#F4F1EA", "gloves": "#F4F1EA" }, "length": "calf", "scale": 0.95 }
+  ]
+}

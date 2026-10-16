@@ -33,3 +33,8 @@ All third-party assets are CC0 (public domain). Self-made assets are noted.
 | Library | Babylon.js, Havok (Babylon build), recast-navigation-js, meshoptimizer | Code dependencies, not art assets | Apache-2.0 / MIT | npm |
 
 Fonts: none shipped. The HUD uses the device's own system fonts.
+| Texture | poly_wool_herringbone | Poly Haven | CC0 | https://polyhaven.com/a/poly_wool_herringbone |
+| Characters | Universal Base Characters (Standard): Superhero male/female bodies, hairstyles | Quaternius | CC0 | https://quaternius.itch.io/universal-base-characters |
+| Animation | Universal Animation Library (Standard), 45 clips | Quaternius | CC0 | https://opengameart.org/content/universal-animation-library |
+| Texture | poly_wool_herringbone | Poly Haven | CC0 | https://polyhaven.com/a/poly_wool_herringbone |
+| Characters | 12 dressed NPCs (outfits, baked textures, skirts, hats, accessories) | Self-generated (scripts/build-characters.mjs) on the CC0 bodies above | CC0 | — |

@@ -16,6 +16,7 @@ const TEXTURES = [
   "plastered_wall_04",
   "quatrefoil_jacquard_fabric",
   "fabric_leather_02",
+  "poly_wool_herringbone",
 ];
 const MAPS = { Diffuse: "diff", nor_gl: "nor_gl", arm: "arm" };
 const MODELS = [
