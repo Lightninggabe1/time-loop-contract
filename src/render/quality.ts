@@ -21,7 +21,7 @@ export interface Preset {
 
 export const PRESETS: Record<Quality, Preset> = {
   high: {
-    name: "high", renderScale: 1, maxDpr: 1.25, msaa: 4, fxaa: false, ssao: true, ssaoSamples: 10,
+    name: "high", renderScale: 1, maxDpr: 1.25, msaa: 4, fxaa: false, ssao: true, ssaoSamples: 8,
     reflections: 1024, moonShadow: 2048, spotShadows: 2, spotShadowSize: 1024, bloomKernel: 64, grain: true, dust: true,
   },
   medium: {

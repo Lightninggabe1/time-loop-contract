@@ -5,14 +5,16 @@ export interface InputState {
   look: { x: number; y: number }; // accumulated radians this frame
   sprint: boolean;
   interact: boolean; // edge-triggered
-  item: boolean; // edge-triggered
-  board: boolean; // edge-triggered
+  item: boolean; // edge-triggered (Q: pocket watch / item)
+  board: boolean; // edge-triggered (Tab)
+  punch: boolean; // edge-triggered (F)
+  number: number; // 1–3 picks an offered action (0 = none)
 }
 
 export class Input {
   private keys = new Set<string>();
   private lookAcc = { x: 0, y: 0 };
-  private edges = { interact: false, item: false, board: false };
+  private edges = { interact: false, item: false, board: false, punch: false, number: 0 };
   private stick = { id: -1, ox: 0, oy: 0, x: 0, y: 0 };
   private lookTouch = { id: -1, x: 0, y: 0 };
   private dragging = false;
@@ -26,8 +28,11 @@ export class Input {
       if (e.code === "Tab") e.preventDefault();
       if (!e.repeat) {
         if (e.code === "KeyE") this.edges.interact = true;
-        if (e.code === "KeyQ" || e.code === "KeyF") this.edges.item = true;
+        if (e.code === "KeyQ") this.edges.item = true;
+        if (e.code === "KeyF") this.edges.punch = true;
         if (e.code === "Tab") this.edges.board = true;
+        const dn = ["Digit1", "Digit2", "Digit3"].indexOf(e.code);
+        if (dn >= 0) this.edges.number = dn + 1;
       }
       this.keys.add(e.code);
     });
@@ -60,8 +65,11 @@ export class Input {
     canvas.addEventListener("touchcancel", (e) => this.touch(e, "end"), { passive: false });
   }
 
-  press(button: "interact" | "item" | "board") {
+  press(button: "interact" | "item" | "board" | "punch") {
     this.edges[button] = true;
+  }
+  pick(n: number) {
+    this.edges.number = n;
   }
 
   private touch(e: TouchEvent, phase: "start" | "move" | "end") {
@@ -142,7 +150,14 @@ export class Input {
       ...this.edges,
     };
     this.lookAcc.x = this.lookAcc.y = 0;
-    this.edges = { interact: false, item: false, board: false };
+    this.edges = { interact: false, item: false, board: false, punch: false, number: 0 };
+    this.last = s;
     return s;
+  }
+
+  /** Edges captured by the most recent read() (the player reads first each frame). */
+  last: InputState = { move: { x: 0, y: 0 }, look: { x: 0, y: 0 }, sprint: false, interact: false, item: false, board: false, punch: false, number: 0 };
+  peekEdges() {
+    return this.last;
   }
 }

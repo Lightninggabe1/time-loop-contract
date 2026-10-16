@@ -100,17 +100,29 @@ export class NpcActor {
     let p = npcLib.get(this.id);
     if (!p) npcLib.set(this.id, (p = LoadAssetContainerAsync(`./assets/characters/npc/${this.id}.gltf`, scene)));
     const [c, anims] = await Promise.all([p, lib(scene)]);
-    const inst = c.instantiateModelsToScene((n) => `${this.id}_${n}`, false);
-    this.root = inst.rootNodes[0] as TransformNode;
+    // keep original node names: retargeting matches bones by name
+    const inst = c.instantiateModelsToScene((n) => n, false);
+    // the glTF root carries the handedness conversion; never touch it — we move a parent instead
+    const gltfRoot = inst.rootNodes[0] as TransformNode;
+    this.root = new TransformNode(`npc_${this.id}`, scene);
     this.root.rotationQuaternion = Quaternion.Identity();
+    gltfRoot.parent = this.root;
     for (const m of this.root.getChildMeshes()) {
       m.isPickable = false;
       m.receiveShadows = true;
       const mat = m.material as PBRMaterial | null;
-      if (mat) mat.maxSimultaneousLights = 8;
+      if (mat) {
+        mat.maxSimultaneousLights = 8;
+        // sheen + clustered lights breaks the WebGPU (WGSL) shader in Babylon 9.31;
+        // satin/velvet keep their look through roughness instead
+        if (mat.sheen?.isEnabled) {
+          mat.sheen.isEnabled = false;
+          mat.roughness = Math.max(0.25, (mat.roughness ?? 0.5) - 0.08);
+        }
+      }
       this.meshes.push(m);
     }
-    const avatar = new AnimatorAvatar(`${this.id}_avatar`, this.root, false);
+    const avatar = new AnimatorAvatar(`${this.id}_avatar`, gltfRoot, false, false);
     avatar.showWarnings = false;
     for (const [k, name] of Object.entries(CLIPS) as [Clip, string][]) {
       const src = anims.animationGroups.find((g) => g.name === name);
@@ -163,6 +175,10 @@ export class NpcActor {
     if (this.current === clip) return;
     const next = this.groups[clip] ?? this.groups.idle!;
     const prev = this.current ? this.groups[this.current] : null;
+    if (this.fading) {
+      this.fading.from.stop();
+      this.fading = null;
+    }
     next.start(next.loopAnimation, 1, next.from, next.to);
     next.weight = prev ? 0 : 1;
     if (prev && fade > 0) this.fading = { from: prev, t: 0 };
@@ -217,7 +233,6 @@ export class NpcActor {
     if (!g) return;
     const secs = (g.to - g.from) / 60;
     this.oneShot = { clip, until: performance.now() + secs * 1000 };
-    this.current = null;
     this.play(clip, 0.1);
   }
 

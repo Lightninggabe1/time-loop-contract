@@ -75,3 +75,9 @@ Fonts: none shipped. The HUD uses the device's own system fonts.
 | Model | shrub_01 | Poly Haven | CC0 | https://polyhaven.com/a/shrub_01 |
 | Model | shrub_03 | Poly Haven | CC0 | https://polyhaven.com/a/shrub_03 |
 | Model | pine_tree_01 | Poly Haven | CC0 | https://polyhaven.com/a/pine_tree_01 |
+| Music | "The Charleston" (1925), Golden Gate Orchestra, Edison 51542-R | Wikimedia Commons | Public domain | https://commons.wikimedia.org/wiki/File:Charleston_(1925)_-_Edison_51542-R.ogg |
+| Music | "She's My Sheba, I'm Her Sheik" (1925), St. Louis Rhythm Kings | Wikimedia Commons | Public domain | https://commons.wikimedia.org/wiki/File:%22She%27s_my_Sheba,_I%27m_Her_Sheik%22_(1925),_by_the_St._Louis_Rhythm_Kings.oga |
+| Music | "Rose Room" (1919), Art Hickman's Orchestra | Wikimedia Commons | Public domain | https://commons.wikimedia.org/wiki/File:%22Rose_Room%22_(1919),_by_Art_Hickman%27s_Orchestra.oga |
+| Audio | Impact Sounds (punches, glass, bells, metal) | Kenney | CC0 | https://kenney.nl/assets/impact-sounds |
+| Audio | Interface Sounds (UI chimes) | Kenney | CC0 | https://kenney.nl/assets/interface-sounds |
+| Audio | Party crowd murmur | Self-generated (WebAudio, src/audio/audio.ts) | CC0 | — |

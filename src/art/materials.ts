@@ -145,6 +145,7 @@ const builders: Record<string, () => PBRMaterial> = {
   hedge: () => solid("hedge", Color3.FromHexString("#14261A").toLinearSpace(), 0, 0.9),
   lawn: () => solid("lawn", Color3.FromHexString("#0C140E").toLinearSpace(), 0, 1),
   cofferPaint: () => solid("cofferPaint", Color3.FromHexString("#1F4A3E").toLinearSpace(), 0, 0.55),
+  white: () => solid("white", Color3.FromHexString("#F2EEE6").toLinearSpace(), 0, 0.6),
   linen: () => solid("linen", Palette.ivory, 0, 0.85),
   walnut: () => {
     const m = solid("walnut", Palette.walnut, 0, 0.4);

@@ -1,5 +1,8 @@
 # PLAN — Time-Loop Contract
 
+## Status (2026-10-16)
+- Phase 0 ✓ · Phase 1 ✓ (Checkpoint 1 approved) · Phase 2 ✓ · Phase 3 slice built → **Checkpoint 2**
+
 ## Phase 0 — Foundations
 Vite + TS + Babylon 9 + Havok + Recast scaffold, palette, quality presets,
 Playwright screenshot + console-error harness, GitHub Pages deploy.

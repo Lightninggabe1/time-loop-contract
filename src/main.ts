@@ -1,5 +1,5 @@
 import {
-  Engine, WebGPUEngine, AbstractEngine, Scene, Color4, Color3, Vector3, HavokPlugin, Quaternion, Plane,
+  Engine, WebGPUEngine, AbstractEngine, Scene, Color4, Color3, Vector3, HavokPlugin, Quaternion, Plane, Material,
 } from "@babylonjs/core";
 import { MeshoptCompression } from "@babylonjs/core/Meshes/Compression/meshoptCompression";
 import HavokPhysics from "@babylonjs/havok";
@@ -18,6 +18,7 @@ import { Input } from "./player/input";
 import { Player, addStaticColliders } from "./player/player";
 import { buildNavMesh } from "./nav/navmesh";
 import { Hud } from "./ui/hud";
+import { GameClient } from "./game/client";
 
 const params = new URLSearchParams(location.search);
 const shot = params.get("shot");
@@ -86,6 +87,20 @@ async function main() {
   const post = new Post(scene, player.camera);
   const mirrors = new Mirrors(scene, new Plane(1, 0, 0, -(10 - 0.035)));
 
+  // Unlit, additive and transparent materials stay out of the SSR/SSAO
+  // prepass (WGSL prepass shaders need lit normals). Also catches materials
+  // created later (NPC blobs, icons, effects).
+  const skipPrepass = (m: Material) => {
+    const anyM = m as unknown as { disableLighting?: boolean; alphaMode?: number };
+    return m.alpha < 1 || !!anyM.disableLighting || m.needAlphaBlending?.() === true || m === shafts.mesh.material;
+  };
+  const excludeFromPrepass = () => {
+    const pre = scene.prePassRenderer;
+    if (!pre) return;
+    for (const m of scene.materials) if (skipPrepass(m) && !pre.excludedMaterials.includes(m)) pre.excludedMaterials.push(m);
+  };
+  scene.onNewMaterialAddedObservable.add(() => setTimeout(excludeFromPrepass, 0));
+
   let quality: Quality = initialQuality();
   let booted = false;
   const applyQuality = (q: Quality) => {
@@ -99,9 +114,7 @@ async function main() {
     post.apply(p);
     shafts.enableDust(p.dust);
     mirrors.apply(p);
-    // keep additive/transparent effects out of the SSR/SSAO prepass
-    const pre = scene.prePassRenderer;
-    if (pre) for (const m of [shafts.mesh.material!, ...scene.materials.filter((x) => x.alpha < 1)]) if (!pre.excludedMaterials.includes(m)) pre.excludedMaterials.push(m);
+    excludeFromPrepass();
     hud.setQuality(q);
     scene.markAllMaterialsAsDirty(1 /* all */);
     if (booted) scene.whenReadyAsync().then(() => freezeMaterials());
@@ -144,13 +157,27 @@ async function main() {
     if (params.has("time")) setClock(Number(params.get("time")));
   }
 
+  // the game: rules (Session) + presentation (actors, HUD)
+  const game = shot && !params.has("cast") ? null : new GameClient(scene, room, doors, player, input, lighting);
+  const castLoad = game ? game.loadCast().then(excludeFromPrepass).catch((e) => console.error("cast failed", e)) : Promise.resolve();
+  debug.__client = game;
+  const muteBtn = document.getElementById("mute");
+  if (game && muteBtn) {
+    const label = () => (muteBtn.textContent = `Sound: ${game.audio.muted ? "off" : "on"}`);
+    label();
+    muteBtn.addEventListener("click", () => (game.audio.toggleMute(), label()));
+  }
+
   const frameTimes: number[] = [];
   scene.onBeforeRenderObservable.add(() => {
     const dt = engine.getDeltaTime() / 1000;
     if (!shot) {
-      t = (t + dt) % LOOP_SECONDS;
-      setClock(t);
       player.update(dt);
+      if (game) {
+        game.update(dt);
+        t = (game.session.minute - 18 * 60) / (360 / LOOP_SECONDS);
+      } else t = (t + dt) % LOOP_SECONDS;
+      setClock(t);
     }
     lighting.update(shot ? 1 : performance.now() / 1000);
     doors.update(dt);
@@ -202,9 +229,12 @@ async function main() {
   };
   setInterval(() => hud.setFps(avg(60), quality, debug.__engine as string), 500);
 
+  progress(0.95, "Seating the guests…");
+  await Promise.race([castLoad, new Promise((r) => setTimeout(r, 12000))]);
   progress(1, "Doors open");
   document.getElementById("loading")!.classList.add("done");
   hud.show();
+  if (game) game.ui.intro(game.session.meta.loop, 3);
 
   // probe: step down quality automatically if the device struggles
   if (!savedQuality() && !shot) {

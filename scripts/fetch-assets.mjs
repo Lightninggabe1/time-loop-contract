@@ -10,7 +10,6 @@ const API = "https://api.polyhaven.com";
 
 const HDRIS = [{ id: "ballroom", res: "2k" }];
 const TEXTURES = [
-  "marble_01",
   "herringbone_parquet",
   "velour_velvet",
   "plastered_wall_04",
@@ -25,26 +24,21 @@ const MODELS = [
   "Chandelier_01",
   "ArmChair_01",
   "Sofa_01",
-  "ornate_mirror_01",
-  "fancy_picture_frame_01",
   "vintage_grandfather_clock_01",
   "brass_candleholders",
   "brass_goblets",
   "marble_bust_01",
   "potted_plant_01",
-  "round_wooden_table_01",
   "dining_chair_02",
   "wine_bottles_01",
-  "GothicCabinet_01",
-  "Ottoman_01",
   "coffee_table_round_01",
   // study
-  "wooden_bookshelf_worn", "WoodenTable_02", "chess_set", "mantel_clock_01", "book_encyclopedia_set_01",
-  "decorative_book_set_01", "desk_lamp_arm_01", "vintage_telephone_wall_clock", "magnifying_glass_01", "Rockingchair_01",
-  "fancy_picture_frame_02", "drawer_cabinet", "vintage_cabinet_01",
+  "chess_set", "mantel_clock_01", "book_encyclopedia_set_01",
+  "decorative_book_set_01", "desk_lamp_arm_01", "magnifying_glass_01", "Rockingchair_01",
+  "fancy_picture_frame_02", "drawer_cabinet",
   // kitchen
   "brass_pot_01", "brass_pan_01", "wooden_cutting_board", "jug_01", "wine_barrel_01", "wooden_crate_01",
-  "strawberry_chocolate_cake", "croissant", "food_apple_01", "wooden_bowl_01", "metal_trash_can", "steel_frame_shelves_01",
+  "strawberry_chocolate_cake", "croissant", "food_apple_01", "wooden_bowl_01", "metal_trash_can",
   // balcony & garden
   "planter_box_01", "potted_plant_04", "street_lamp_01", "horse_statue_01", "shrub_01", "shrub_03",
 ];

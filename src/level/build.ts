@@ -33,7 +33,7 @@ export interface RoomDef {
   champagneTower?: V2;
   balloons?: V2[];
   props: PropDef[];
-  furniture?: { type: "desk"; pos: V3; rotY?: number; id?: string }[];
+  furniture?: { type: "desk" | "rope" | "coat"; pos: V3; rotY?: number; id?: string }[];
   painting?: { model: string; anchor: string; scale: number };
   spill?: V3[];
   garden?: { groundY: number; trees: V2[]; shrubs: V2[]; statue: V2; lamps: V2[] };
@@ -288,6 +288,19 @@ export async function buildWing(scene: Scene, W: WingDef): Promise<BuiltWing> {
         }
         kit.box("walnutPanel", new Vector3(0, 0.66, -0.4), new Vector3(0.86, 0.16, 0.04), {}, f);
         out.anchors[fu.id ?? "desk"] = { pos: Kit.toWorld(f, new Vector3(0, 0.85, 0)), normal: Kit.toWorld({ origin: Vector3.Zero(), rotY: f.rotY }, new Vector3(0, 0, 1)) };
+      } else if (fu.type === "rope") {
+        // the chandelier rope: runs up into the flies, tied off on a brass cleat
+        kit.cyl("linen", new Vector3(0, (st.H - 0.9) / 2 + 0.45, 0), st.H - 1.4, 0.035, { tess: 6, shadow: false }, f);
+        kit.box("brass", new Vector3(0, 0.95, 0), new Vector3(0.08, 0.28, 0.06), {}, f);
+        kit.box("brass", new Vector3(0, 0.95, 0.04), new Vector3(0.22, 0.04, 0.04), {}, f);
+        for (let i = 0; i < 4; i++) kit.add("linen", MeshBuilder.CreateTorus("coil", { diameter: 0.16, thickness: 0.03, tessellation: 16 }, scene), new Vector3(0, 0.95 - i * 0.03, 0.06), { rotX: Math.PI / 2, shadow: false }, f);
+      } else if (fu.type === "coat") {
+        // spare waiter's jacket on a brass hook
+        kit.box("brass", new Vector3(0, 1.72, 0.03), new Vector3(0.08, 0.04, 0.12), {}, f);
+        kit.box("white", new Vector3(0, 1.32, 0.09), new Vector3(0.5, 0.72, 0.1), {}, f);
+        kit.box("white", new Vector3(-0.29, 1.3, 0.09), new Vector3(0.1, 0.6, 0.08), { rotZ: 0.12 }, f);
+        kit.box("white", new Vector3(0.29, 1.3, 0.09), new Vector3(0.1, 0.6, 0.08), { rotZ: -0.12 }, f);
+        kit.box("lacquer", new Vector3(0, 1.58, 0.145), new Vector3(0.12, 0.05, 0.02), { shadow: false }, f);
       }
     }
 

@@ -30,3 +30,10 @@ export async function buildNavMesh(scene: Scene, colliders: Collider[]) {
 export function closestPoint(p: Vector3) {
   return plugin?.getClosestPoint(p) ?? p;
 }
+
+/** Walkable path (navmesh) for schedule deviations such as chases; straight line before it's built. */
+export function pathTo(from: Vector3, to: Vector3): Vector3[] {
+  if (!plugin) return [to.clone()];
+  const pts = plugin.computePath(plugin.getClosestPoint(from), plugin.getClosestPoint(to));
+  return pts.length ? pts.slice(1) : [to.clone()];
+}

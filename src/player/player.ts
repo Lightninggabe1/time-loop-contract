@@ -30,6 +30,7 @@ export class Player {
   walkSpeed = 3.4;
   sprintSpeed = 6.2;
   private bob = 0;
+  private shakeAmt = 0;
   private gravity = new Vector3(0, -18, 0);
   enabled = true;
 
@@ -87,9 +88,18 @@ export class Player {
     this.bob += dt * moving * 2.1;
     const bobY = Math.sin(this.bob * 2) * 0.025 * Math.min(1, moving / 3);
     this.camera.position.set(p.x, p.y - HEIGHT / 2 + EYE + bobY, p.z);
+    if (this.shakeAmt > 0.001) {
+      const k = this.shakeAmt;
+      this.camera.position.addInPlaceFromFloats((Math.random() - 0.5) * k * 0.1, (Math.random() - 0.5) * k * 0.1, (Math.random() - 0.5) * k * 0.1);
+      this.shakeAmt *= Math.pow(0.02, dt);
+    }
     const baseFov = this.baseFov();
     const targetFov = s.sprint && moving > 4 ? baseFov + 0.07 : baseFov;
     this.camera.fov += (targetFov - this.camera.fov) * Math.min(1, dt * 6);
+  }
+
+  shake(amount: number) {
+    this.shakeAmt = Math.max(this.shakeAmt, amount);
   }
 
   /** Vertical FOV: widen in portrait so phones still see the room. */

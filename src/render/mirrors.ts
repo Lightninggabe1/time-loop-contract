@@ -13,13 +13,13 @@ export class Mirrors {
     this.tex?.dispose();
     this.tex = undefined;
     if (p.name === "high") {
-      const t = new MirrorTexture("mirrorWall", { ratio: 0.5 }, this.scene, true);
+      const t = new MirrorTexture("mirrorWall", { ratio: 0.42 }, this.scene, true);
       t.mirrorPlane = this.plane;
       // never re-render the clustered-light proxy (it writes the light buffer the materials read)
       t.renderList = this.scene.meshes.filter((x: AbstractMesh) => x.name !== "ballroom_mirrorLive" && x.name !== "sky" && !/proxy/i.test(x.name) && !x.name.startsWith("doorcol_")) as Mesh[];
       t.level = 0.9;
       t.adaptiveBlurKernel = 6;
-      t.refreshRate = 2;
+      t.refreshRate = 3;
       m.reflectionTexture = t;
       this.tex = t;
     } else {
