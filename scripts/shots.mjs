@@ -19,7 +19,7 @@ const useDist = process.argv.includes("--dist");
 const presets = arg("q", check ? "low,medium,high" : "high").split(",");
 const engineParam = arg("engine", "");
 const W = Number(arg("w", 1600)), H = Number(arg("h", 900)), DPR = Number(arg("dpr", 1));
-const layout = JSON.parse(await readFile(join(ROOT, "src/level/layouts/ballroom.json"), "utf8"));
+const layout = JSON.parse(await readFile(join(ROOT, "src/level/layouts/wing.json"), "utf8"));
 const only = arg("only", "");
 const shots = layout.shots.map((s) => s.name).filter((n) => !only || only.split(",").includes(n));
 const outDir = join(ROOT, "screenshots", arg("dir", check ? "check" : ""));
@@ -46,7 +46,7 @@ for (const q of presets) {
       else if (process.argv.includes("--verbose") && m.type() === "warning") console.log("   warn:", m.text().slice(0, 300));
     });
     page.on("pageerror", (e) => errors.push(`[${q}/${name}] ${e.message}`));
-    const url = `${base}?shot=${name}&quality=${q}${engineParam ? `&engine=${engineParam}` : ""}`;
+    const url = `${base}?shot=${name}&quality=${q}${engineParam ? `&engine=${engineParam}` : ""}${arg("extra", "")}`;
     await page.goto(url);
     await page.waitForFunction(() => window.__ready === true, null, { timeout: 180000 });
     engineName = await page.evaluate(() => window.__engine);

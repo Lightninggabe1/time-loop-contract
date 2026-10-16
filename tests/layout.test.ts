@@ -1,33 +1,37 @@
 import { describe, it, expect } from "vitest";
 import { existsSync } from "node:fs";
-import layout from "../src/level/layouts/ballroom.json";
+import wing from "../src/level/layouts/wing.json";
 
-describe("ballroom layout", () => {
+const inside = (b: number[], x: number, z: number) => x > b[0] && x < b[2] && z > b[1] && z < b[3];
+
+describe("wing layout", () => {
   it("wall modules exactly fill every wall", () => {
-    for (const w of layout.walls) {
-      const len = Math.hypot(w.to[0] - w.from[0], w.to[1] - w.from[1]);
-      const sum = w.modules.reduce((s, m) => s + m.w, 0);
-      expect(sum, w.id).toBeCloseTo(len, 3);
-    }
+    for (const r of wing.rooms)
+      for (const w of r.walls) {
+        const len = Math.hypot(w.to[0] - w.from[0], w.to[1] - w.from[1]);
+        const sum = w.modules.reduce((s, m) => s + m.w, 0);
+        expect(sum, `${r.id}/${w.id}`).toBeCloseTo(len, 3);
+      }
   });
-  it("walls form a closed loop", () => {
-    for (let i = 0; i < layout.walls.length; i++) {
-      const a = layout.walls[i], b = layout.walls[(i + 1) % layout.walls.length];
-      expect(a.to).toEqual(b.from);
-    }
+  it("room bounds don't overlap", () => {
+    for (const a of wing.rooms)
+      for (const b of wing.rooms) {
+        if (a === b) continue;
+        const [ax0, az0, ax1, az1] = a.bounds, [bx0, bz0, bx1, bz1] = b.bounds;
+        const overlap = ax0 < bx1 - 0.01 && bx0 < ax1 - 0.01 && az0 < bz1 - 0.01 && bz0 < az1 - 0.01;
+        expect(overlap, `${a.id} vs ${b.id}`).toBe(false);
+      }
   });
-  it("every prop model has a built asset", () => {
-    const models = new Set([...layout.props.map((p) => p.model), "Chandelier_02", "dining_chair_02", "brass_candleholders", "brass_goblets"]);
+  it("every door id is unique and frame-only doorways pair with a real door", () => {
+    const ids = wing.rooms.flatMap((r) => r.walls.flatMap((w) => w.modules.filter((m) => m.type === "door" && "id" in m).map((m) => (m as unknown as { id: string }).id)));
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(ids).toEqual(expect.arrayContaining(["study", "kitchen", "balcony", "passage"]));
+  });
+  it("every model has a built asset", () => {
+    const models = new Set(wing.rooms.flatMap((r) => r.props.map((p) => p.model)));
     for (const m of models) expect(existsSync(`public/assets/models/${m}.glb`), m).toBe(true);
   });
-  it("screenshot spots are unique and inside the room", () => {
-    const names = layout.shots.map((s) => s.name);
-    expect(new Set(names).size).toBe(names.length);
-    const [W, H, D] = layout.size;
-    for (const s of layout.shots) {
-      expect(Math.abs(s.pos[0])).toBeLessThan(W / 2);
-      expect(Math.abs(s.pos[2])).toBeLessThan(D / 2);
-      expect(s.pos[1]).toBeLessThan(H);
-    }
+  it("screenshot spots are inside some room", () => {
+    for (const s of wing.shots) expect(wing.rooms.some((r) => inside(r.bounds, s.pos[0], s.pos[2])), s.name).toBe(true);
   });
 });

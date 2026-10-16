@@ -5,7 +5,7 @@ import {
   Scene, Vector3, Mesh, VertexData, StandardMaterial, RawTexture, Constants, Color3,
   ParticleSystem, Color4, BoxParticleEmitter, Texture, FresnelParameters,
 } from "@babylonjs/core";
-import { BuiltRoom } from "../level/build";
+import { BuiltWing } from "../level/build";
 
 function gradientTexture(scene: Scene) {
   const S = 256;
@@ -49,7 +49,7 @@ function dot(scene: Scene) {
   return t;
 }
 
-export function createShafts(scene: Scene, room: BuiltRoom, lightDir: Vector3, intensity = 0.7) {
+export function createShafts(scene: Scene, room: BuiltWing, lightDir: Vector3, intensity = 0.7) {
   const m = new StandardMaterial("shaft", scene);
   m.disableLighting = true;
   m.diffuseColor = Color3.Black();
@@ -77,7 +77,9 @@ export function createShafts(scene: Scene, room: BuiltRoom, lightDir: Vector3, i
     uv.push(0, 0, 0, 1, 1, 1, 1, 0);
     idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
   };
-  for (const w of room.windows) {
+  // only windows the moon actually shines through
+  const lit = room.windows.filter((w) => Vector3.Dot(w.normal, L) > 0.3);
+  for (const w of lit) {
     const up = Vector3.Up();
     const along = Vector3.Cross(up, w.normal).normalize();
     const cy = (w.bottom + w.top) / 2;
@@ -132,7 +134,7 @@ export function createShafts(scene: Scene, room: BuiltRoom, lightDir: Vector3, i
   };
   // Fade out as the viewer walks into the beams (overlapping slices would
   // otherwise wash the view out). Distance is measured from the window wall.
-  const wallX = room.windows.length ? room.windows[0].center.x : 0;
+  const wallX = lit.length ? lit[0].center.x : 0;
   const update = (cam: Vector3) => {
     const d = Math.abs(cam.x - wallX);
     const k = Math.min(1, Math.max(0, (d - 3) / 7));

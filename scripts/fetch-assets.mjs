@@ -17,6 +17,7 @@ const TEXTURES = [
   "quatrefoil_jacquard_fabric",
   "fabric_leather_02",
   "poly_wool_herringbone",
+  "dark_paneled_wood", "lacquered_cherry_wood", "checkered_pavement_tiles", "interior_tiles", "stone_tiles_02", "kitchen_wood",
 ];
 const MAPS = { Diffuse: "diff", nor_gl: "nor_gl", arm: "arm" };
 const MODELS = [
@@ -37,6 +38,15 @@ const MODELS = [
   "GothicCabinet_01",
   "Ottoman_01",
   "coffee_table_round_01",
+  // study
+  "wooden_bookshelf_worn", "WoodenTable_02", "chess_set", "mantel_clock_01", "book_encyclopedia_set_01",
+  "decorative_book_set_01", "desk_lamp_arm_01", "vintage_telephone_wall_clock", "magnifying_glass_01", "Rockingchair_01",
+  "fancy_picture_frame_02", "drawer_cabinet", "vintage_cabinet_01",
+  // kitchen
+  "brass_pot_01", "brass_pan_01", "wooden_cutting_board", "jug_01", "wine_barrel_01", "wooden_crate_01",
+  "strawberry_chocolate_cake", "croissant", "food_apple_01", "wooden_bowl_01", "metal_trash_can", "steel_frame_shelves_01",
+  // balcony & garden
+  "planter_box_01", "potted_plant_04", "street_lamp_01", "horse_statue_01", "shrub_01", "shrub_03",
 ];
 
 const exists = (p) => access(p).then(() => true, () => false);
@@ -69,13 +79,19 @@ async function main() {
   for (const id of TEXTURES) {
     const f = await json(`${API}/files/${id}`);
     for (const [k, short] of Object.entries(MAPS)) {
-      await get(f[k]["2k"].jpg.url, join(RAW, "textures", id, `${short}.jpg`));
+      const u = f[k]?.["2k"]?.jpg?.url;
+      if (u) await get(u, join(RAW, "textures", id, `${short}.jpg`));
+      else console.warn("  ! no", k, "for", id);
     }
     credits.push(["Texture", id, `https://polyhaven.com/a/${id}`]);
   }
   for (const id of MODELS) {
     const f = await json(`${API}/files/${id}`);
-    const g = f.gltf["1k"].gltf;
+    const g = f.gltf?.["1k"]?.gltf;
+    if (!g) {
+      console.warn("  ! no glTF for", id, "— skipped");
+      continue;
+    }
     const base = g.url.slice(0, g.url.lastIndexOf("/") + 1);
     await get(g.url, join(RAW, "models", id, `${id}.gltf`));
     for (const [rel, info] of Object.entries(g.include)) {

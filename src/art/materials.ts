@@ -30,6 +30,19 @@ const sets: Record<string, TexSet> = {
   jacquard: { dir: "quatrefoil_jacquard_fabric", tile: 0.6, tint: hexTint("#9A3A4E"), roughness: 1.0, bump: 0.8 },
   plaster: { dir: "plastered_wall_04", tile: 3, tint: hexTint("#F3E6CC"), roughness: 1.0, bump: 0.3 },
   leather: { dir: "fabric_leather_02", tile: 1, tint: hexTint("#8A3A2A") },
+  // study
+  walnutPanel: { dir: "dark_paneled_wood", tile: 2.4, tint: hexTint("#C29A78"), clearCoat: 0.35, roughness: 0.8 },
+  studyPaper: { dir: "quatrefoil_jacquard_fabric", tile: 0.7, tint: hexTint("#2E6A52"), roughness: 1.0, bump: 0.8 },
+  studyFloor: { dir: "herringbone_parquet", tile: 1.6, tint: hexTint("#9C6A44"), clearCoat: 0.7, roughness: 0.6, bump: 0.5, env: 0.08 },
+  cherry: { dir: "lacquered_cherry_wood", tile: 1.2, clearCoat: 0.6 },
+  // kitchen
+  kitchenTile: { dir: "interior_tiles", tile: 1.2, tint: hexTint("#F4F0E6"), roughness: 0.5, bump: 0.7 },
+  kitchenFloor: { dir: "checkered_pavement_tiles", tile: 1.6, roughness: 0.6, bump: 0.6, env: 0.15 },
+  butcherBlock: { dir: "kitchen_wood", tile: 1.0 },
+  // balcony / exterior
+  stone: { dir: "stone_tiles_02", tile: 2.0, tint: hexTint("#A79E8F"), roughness: 1.0, bump: 0.8 },
+  terrace: { dir: "stone_tiles_02", tile: 1.6, tint: hexTint("#7E776C"), roughness: 1.0, bump: 0.9 },
+  facade: { dir: "plastered_wall_04", tile: 3, tint: hexTint("#E9DFCC"), roughness: 1.0, bump: 0.4 },
 };
 
 function hexTint(h: string) {
@@ -116,6 +129,21 @@ const builders: Record<string, () => PBRMaterial> = {
     m.clearCoat.roughness = 0.06;
     return m;
   },
+  cabinetCream: () => {
+    const m = solid("cabinetCream", Color3.FromHexString("#E8DEC8").toLinearSpace(), 0, 0.4);
+    m.clearCoat.isEnabled = true;
+    m.clearCoat.intensity = 0.4;
+    return m;
+  },
+  cabinetLine: () => solid("cabinetLine", Color3.FromHexString("#8C7F6A").toLinearSpace(), 0, 0.6),
+  emberGlow: () => emissive("emberGlow", Color3.FromHexString("#FF7A2A"), 5),
+  bookRed: () => solid("bookRed", Color3.FromHexString("#6E1A22").toLinearSpace(), 0, 0.55),
+  bookGreen: () => solid("bookGreen", Color3.FromHexString("#1E4A36").toLinearSpace(), 0, 0.55),
+  bookNavy: () => solid("bookNavy", Color3.FromHexString("#1C2440").toLinearSpace(), 0, 0.55),
+  bookTan: () => solid("bookTan", Color3.FromHexString("#8C6A44").toLinearSpace(), 0, 0.6),
+  bookBlack: () => solid("bookBlack", Color3.FromHexString("#1A1616").toLinearSpace(), 0, 0.5),
+  hedge: () => solid("hedge", Color3.FromHexString("#14261A").toLinearSpace(), 0, 0.9),
+  lawn: () => solid("lawn", Color3.FromHexString("#0C140E").toLinearSpace(), 0, 1),
   cofferPaint: () => solid("cofferPaint", Color3.FromHexString("#1F4A3E").toLinearSpace(), 0, 0.55),
   linen: () => solid("linen", Palette.ivory, 0, 0.85),
   walnut: () => {
@@ -150,6 +178,17 @@ const builders: Record<string, () => PBRMaterial> = {
   coveGlow: () => emissive("coveGlow", Palette.tungsten, 2.6),
   candleFlame: () => emissive("candleFlame", Palette.candle, 8),
   clockFace: () => emissive("clockFace", Color3.FromHexString("#FFE9C2"), 1.4),
+  skyDome: () => {
+    const m = new PBRMaterial("skyDome", scene);
+    m.albedoColor = Color3.Black();
+    m.emissiveTexture = tex("gen_sky_dome/diff.webp");
+    m.emissiveColor = Color3.White();
+    m.emissiveIntensity = 1.0;
+    m.disableLighting = true;
+    m.fogEnabled = false;
+    return m;
+  },
+  moonDisc: () => emissive("moonDisc", Color3.FromHexString("#F4EEDC"), 3.5),
   nightSky: () => {
     const m = new PBRMaterial("nightSky", scene);
     m.albedoColor = Color3.Black();

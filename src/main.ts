@@ -5,8 +5,9 @@ import { MeshoptCompression } from "@babylonjs/core/Meshes/Compression/meshoptCo
 import HavokPhysics from "@babylonjs/havok";
 import havokWasmUrl from "@babylonjs/havok/lib/esm/HavokPhysics.wasm?url";
 
-import layoutJson from "./level/layouts/ballroom.json";
-import { buildRoom, Layout } from "./level/build";
+import wingJson from "./level/layouts/wing.json";
+import { buildWing, WingDef } from "./level/build";
+import { Doors } from "./level/doors";
 import { initMaterials, freezeMaterials } from "./art/materials";
 import { setupLighting } from "./render/lighting";
 import { Post } from "./render/pipeline";
@@ -65,8 +66,10 @@ async function main() {
 
   initMaterials(scene);
   progress(0.15, "Polishing the chandeliers…");
-  const layout = layoutJson as unknown as Layout;
-  const room = await buildRoom(scene, layout);
+  const layout = wingJson as unknown as WingDef;
+  const room = await buildWing(scene, layout);
+  const doors = new Doors(scene, room.doors);
+  for (const id of doors.ids()) doors.setOpen(id, id !== "study", true);
   progress(0.7, "Chilling the champagne…");
 
   const hud = new Hud();
@@ -78,9 +81,10 @@ async function main() {
   hud.bindInput(input);
 
   const lighting = setupLighting(scene, room, room.casters);
+  lighting.addDynamic(room.doors.flatMap((d) => d.pivots.flatMap((p) => p.getChildMeshes())));
   const shafts = createShafts(scene, room, lighting.moon.direction.clone());
   const post = new Post(scene, player.camera);
-  const mirrors = new Mirrors(scene, new Plane(1, 0, 0, -(layout.size[0] / 2 - 0.035)));
+  const mirrors = new Mirrors(scene, new Plane(1, 0, 0, -(10 - 0.035)));
 
   let quality: Quality = initialQuality();
   let booted = false;
@@ -149,6 +153,7 @@ async function main() {
       player.update(dt);
     }
     lighting.update(shot ? 1 : performance.now() / 1000);
+    doors.update(dt);
     shafts.update(scene.activeCamera!.position);
   });
   let last = performance.now();

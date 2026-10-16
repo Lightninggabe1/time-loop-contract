@@ -232,5 +232,54 @@ async function sky() {
   });
 }
 
-const jobs = { floorDeco, wallFan, gold, swatches, sky };
+// ---------- 6. deco painting: sunset over the sea, geometric sun, manor silhouette ----------
+async function painting() {
+  const S = 1024;
+  await write("gen_painting", S, S, (u, v) => {
+    const sky = mix3([28, 22, 52], [236, 132, 74], Math.pow(v / 0.62, 1.6));
+    let c = v < 0.62 ? sky : mix3([20, 48, 70], [8, 18, 30], (v - 0.62) * 2.6);
+    // stepped sun with rays
+    const dx = u - 0.5, dy = v - 0.6, r = Math.hypot(dx, dy);
+    if (v < 0.62) {
+      const ang = Math.atan2(dx, -dy);
+      if (r > 0.17 && Math.abs(Math.sin(ang * 9)) < 0.2 && r < 0.55) c = mix3(c, [250, 190, 110], 0.5);
+      if (r < 0.16) c = [252, 200, 120];
+      if (r < 0.16 && Math.floor((0.6 - v) * 60) % 3 === 0) c = [236, 120, 70];
+    }
+    // sun reflection stripes on the sea
+    if (v > 0.62 && Math.abs(dx) < 0.18 - (v - 0.62) * 0.2 && Math.floor(v * 90) % 3 === 0) c = mix3(c, [240, 170, 100], 0.6);
+    // manor silhouette with lit windows
+    const hx = Math.abs(u - 0.5);
+    const roof = 0.5 + (hx < 0.08 ? -0.07 : hx < 0.2 ? -0.03 : 0.02);
+    if (v > roof && v < 0.63 && hx < 0.3) {
+      c = [14, 10, 18];
+      if (Math.floor(u * 60) % 3 === 1 && Math.floor(v * 80) % 4 === 1) c = [250, 196, 110];
+    }
+    const n = fbm(u, v, 24, 3, 5) * 0.5 + 0.5;
+    c = c.map((x) => x * (0.92 + n * 0.12));
+    return { c, rough: 0.6, metal: 0, h: n * 0.2 };
+  });
+}
+
+// ---------- 7. sky dome (equirectangular, horizon at v = 0.5, no moon: it is a separate disc) ----------
+async function skyDome() {
+  const W = 2048, H = 1024;
+  await write("gen_sky_dome", W, H, (u, v, x, y) => {
+    const alt = 0.5 - v; // >0 above horizon
+    let c;
+    if (alt >= 0) {
+      const t = Math.pow(Math.min(1, alt / 0.5), 0.55);
+      c = mix3([52, 60, 104], [6, 9, 26], t);
+      const cloud = fbm(u, v, 6, 5, 91) * 0.5 + 0.5;
+      c = mix3(c, [70, 76, 110], smooth(0.62, 0.8, cloud) * (1 - t) * 0.5);
+      const st = hash(x, y, 11);
+      if (st > 0.9975 && alt > 0.03) c = mix3(c, [255, 246, 228], Math.min(1, (st - 0.9975) / 0.0025) * (0.4 + t * 0.6));
+    } else {
+      c = mix3([18, 22, 34], [4, 6, 10], Math.min(1, -alt * 6));
+    }
+    return { c, rough: 1, metal: 0 };
+  });
+}
+
+const jobs = { floorDeco, wallFan, gold, swatches, sky, painting, skyDome };
 for (const [k, f] of Object.entries(jobs)) if (!only.length || only.includes(k)) await f();

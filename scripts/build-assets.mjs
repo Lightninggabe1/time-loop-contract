@@ -48,6 +48,7 @@ async function textures() {
     for (const map of ["diff", "nor_gl", "arm"]) {
       const src = join(SRC, "textures", id, `${map}.jpg`);
       const dst = join(OUT, "textures", id, `${map}.webp`);
+      if (!(await exists(src))) continue;
       if (!(await newer(src, dst))) continue;
       const size = map === "arm" ? 1024 : 2048;
       await sharp(src).resize(size, size).webp({ quality: map === "nor_gl" ? 92 : 86 }).toFile(dst);
