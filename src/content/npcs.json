@@ -2,7 +2,7 @@
  "_doc": "Each entry: [time, spot, act, tag?]. Optional 'loop' blocks repeat a route every N minutes. Tags are what intel/events/interactions key on. Schedules are the whole truth: position = f(time).",
  "npcs": [
   {
-   "id": "ashcombe",
+   "id": "ashcombe", "short": "Lord Ashcombe",
    "name": "Lord Edmund Ashcombe",
    "role": "The host",
    "body": "male",
@@ -73,7 +73,7 @@
    ]
   },
   {
-   "id": "vivienne",
+   "id": "vivienne", "short": "Lady Vivienne",
    "name": "Lady Vivienne Ashcombe",
    "role": "The hostess",
    "body": "female",
@@ -131,7 +131,7 @@
    ]
   },
   {
-   "id": "calloway",
+   "id": "calloway", "short": "Mr Calloway",
    "name": "Mr Silas Calloway",
    "role": "The banker",
    "body": "male",
@@ -212,7 +212,7 @@
    ]
   },
   {
-   "id": "dolly",
+   "id": "dolly", "short": "Dolly",
    "name": "Miss Dolores \"Dolly\" Vane",
    "role": "The singer",
    "body": "female",
@@ -275,7 +275,7 @@
    ]
   },
   {
-   "id": "rupert",
+   "id": "rupert", "short": "Rupert",
    "name": "Rupert Ashcombe",
    "role": "The nephew",
    "body": "male",
@@ -333,7 +333,7 @@
    ]
   },
   {
-   "id": "hale",
+   "id": "hale", "short": "Inspector Hale",
    "name": "Inspector Hale",
    "role": "Off duty. Allegedly.",
    "body": "male",
@@ -380,7 +380,7 @@
    ]
   },
   {
-   "id": "pryce",
+   "id": "pryce", "short": "Mrs Pryce",
    "name": "Mrs Penelope Pryce",
    "role": "The gossip columnist",
    "body": "female",
@@ -438,7 +438,7 @@
    ]
   },
   {
-   "id": "hobbs",
+   "id": "hobbs", "short": "Hobbs",
    "name": "Hobbs",
    "role": "The butler",
    "body": "male",
@@ -508,7 +508,7 @@
    ]
   },
   {
-   "id": "pierre",
+   "id": "pierre", "short": "Pierre",
    "name": "Pierre",
    "role": "Waiter",
    "body": "male",
@@ -553,7 +553,7 @@
    }
   },
   {
-   "id": "marcel",
+   "id": "marcel", "short": "Chef Marcel",
    "name": "Chef Marcel",
    "role": "The chef",
    "body": "male",
@@ -604,7 +604,7 @@
    ]
   },
   {
-   "id": "brock",
+   "id": "brock", "short": "Brock",
    "name": "Brock",
    "role": "Doorman & muscle",
    "body": "male",
@@ -651,7 +651,7 @@
    }
   },
   {
-   "id": "elsie",
+   "id": "elsie", "short": "Elsie",
    "name": "Elsie",
    "role": "Housemaid",
    "body": "female",

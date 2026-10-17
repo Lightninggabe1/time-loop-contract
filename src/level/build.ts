@@ -85,8 +85,18 @@ function model(scene: Scene, id: string) {
           pm.emissiveIntensity = 5;
         }
         if (n.includes("canvas")) {
-          pm.albedoTexture = new Texture("./assets/textures/gen_painting/diff.webp", scene);
+          // glTF UVs: no vertical flip. Matte oil paint: keep the sky reflection off it
+          pm.albedoTexture = new Texture("./assets/textures/gen_painting/diff.webp", scene, false, false);
           pm.albedoColor = Color3.White();
+          pm.environmentIntensity = 0.12;
+          // lit by its own soft picture-light glow, so lamps can't blow it out
+          pm.directIntensity = 0.2;
+          pm.emissiveTexture = pm.albedoTexture;
+          pm.emissiveColor = new Color3(0.42, 0.38, 0.34);
+        } else if (n.startsWith("fancy_picture_frame")) {
+          pm.albedoColor = new Color3(0.86, 0.68, 0.38); // gilt, not white plaster
+          pm.environmentIntensity = 0.3;
+          pm.directIntensity = 0.55;
         }
         if (n === "armchair_01") pm.albedoColor = Color3.FromHexString("#3F6B55").toLinearSpace(); // palette emerald over the fabric texture
         // glTF transmission spawns an extra opaque-scene render pass (costly, and it

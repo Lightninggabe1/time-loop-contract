@@ -336,6 +336,13 @@ export function safePanel(c: ModuleCtx, x0: number, w: number) {
   panel(c, x0, w, {});
   const y = c.st.wains + 0.75;
   k.box("lacquer", v(cx, y, 0.03), v(0.62, 0.62, 0.04), {}, f);
+  // reads as a safe at a glance: brass trim, a big dial, a handle and hinges
+  for (const [dx, dy, w, h] of [[0, 0.32, 0.66, 0.03], [0, -0.32, 0.66, 0.03], [-0.32, 0, 0.03, 0.66], [0.32, 0, 0.03, 0.66]])
+    k.box("brass", v(cx + dx, y + dy, 0.045), v(w, h, 0.03), { shadow: false }, f);
+  k.cyl("brass", v(cx + 0.06, y + 0.04, 0.06), 0.03, 0.2, { rotX: Math.PI / 2, tess: 32, shadow: false }, f);
+  k.cyl("lacquer", v(cx + 0.06, y + 0.04, 0.078), 0.012, 0.11, { rotX: Math.PI / 2, tess: 24, shadow: false }, f);
+  k.box("brass", v(cx - 0.18, y + 0.04, 0.07), v(0.035, 0.18, 0.035), { shadow: false }, f);
+  for (const dy of [-0.2, 0.2]) k.box("brass", v(cx + 0.27, y + dy, 0.06), v(0.04, 0.08, 0.03), { shadow: false }, f);
   c.anchors.safe = { pos: Kit.toWorld(f, v(cx, y, 0.1)), normal: worldN(c) };
 }
 

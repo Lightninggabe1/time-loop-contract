@@ -2,10 +2,10 @@
 // chandelier, chases, and the HUD. All rules live in Session; this file only
 // shows them and feeds player input back.
 import { Scene, Vector3, Matrix, TransformNode, Quaternion, ParticleSystem, Color4, Color3, Mesh, MeshBuilder, StandardMaterial } from "@babylonjs/core";
-import { Session, Offer } from "./session";
+import { Session, Offer, TalkOption } from "./session";
 import { test } from "../core/conditions";
 import { NpcActor } from "../characters/npc";
-import { npcs, npcMeta, board, contracts, perks, interactions } from "../content";
+import { npcs, npcMeta, board, contracts, perks, interactions, anchorNames, leadTargets } from "../content";
 import { LocalStorage } from "../core/storage";
 import { formatTime } from "../core/clock";
 import type { Vec3 } from "../core/schedule";
@@ -41,6 +41,10 @@ export class GameClient {
   private markerMat: StandardMaterial | null = null;
   private paused = false;
   private ready = false;
+  private talkNpc: string | null = null;
+  private talkReply: string | null = null;
+  private ignoreInteractUntil = 0;
+  private painting: { pivot: TransformNode; open: number; dir: number } | null = null;
 
   constructor(
     private scene: Scene,
@@ -63,6 +67,11 @@ export class GameClient {
       onPause: (p) => {
         this.paused = p;
         this.player.enabled = !p;
+        if (!p) {
+          // the key that closed an overlay must not also act in the world
+          this.input.read();
+          this.ignoreInteractUntil = performance.now() + 300;
+        }
       },
     });
     this.session.start();
@@ -91,6 +100,7 @@ export class GameClient {
       if (d < bd) (bd = d), (best = top);
     }
     this.chandelier = best;
+    this.hingePainting();
     this.ready = true;
   }
 
@@ -137,14 +147,15 @@ export class GameClient {
       this.doors.setOpen(d.spec.id, open);
     }
     this.updateMarkers(offers0(this.session));
+    this.swingPainting(dt, !!w.flags["painting.open"]);
     this.blackout(!!w.flags["lights.out"]);
     if (w.flags["chandelier.dropped"] && this.chandelierFall < 0) this.chandelierFall = 0;
     this.animateChandelier(dt);
     // input
     const s = this.input.peekEdges();
-    const offers = this.session.offers();
+    const offers = this.rankByView(this.session.offers());
     this.ui.setOffers(offers.slice(0, 3));
-    if (s.interact && offers[0]) this.act(offers[0].id);
+    if (s.interact && offers[0] && performance.now() > this.ignoreInteractUntil) this.act(offers[0].id);
     if (s.item) this.wait();
     if (s.board) this.ui.toggleBoard(board, w.ctx);
     for (let i = 0; i < 3; i++) if (s.number === i + 1 && offers[i]) this.act(offers[i].id);
@@ -162,10 +173,13 @@ export class GameClient {
     this.ui.setClock(t.hm, t.ampm, this.room.roomOf(cam)?.name ?? "The Grounds");
     this.ui.setTracker(this.session.contractStatus(), this.session.meta.loop, board.lead(w.ctx), w.flags);
     this.updateBubbles();
+    this.updateTags(offers[0]);
+    this.updatePin();
   }
 
   private output(o: Output) {
-    if (o.kind === "say") this.bubbles.set(o.npc, { text: o.line, until: performance.now() + 4200 });
+    if (o.kind === "say" && o.npc === this.talkNpc && this.ui.talking) this.talkReply = o.line;
+    else if (o.kind === "say") this.bubbles.set(o.npc, { text: o.line, until: performance.now() + 4200 });
     else if (o.kind === "toast") this.ui.toast(o.text);
     else if (o.kind === "learn") {
       const d = board.get(o.intel);
@@ -227,10 +241,11 @@ export class GameClient {
         m.material = this.markerMat;
         m.isPickable = false;
         m.position.set(p[0], p[1] + 0.35, p[2]);
+        if (id === "safe") m.setEnabled(false);
         this.markers.set(id, m);
       }
       if (m) {
-        m.setEnabled(near);
+        m.setEnabled(near && id !== "safe"); // the painting has its label; a glint on the canvas looks like a bug
         m.position.y = p[1] + 0.35 + Math.sin(t * 2.4 + p[0]) * 0.04;
         m.scaling.setAll(0.8 + 0.25 * Math.sin(t * 4 + p[2]));
       }
@@ -240,6 +255,7 @@ export class GameClient {
   // ---------------------------------------------------------------- actions
 
   act(id: string) {
+    if (id.startsWith("talk:")) return this.openTalk(id.slice(5));
     const r = this.session.perform(id);
     const npc = id.startsWith("punch:") ? id.slice(6) : null;
     if (npc) {
@@ -249,12 +265,38 @@ export class GameClient {
     }
     if (id === "fuse.pull") this.audio.play("switch", 0.8);
     if (id.startsWith("door:")) this.audio.play("open", 0.4);
-    if (r.ok && !npc && !id.startsWith("chat:") && !id.startsWith("door:")) this.audio.play("click", 0.3);
+    if (r.ok && !npc && !id.startsWith("ask:") && !id.startsWith("door:")) this.audio.play("click", 0.3);
     if (r.witnessed.length) {
       this.ui.toast("You were seen!", "warn");
       this.audio.play("seen", 0.5);
     }
     for (const o of this.session.tick(0)) this.output(o);
+  }
+
+  // ---------------------------------------------------------------- conversation
+
+  private openTalk(npc: string) {
+    this.talkNpc = npc;
+    this.audio.play("click", 0.25);
+    this.showTalk(this.session.greet(npc));
+  }
+
+  private showTalk(line: string, note = false) {
+    const npc = this.talkNpc!;
+    const m = npcMeta[npc];
+    this.ui.showTalk(m.name, m.role, line, this.session.talkOptions(npc), (o) => this.pickTalk(o), note);
+  }
+
+  private pickTalk(o: TalkOption | null) {
+    if (!o) {
+      this.talkNpc = null;
+      this.ui.closeTalk();
+      return;
+    }
+    if (o.kind === "locked") return this.showTalk(o.note ?? "Not now.", true);
+    this.talkReply = null;
+    this.act(o.id);
+    this.showTalk(this.talkReply ?? "...");
   }
 
   wait() {
@@ -265,6 +307,133 @@ export class GameClient {
   hint() {
     const lead = board.lead(this.session.world.ctx);
     this.ui.toast(lead ? `Lead: ${lead.hint}` : "You know everything worth knowing. Now act on it.", "intel");
+  }
+
+  // ---------------------------------------------------------------- readability helpers
+
+  private offerPos(o: Offer): Vector3 | null {
+    if (o.npc) return this.actors.get(o.npc)?.position.add(new Vector3(0, 1.4, 0)) ?? null;
+    const a = o.anchor && this.session.anchors[o.anchor];
+    return a ? new Vector3(a[0], a[1], a[2]) : null;
+  }
+
+  /** Whatever you're looking at comes first (then nearest). */
+  private rankByView(offers: Offer[]) {
+    const cam = this.player.camera, fwd = cam.getForwardRay().direction;
+    const score = (o: Offer) => {
+      const p = this.offerPos(o);
+      if (!p) return o.dist;
+      const to = p.subtract(cam.position);
+      const dot = Vector3.Dot(to.normalize(), fwd);
+      return o.dist * (1.7 - dot);
+    };
+    const scored = offers.map((o, i) => ({ o, s: score(o), i }));
+    // keep talk/punch on one person together and in their usual order
+    return scored.sort((a, b) => (a.o.npc && a.o.npc === b.o.npc ? a.i - b.i : a.s - b.s)).map((x) => x.o);
+  }
+
+  private screen(v: Vector3) {
+    const engine = this.scene.getEngine();
+    const vp = this.scene.activeCamera!.viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight());
+    const p = Vector3.Project(v, Matrix.Identity(), this.scene.getTransformMatrix(), vp);
+    const k = engine.getHardwareScalingLevel();
+    const view = Vector3.TransformCoordinates(v, this.scene.getViewMatrix());
+    return { x: p.x * k, y: p.y * k, ahead: view.z > 0.2, view };
+  }
+
+  /** Name tags: people nearby (gold ❝ when you have a move to make, • when they have something to tell you) and usable things. */
+  private updateTags(primary?: Offer) {
+    const s = this.session, w = s.world, cam = this.player.camera;
+    const fwd = cam.getForwardRay().direction;
+    const list: { key: string; x: number; y: number; text: string; cls: string }[] = [];
+    const visible = (p: Vector3, range: number) => {
+      const to = p.subtract(cam.position);
+      const d = to.length();
+      return d < range && Vector3.Dot(to.scale(1 / d), fwd) > 0.35;
+    };
+    for (const [id, a] of this.actors) {
+      if (this.bubbles.has(id) || w.npcPose(id).override?.state === "ko") continue;
+      const p = a.position.add(new Vector3(0, 2.0, 0));
+      if (!visible(p, 7)) continue;
+      const q = this.screen(p);
+      const opts = s.talkOptions(id);
+      const cls = opts.some((o) => o.kind === "move") ? "move" : opts.some((o) => o.kind === "ask") ? "fresh" : "";
+      list.push({ key: id, x: q.x, y: q.y, text: npcMeta[id].short, cls: cls + (primary?.npc === id ? " focus" : "") });
+    }
+    const avail = new Set(interactions.filter((it) => it.target.anchor && !it.talk && (!it.when || test(it.when, w.ctx))).map((it) => it.target.anchor!));
+    for (const [id, a] of Object.entries(s.anchors)) {
+      if (!avail.has(id) || !anchorNames[id]) continue;
+      const p = new Vector3(a[0], a[1] + (id === "safe" ? 0.82 : 0.28), a[2]); // above the frame, not on the canvas
+      if (!visible(p, 6)) continue;
+      const q = this.screen(p);
+      list.push({ key: `a:${id}`, x: q.x, y: q.y, text: id === "safe" && w.flags["painting.open"] ? "Wall safe" : anchorNames[id], cls: "thing" + (primary?.anchor === id ? " focus" : "") });
+    }
+    this.ui.setTags(list);
+  }
+
+  /** The Lead marker: points at whoever (or whatever) the current Lead is about. */
+  private updatePin() {
+    const w = this.session.world;
+    const lead = board.lead(w.ctx);
+    const t = lead && leadTargets[lead.intel.id];
+    let pos: Vector3 | null = null;
+    if (t?.npc) {
+      const a = this.actors.get(t.npc);
+      if (a && w.npcPose(t.npc).override?.state !== "ko") pos = a.position.add(new Vector3(0, 2.3, 0));
+    } else if (t?.anchor) {
+      const a = this.session.anchors[t.anchor];
+      if (a) pos = new Vector3(a[0], a[1] + 0.6, a[2]);
+    }
+    if (!pos || !lead) return this.ui.setPin(null);
+    const cam = this.player.camera.position;
+    const dist = Math.hypot(pos.x - cam.x, pos.z - cam.z);
+    const q = this.screen(pos);
+    const W = innerWidth, H = innerHeight, m = 48, mx = 96; // mx: room for the label beside the arrow
+    const onScreen = q.ahead && q.x > mx && q.x < W - mx && q.y > m + 30 && q.y < H - m;
+    if (onScreen) return this.ui.setPin({ x: q.x, y: q.y, edge: false, angle: 0, text: lead.intel.title, dist });
+    // off screen: slide to the edge in the target's direction
+    let dx = q.view.x, dy = -q.view.y;
+    if (!q.ahead && Math.abs(dx) < 1e-3) dx = 1;
+    if (!q.ahead) dy = Math.max(dy, 0.25 * Math.abs(dx)); // behind you: keep it low on the screen
+    const len = Math.hypot(dx, dy) || 1;
+    dx /= len;
+    dy /= len;
+    const tt = Math.min((W / 2 - mx) / Math.max(Math.abs(dx), 1e-3), (H / 2 - m - 20) / Math.max(Math.abs(dy), 1e-3));
+    this.ui.setPin({ x: W / 2 + dx * tt, y: H / 2 + dy * tt + 20, edge: true, angle: Math.atan2(dy, dx) - Math.PI / 2, text: lead.intel.title, dist });
+  }
+
+  /** The sunset painting in the study swings out on a hinge to reveal the safe. */
+  private hingePainting() {
+    const p = this.room.props.painting;
+    const a = this.room.anchors.safe;
+    if (!p || !a) return;
+    p.computeWorldMatrix(true);
+    const { min, max } = p.getHierarchyBoundingVectors(true);
+    const n = a.normal.clone();
+    n.y = 0;
+    n.normalize();
+    const side = Vector3.Cross(Vector3.Up(), n).normalize();
+    const half = (Math.abs(side.x) * (max.x - min.x) + Math.abs(side.z) * (max.z - min.z)) / 2;
+    const center = min.add(max).scale(0.5);
+    const pivot = new TransformNode("painting_hinge", this.scene);
+    pivot.position.copyFrom(center.add(side.scale(half)));
+    p.setParent(pivot);
+    // swing outwards into the room, whichever way that is
+    const off = center.subtract(pivot.position);
+    const test1 = Vector3.TransformCoordinates(off, Matrix.RotationY(1.2));
+    const dir = Vector3.Dot(test1.subtract(off), n) > 0 ? 1 : -1;
+    this.painting = { pivot, open: 0, dir };
+  }
+
+  private swingPainting(dt: number, open: boolean) {
+    const p = this.painting;
+    if (!p) return;
+    const target = open ? 1 : 0;
+    if (p.open === target) return;
+    if (open && p.open === 0) this.audio.play("open", 0.5, 0.7);
+    p.open = open ? Math.min(1, p.open + dt * 1.6) : 0;
+    const e = 1 - Math.pow(1 - p.open, 3);
+    p.pivot.rotation.y = p.dir * 1.85 * e;
   }
 
   // ---------------------------------------------------------------- chase
@@ -415,6 +584,9 @@ export class GameClient {
       this.chandelier.rotationQuaternion = Quaternion.Identity();
     }
     this.blackout(false);
+    this.talkNpc = null;
+    this.ui.closeTalk();
+    if (this.painting) (this.painting.open = 0), (this.painting.pivot.rotation.y = 0);
     for (const [id, a] of this.actors) a.place(this.session.world.npcPose(id), 0, true);
     this.ui.hideEnd();
     this.endShown = false;

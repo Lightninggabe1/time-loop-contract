@@ -1,0 +1,60 @@
+{
+  "_doc": "Conversations. Talking to someone opens a menu of questions. Each question is asked once per loop. learn: adds that clue to the board. tip: points the Lead at that clue (and says where to find it). when: only offered while this holds. Social moves from interactions.json with talk:true appear in the same menu (gold), or greyed with their 'notYet' text when the moment isn't right.",
+  "people": {
+    "ashcombe": [
+      { "id": "plans", "ask": "Any plans for midnight?", "line": "A toast, on stage, at five to twelve! And a little announcement. You'll want to be there.", "learn": "i.ashcombe" },
+      { "id": "banker", "ask": "Who's the man in the white jacket?", "line": "Calloway. My banker. And, er... my very good friend, these days.", "learn": "i.calloway" },
+      { "id": "worried", "ask": "You seem distracted.", "line": "Me? Nonsense. I've a little business with Calloway by the study fire at a quarter to nine, that's all.", "tip": "i.debts" }
+    ],
+    "vivienne": [
+      { "id": "singer", "ask": "Who's the singer?", "line": "Dolly Vane. Edmund booked her. She sings at ten. I'd give my pearls for her not to.", "learn": "i.dolly" },
+      { "id": "edmund", "ask": "Is Lord Ashcombe all right?", "line": "Edmund's been odd all week. Keeps slipping into the study with that banker.", "tip": "i.debts" },
+      { "id": "avoid", "ask": "Anyone I should avoid?", "line": "Inspector Hale sees everything. Mrs Pryce prints everything. And Brock simply hits things. Behave where they can see you." }
+    ],
+    "calloway": [
+      { "id": "who", "ask": "And you are?", "line": "Silas Calloway. I own the bank. After tonight, rather more than the bank.", "learn": "i.calloway" },
+      { "id": "drink", "ask": "Fancy a glass?", "line": "Later. Half past seven, at the champagne tower. Champagne makes me sentimental. And numerical.", "tip": "i.combo" },
+      { "id": "balcony", "ask": "Lovely night for the balcony.", "line": "Is it? I wouldn't know. I certainly shan't be out there at seven o'clock.", "tip": "i.affair", "when": { "intel": "i.calloway" } }
+    ],
+    "dolly": [
+      { "id": "sing", "ask": "Are you singing tonight?", "line": "Ten o'clock, sugar. One song, one microphone, no encores.", "learn": "i.dolly" },
+      { "id": "dream", "ask": "Ever thought about the pictures?", "line": "Every night. I practise on the balcony when the party starts, in case a picture man is listening.", "tip": "i.hollywood" },
+      { "id": "mic", "ask": "That microphone looks old.", "line": "One microphone, one cable. If that cable goes, I go home early.", "learn": "i.mic" },
+      { "id": "cake", "ask": "Hungry?", "line": "Starving. I'll sneak some cake from the kitchen at half nine. Don't tell the chef." }
+    ],
+    "rupert": [
+      { "id": "work", "ask": "What do you do, Rupert?", "line": "Pictures, old boy. I'm practically in pictures. Well. I've seen several.", "learn": "i.scout", "when": { "intel": "i.dolly" } },
+      { "id": "work2", "ask": "What do you do, Rupert?", "line": "Oh, this and that. Mostly that. Ask me again when you've met someone worth impressing.", "when": { "not": { "intel": "i.dolly" } } },
+      { "id": "uncle", "ask": "How's your uncle?", "line": "Uncle's making an announcement at midnight. Ghastly. He's been playing cards with that banker again.", "tip": "i.debts" }
+    ],
+    "hale": [
+      { "id": "duty", "ask": "Off duty, Inspector?", "line": "Allegedly. Do something shady where I can see it and I'll whistle for Brock. Where I can't see it... well. I'm off duty." },
+      { "id": "seen", "ask": "Noticed anything?", "line": "The butler naps in the kitchen at eight. Keys and naps don't mix.", "tip": "i.key" }
+    ],
+    "pryce": [
+      { "id": "gossip", "ask": "Any gossip?", "line": "Darling, the banker has a secret. I'd know. I'm in it. ...Forget I said that.", "learn": "i.calloway", "tip": "i.affair" },
+      { "id": "study", "ask": "What's in the study?", "line": "Books, a fire, and a safe behind the sunset painting. Not that I've looked. Much.", "learn": "i.safe" }
+    ],
+    "hobbs": [
+      { "id": "study", "ask": "Can I see the study?", "line": "Private, sir. I unlock it for His Lordship at a quarter to nine and lock it again at half past nine." },
+      { "id": "night", "ask": "Long night, Hobbs?", "line": "I rest my eyes in the kitchen at eight, sir. The study key never leaves my pocket.", "learn": "i.key" },
+      { "id": "chandelier", "ask": "Is that chandelier safe?", "line": "It hangs on one rope behind the right-hand stage curtain, sir. I check the knot annually.", "learn": "i.rope" }
+    ],
+    "pierre": [
+      { "id": "busy", "ask": "Busy night?", "line": "Always, monsieur. Nobody looks at a waiter. There is a spare jacket by the kitchen door, if monsieur wishes to vanish.", "learn": "i.jacket" },
+      { "id": "drink", "ask": "Can I take a glass to His Lordship?", "line": "A guest? Non. His Lordship only takes a glass from staff. Twenty to twelve, at the tower." }
+    ],
+    "marcel": [
+      { "id": "soufle", "ask": "What's cooking?", "line": "The soufflé. With my tonic! Three drops and the critics sleep like babies. It is by the stove. Do NOT touch.", "learn": "i.drops" },
+      { "id": "break", "ask": "Do you ever take a break?", "line": "Half past ten, one cigarette, in the corner. The rest of the night: OUT of my kitchen." }
+    ],
+    "brock": [
+      { "id": "rules", "ask": "What happens to troublemakers?", "line": "Somebody shouts, I come running. I catch you, you're out. Can't catch what's quicker than me, mind." },
+      { "id": "round", "ask": "Quiet night?", "line": "I walk the ballroom every half hour. No trouble tonight." }
+    ],
+    "elsie": [
+      { "id": "work", "ask": "Busy?", "line": "So many stairs. At least there's the little door from the kitchen into the study. Saves my knees.", "learn": "i.passage" },
+      { "id": "lights", "ask": "Do the lights ever go out?", "line": "Only if someone pulls the main fuse. It's in the kitchen, on the wall by the window. Ten minutes of pitch dark.", "learn": "i.fusebox" }
+    ]
+  }
+}

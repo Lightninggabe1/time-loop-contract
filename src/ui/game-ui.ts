@@ -1,7 +1,7 @@
 // Game HUD (HTML overlay): prompt, toasts, speech bubbles, contract tracker,
 // intel board, intro cards and the midnight summary. Plain DOM: crisp text,
 // cheap updates, works the same on phones.
-import type { Offer } from "../game/session";
+import type { Offer, TalkOption } from "../game/session";
 import type { ContractStatus, ApproachKind } from "../core/contracts";
 import type { IntelBoard, Lead } from "../core/intel";
 import type { CondCtx, FlagValue } from "../core/conditions";
@@ -37,14 +37,20 @@ export class GameUI {
   private end = el("div", "g-end");
   private introEl = el("div", "g-intro");
   private flashEl = el("div", "g-flash");
+  private tags = el("div", "g-tags");
+  private pin = el("div", "g-pin");
+  private talkEl = el("div", "g-talk");
+  private talkPick: ((o: TalkOption | null) => void) | null = null;
+  private talkOpts: TalkOption[] = [];
+  private tagEls = new Map<string, HTMLDivElement>();
   private offers: Offer[] = [];
   private bubbleEls = new Map<string, HTMLDivElement>();
   private focus = 0; // which contract the tracker follows
   private lastTrack = "";
 
   constructor(private hooks: UIHooks) {
-    for (const e of [this.bubbles, this.prompt, this.toasts, this.tracker, this.board, this.end, this.introEl, this.flashEl]) this.root.appendChild(e);
-    this.board.hidden = this.end.hidden = this.introEl.hidden = true;
+    for (const e of [this.tags, this.pin, this.bubbles, this.talkEl, this.prompt, this.toasts, this.tracker, this.board, this.end, this.introEl, this.flashEl]) this.root.appendChild(e);
+    this.board.hidden = this.end.hidden = this.introEl.hidden = this.talkEl.hidden = this.pin.hidden = true;
     document.getElementById("hint")?.remove();
     // touch buttons
     const ctx = document.getElementById("btn-context")!;
@@ -60,6 +66,11 @@ export class GameUI {
       if (!this.end.hidden && (e.code === "Space" || e.code === "Enter")) hooks.onAgain();
       if (!this.introEl.hidden) this.hideIntro();
       if (!this.board.hidden && e.code === "Escape") this.closeBoard();
+      if (!this.talkEl.hidden && this.talkPick) {
+        const n = Number(e.code.replace("Digit", ""));
+        if (n >= 1 && n <= this.talkOpts.length) this.talkPick(this.talkOpts[n - 1]);
+        else if (e.code === "Escape" || e.code === "KeyE" || e.code === "Space") this.talkPick(null);
+      }
     });
   }
 
@@ -125,6 +136,77 @@ export class GameUI {
     if (small.textContent !== ampm) small.textContent = ampm;
     const r = document.getElementById("room")!;
     if (r.textContent !== room) r.textContent = room;
+  }
+
+  // ---------------------------------------------------------------- conversation
+  /** Show (or refresh) the conversation panel. `pick(null)` = goodbye. */
+  showTalk(name: string, role: string, line: string, options: TalkOption[], pick: (o: TalkOption | null) => void, note = false) {
+    this.talkPick = pick;
+    this.talkOpts = options;
+    const opts = options
+      .map((o, i) => `<button class="g-opt ${o.kind}" data-i="${i}"><kbd>${i + 1}</kbd><span>${o.kind === "move" ? "❝ " : ""}${esc(o.label)}${o.kind === "locked" && o.note ? `<small>${esc(o.note)}</small>` : ""}</span></button>`)
+      .join("");
+    this.talkEl.innerHTML = `<div class="g-talk-in"><h4>${esc(name)} <small>${esc(role)}</small></h4><p class="g-line${note ? " note" : ""}">${esc(line)}</p>
+      <div class="g-opts">${opts}${options.length ? "" : `<p class="g-none">Nothing more to ask right now.</p>`}<button class="g-opt bye"><kbd>E</kbd><span>Goodbye</span></button></div></div>`;
+    this.talkEl.querySelectorAll<HTMLButtonElement>(".g-opt").forEach((b) => {
+      const go = () => pick(b.dataset.i === undefined ? null : options[Number(b.dataset.i)]);
+      b.addEventListener("click", go);
+      b.addEventListener("touchstart", (e) => (e.preventDefault(), go()));
+    });
+    if (this.talkEl.hidden) {
+      this.talkEl.hidden = false;
+      document.body.classList.add("talking");
+      document.exitPointerLock?.();
+      this.hooks.onPause(true);
+    }
+  }
+  /** Replace just the spoken line (e.g. when a reply arrives). */
+  talkLine(line: string) {
+    const p = this.talkEl.querySelector(".g-line");
+    if (p) (p.textContent = line), p.classList.remove("note");
+  }
+  get talking() {
+    return !this.talkEl.hidden;
+  }
+  closeTalk() {
+    if (this.talkEl.hidden) return;
+    this.talkEl.hidden = true;
+    document.body.classList.remove("talking");
+    this.talkPick = null;
+    this.hooks.onPause(false);
+  }
+
+  // ---------------------------------------------------------------- world labels & lead marker
+  /** Name tags over nearby people and usable things. */
+  setTags(list: { key: string; x: number; y: number; text: string; cls: string }[]) {
+    const seen = new Set<string>();
+    for (const t of list) {
+      seen.add(t.key);
+      let e = this.tagEls.get(t.key);
+      if (!e) {
+        e = el("div", "g-tag");
+        this.tags.appendChild(e);
+        this.tagEls.set(t.key, e);
+      }
+      const cls = `g-tag ${t.cls}`;
+      if (e.className !== cls) e.className = cls;
+      if (e.textContent !== t.text) e.textContent = t.text;
+      e.style.transform = `translate(${t.x.toFixed(1)}px, ${t.y.toFixed(1)}px) translate(-50%, -100%)`;
+    }
+    for (const [k, e] of this.tagEls) if (!seen.has(k)) (e.remove(), this.tagEls.delete(k));
+  }
+
+  /** The Lead marker: on the target when visible, else pinned to the screen edge pointing at it. */
+  setPin(p: { x: number; y: number; edge: boolean; angle: number; text: string; dist: number } | null) {
+    if (!p) {
+      this.pin.hidden = true;
+      return;
+    }
+    this.pin.hidden = false;
+    const html = `<i style="transform: rotate(${p.edge ? p.angle : 0}rad)"></i><span><em>Lead</em>${esc(p.text)}<small>${Math.round(p.dist)} m</small></span>`;
+    if (this.pin.innerHTML !== html) this.pin.innerHTML = html;
+    this.pin.classList.toggle("edge", p.edge);
+    this.pin.style.transform = `translate(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px) translate(-50%, -100%)`;
   }
 
   // ---------------------------------------------------------------- tracker

@@ -51,6 +51,8 @@ await page.evaluate(() => window.__client.session.perform("rope.untie"));
 await page.waitForTimeout(2500);
 await shot("f2_chandelier");
 results.c3 = await page.evaluate(() => window.__client.session.contractStatus().find((c) => c.contract.id === "toast").complete?.id ?? null);
+results.seenAtRope = await page.evaluate(() => window.__client.session.chase?.by ?? null);
+await page.evaluate(() => window.__client.session.escape()); // shake him off so the midnight beat can play
 
 // 3. restart via midnight
 await jump("23:59", [0, 0, -6], [0, 2, 6]);
@@ -66,7 +68,11 @@ await shot("f4_loop2_intro");
 await page.keyboard.press("Enter");
 
 // 4. witnessed punch → chase → caught
-await jump("19:05", [5.0, 0, -9.6], [5.45, 1.5, -9]);
+await jump("19:05", [0, 0, 0], [0, 1.5, 1]);
+await page.waitForTimeout(300);
+// stand in front of Rupert on the dance floor, where plenty of guests can see
+const rp = await page.evaluate(() => { const p = window.__client.session.world.npcPose("rupert"); return [p.pos[0] + Math.sin(p.yaw) * 1.1, 0, p.pos[2] + Math.cos(p.yaw) * 1.1, p.pos[0], p.pos[2]]; });
+await jump("19:05", [rp[0], 0, rp[2]], [rp[3], 1.5, rp[4]]);
 await page.waitForTimeout(600);
 const nearest = await page.evaluate(() => window.__client.session.offers().find((o) => o.id.startsWith("punch:"))?.id);
 results.punchOffer = nearest;

@@ -19,7 +19,16 @@ export interface Offer {
   label: string;
   dist: number;
   npc?: string;
+  anchor?: string;
   crime?: boolean;
+}
+
+/** One line in the conversation menu. */
+export interface TalkOption {
+  id: string; // "ask:<npc>:<topic>" or an interaction id
+  label: string;
+  kind: "ask" | "move" | "locked";
+  note?: string; // why a move is greyed out
 }
 
 export interface ActResult {
@@ -39,6 +48,8 @@ export class Session {
   private observed = new Set<string>();
   private outputs: Output[] = [];
   private doneContracts = new Set<string>();
+  private asked = new Set<string>();
+  private greets = 0;
   ended: LoopSummary | null = null;
   /** anchors: interactable world positions (from spots.json, mirrored by the level) */
   readonly anchors: Record<string, Vec3>;
@@ -63,6 +74,7 @@ export class Session {
     this.chase = null;
     this.observed.clear();
     this.doneContracts.clear();
+    this.asked.clear();
     this.ended = null;
     this.outputs = this.world.drain();
     this.player = { pos: [...C.spawn.pos] as Vec3, yaw: 0 };
@@ -197,13 +209,15 @@ export class Session {
   private anchorDist(id: string) {
     const a = this.anchors[id];
     if (!a) return Infinity;
-    return Math.hypot(a[0] - this.player.pos[0], a[2] - this.player.pos[2]) + Math.max(0, Math.abs(a[1] - (this.player.pos[1] + 1.2)) - 1) * 0.5;
+    // things up to ~3.2 m high (the painting over the safe) are within reach
+    return Math.hypot(a[0] - this.player.pos[0], a[2] - this.player.pos[2]) + Math.max(0, Math.abs(a[1] - (this.player.pos[1] + 1.2)) - 2) * 0.5;
   }
 
   /** Context actions available where the player stands, nearest first. */
   offers(): Offer[] {
     const w = this.world, out: Offer[] = [];
     for (const it of C.interactions) {
+      if (it.talk) continue; // social moves live in the conversation menu
       if (it.when && !test(it.when, w.ctx)) continue;
       let d = Infinity;
       if (it.target.npc) {
@@ -214,9 +228,9 @@ export class Session {
         if (d > 2.4) continue;
       } else if (it.target.anchor) {
         d = this.anchorDist(it.target.anchor);
-        if (d > 2.2) continue;
+        if (d > 2.4) continue;
       }
-      out.push({ id: it.id, label: it.label, dist: d, npc: it.target.npc, crime: it.crime });
+      out.push({ id: it.id, label: it.label, dist: d, npc: it.target.npc, anchor: it.target.anchor, crime: it.crime });
     }
     // generic: chat / punch the nearest conscious NPC
     let best: string | null = null, bd = 2.2;
@@ -227,8 +241,9 @@ export class Session {
       if (d < bd) (bd = d), (best = n.id);
     }
     if (best) {
-      out.push({ id: `chat:${best}`, label: `Chat with ${C.npcMeta[best].name}`, dist: bd + 0.01, npc: best });
-      out.push({ id: `punch:${best}`, label: `Punch ${C.npcMeta[best].name}`, dist: bd + 0.02, npc: best, crime: true });
+      const name = C.npcMeta[best].short;
+      if (!this.chase) out.push({ id: `talk:${best}`, label: `Talk to ${name}${this.hasMove(best) ? " ❝" : ""}`, dist: bd + 0.01, npc: best });
+      out.push({ id: `punch:${best}`, label: `Punch ${name}`, dist: bd + 0.02, npc: best, crime: true });
     }
     // doors you can open/close (unlocked ones)
     for (const d of ["study", "kitchen", "balcony", "passage"]) {
@@ -236,20 +251,66 @@ export class Session {
       if (dd > 2.0) continue;
       if (w.flags[`door.${d}.locked`]) continue;
       const open = w.flags[`door.${d}.open`] !== false;
-      out.push({ id: `door:${d}`, label: open ? "Close the door" : "Open the door", dist: dd + 0.05 });
+      out.push({ id: `door:${d}`, label: open ? "Close the door" : "Open the door", dist: dd + 0.05, anchor: `door.${d}` });
     }
     return out.sort((a, b) => a.dist - b.dist);
   }
 
+  // ---------------------------------------------------------------- conversation
+
+  /** Does this person have a social move ready for you right now? (shown as ❝ on the prompt) */
+  hasMove(npc: string) {
+    return this.talkOptions(npc).some((o) => o.kind === "move");
+  }
+
+  /** A greeting line; varies each time you start a conversation. */
+  greet(npc: string) {
+    const lines = C.barks[npc] ?? C.barks.default;
+    return lines[this.greets++ % lines.length];
+  }
+
+  /** The conversation menu for one person: social moves first, then questions not yet asked. */
+  talkOptions(npc: string): TalkOption[] {
+    const w = this.world, out: TalkOption[] = [];
+    const pose = w.npcPose(npc);
+    for (const it of C.interactions) {
+      if (!it.talk || it.target.npc !== npc) continue;
+      const ready = (!it.when || test(it.when, w.ctx)) && (!it.npcTag || (!!pose.tag && it.npcTag.includes(pose.tag) && !pose.moving));
+      const shown = ready || test(it.show ?? it.when ?? true, w.ctx);
+      if (!shown) continue;
+      out.push(ready ? { id: it.id, label: it.label, kind: "move" } : { id: it.id, label: it.label, kind: "locked", note: it.notYet });
+    }
+    for (const t of C.talk[npc] ?? []) {
+      if (this.asked.has(`${npc}:${t.id}`)) continue;
+      if (t.when && !test(t.when, w.ctx)) continue;
+      // a tip about something you already know isn't worth asking
+      if (!t.learn && t.tip && w.intel.has(t.tip)) continue;
+      out.push({ id: `ask:${npc}:${t.id}`, label: t.ask, kind: "ask" });
+    }
+    return out;
+  }
+
+  private ask(npc: string, topicId: string): ActResult {
+    const w = this.world;
+    const t = (C.talk[npc] ?? []).find((x) => x.id === topicId);
+    if (!t || this.asked.has(`${npc}:${topicId}`) || (t.when && !test(t.when, w.ctx))) return { ok: false, witnessed: [] };
+    this.asked.add(`${npc}:${topicId}`);
+    this.outputs.push({ kind: "say", npc, line: t.line });
+    if (t.learn) w.learn(t.learn);
+    if (t.tip && !w.intel.has(t.tip) && !w.flags[`tip.${t.tip}`]) {
+      w.flags[`tip.${t.tip}`] = true;
+      this.outputs.push({ kind: "toast", text: `New lead: ${C.board.get(t.tip).hint}` });
+    }
+    return { ok: true, witnessed: [] };
+  }
+
   perform(id: string): ActResult {
     const w = this.world;
-    if (id.startsWith("chat:")) {
-      const npc = id.slice(5);
-      const lines = C.barks[npc] ?? C.barks.default;
-      const line = lines[Math.floor(w.minute + npc.length) % lines.length];
-      this.outputs.push({ kind: "say", npc, line });
-      return { ok: true, witnessed: [] };
+    if (id.startsWith("ask:")) {
+      const [, npc, topic] = id.split(":");
+      return this.ask(npc, topic);
     }
+    if (id.startsWith("talk:")) return { ok: true, witnessed: [] }; // the front-end opens the menu
     if (id.startsWith("punch:")) return this.punch(id.slice(6));
     if (id.startsWith("door:")) {
       const d = id.slice(5);
@@ -258,7 +319,11 @@ export class Session {
     }
     const it = C.interactions.find((x) => x.id === id);
     if (!it) return { ok: false, witnessed: [], message: "Nothing to do." };
-    if (it.when && !test(it.when, w.ctx)) return { ok: false, witnessed: [] };
+    const tagOk = !it.npcTag || !it.target.npc || ((p) => !!p.tag && it.npcTag!.includes(p.tag) && !p.moving)(w.npcPose(it.target.npc));
+    if ((it.when && !test(it.when, w.ctx)) || !tagOk) {
+      if (it.notYet) this.outputs.push({ kind: "toast", text: it.notYet });
+      return { ok: false, witnessed: [], message: it.notYet };
+    }
     if (it.requires && !test(it.requires, w.ctx)) {
       if (it.denied) this.outputs.push({ kind: "toast", text: it.denied });
       return { ok: false, witnessed: [], message: it.denied };

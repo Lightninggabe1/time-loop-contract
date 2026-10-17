@@ -8,15 +8,18 @@
       "requires": { "flag": "has.key" }, "denied": "Locked. Hobbs has the key. Or there's always the servants' door...",
       "do": [{ "set": "door.study.locked", "value": false }, { "set": "door.study.open" }, { "set": "door.study.player" }] },
 
-    { "id": "safe.open", "label": "Dial the safe", "target": { "anchor": "safe" }, "when": { "all": [{ "not": { "flag": "has.ledger" } }, { "not": { "flag": "safe.opened" } }] }, "crime": true,
-      "requires": { "any": [{ "intel": "i.combo" }, { "flag": "combo.given" }] }, "denied": "Five digits. Your lucky numbers aren't his.",
+    { "id": "painting.swing", "label": "Swing the painting aside", "target": { "anchor": "safe" }, "when": { "not": { "flag": "painting.open" } },
+      "do": [{ "set": "painting.open" }, { "learn": "i.safe" }, { "toast": "It swings on a hinge. Behind it: a wall safe." }] },
+    { "id": "safe.open", "label": "Dial the safe", "target": { "anchor": "safe" }, "when": { "all": [{ "flag": "painting.open" }, { "not": { "flag": "has.ledger" } }, { "not": { "flag": "safe.opened" } }] }, "crime": true,
+      "requires": { "any": [{ "intel": "i.combo" }, { "flag": "combo.given" }] }, "denied": "Five digits. You need the combination. Calloway gets chatty at the champagne tower at 7:30...",
       "do": [{ "set": "safe.opened" }, { "learn": "i.safe" }] },
     { "id": "safe.take", "label": "Take the ledger", "target": { "anchor": "safe" }, "when": { "all": [{ "flag": "safe.opened" }, { "flag": "ledger.inSafe" }] }, "crime": true,
       "do": [{ "set": "has.ledger" }, { "set": "ledger.inSafe", "value": false }, { "set": "ledger.taken.safe" }, { "toast": "One ledger, slightly incriminating." }] },
     { "id": "safe.empty", "label": "Look in the safe", "target": { "anchor": "safe" }, "when": { "all": [{ "flag": "safe.opened" }, { "not": { "flag": "ledger.inSafe" } }, { "not": { "flag": "has.ledger" } }] },
       "do": [{ "toast": "Empty. He puts the ledger in at 9:00." }] },
 
-    { "id": "calloway.blackmail", "label": "Mention Mrs Pryce", "target": { "npc": "calloway" }, "npcTag": ["alone"], "when": { "all": [{ "intel": "i.affair" }, { "not": { "flag": "blackmail.calloway" } }] },
+    { "id": "calloway.blackmail", "label": "\"About you and Mrs Pryce...\"", "talk": true, "target": { "npc": "calloway" }, "npcTag": ["alone"], "when": { "all": [{ "intel": "i.affair" }, { "not": { "flag": "blackmail.calloway" } }] },
+      "notYet": "Not with people about. He smokes alone on the balcony at 10:00.",
       "do": [{ "say": "calloway", "line": "...How much do you want? Fine. Safe's in the study: ten, twenty-nine, twenty-nine. Now go away." },
              { "set": "blackmail.calloway" }, { "set": "combo.given" }, { "learn": "i.combo" }] },
     { "id": "calloway.rob", "label": "Knock him flat (and take the ledger)", "target": { "npc": "calloway" }, "when": { "all": [{ "flag": "ledger.carried" }, { "not": { "flag": "has.ledger" } }] }, "crime": true, "gesture": "punch",
@@ -31,7 +34,9 @@
     { "id": "mic.cut", "label": "Snip the microphone cable", "target": { "anchor": "microphone" }, "when": { "all": [{ "before": "22:00" }, { "not": { "flag": "mic.cut" } }] }, "crime": true,
       "do": [{ "set": "mic.cut" }, { "learn": "i.mic" }, { "toast": "Snip. The microphone is now a decorative object." }] },
 
-    { "id": "dolly.lure", "label": "\"A picture man is waiting on the balcony\"", "target": { "npc": "dolly" }, "when": { "all": [{ "intel": "i.hollywood" }, { "intel": "i.scout" }, { "after": "21:20" }, { "before": "21:58" }, { "not": { "flag": "dolly.lured" } }] },
+    { "id": "dolly.lure", "label": "\"A picture man is waiting on the balcony\"", "talk": true, "target": { "npc": "dolly" }, "when": { "all": [{ "intel": "i.hollywood" }, { "intel": "i.scout" }, { "after": "21:20" }, { "before": "21:58" }, { "not": { "flag": "dolly.lured" } }] },
+      "show": { "all": [{ "intel": "i.hollywood" }, { "intel": "i.scout" }, { "before": "21:58" }, { "not": { "flag": "dolly.lured" } }] },
+      "notYet": "Too early: she'd be back in time to sing. Try after 9:20.",
       "do": [{ "say": "dolly", "line": "A picture man? Here? Out of my way, sugar!" }, { "set": "dolly.lured" },
              { "npc": "dolly", "override": { "state": "distracted", "goto": "p_rail", "until": 1335 } },
              { "npc": "rupert", "override": { "state": "distracted", "goto": "p_rail_n", "until": 1335 } }] },
@@ -43,13 +48,19 @@
     { "id": "ashcombe.serve", "label": "Serve His Lordship a glass", "target": { "npc": "ashcombe" }, "npcTag": ["glass", "toast"], "when": { "all": [{ "flag": "has.drops" }, { "not": { "flag": "c3.quiet" } }] },
       "requires": { "flag": "has.jacket" }, "denied": "\"I don't take drinks from guests, old chap.\" Perhaps if you were staff...",
       "do": [{ "say": "ashcombe", "line": "Ah, splendid. Bit of a kick to it... zzz." }, { "npc": "ashcombe", "override": { "state": "ko", "until": 1440 } }, { "set": "c3.quiet" }] },
-    { "id": "vivienne.tell", "label": "Tell her about the card game", "target": { "npc": "vivienne" }, "when": { "all": [{ "intel": "i.debts" }, { "after": "23:00" }, { "not": { "flag": "c3.social" } }] },
+    { "id": "vivienne.tell", "label": "\"Your husband lost the house at cards\"", "talk": true, "target": { "npc": "vivienne" }, "when": { "all": [{ "intel": "i.debts" }, { "after": "23:00" }, { "not": { "flag": "c3.social" } }] },
+      "show": { "all": [{ "intel": "i.debts" }, { "not": { "flag": "c3.social" } }] },
+      "notYet": "Too soon: she'd confront him, then forgive him by midnight. Tell her after 11:00.",
       "do": [{ "say": "vivienne", "line": "He WHAT? Edmund. Study. NOW." }, { "set": "c3.social" },
              { "npc": "vivienne", "override": { "state": "distracted", "goto": "s_fire", "until": 1440 } },
              { "npc": "ashcombe", "override": { "state": "distracted", "goto": "s_fire2", "until": 1440 } }] },
     { "id": "rope.untie", "label": "Untie the chandelier rope", "target": { "anchor": "rope" }, "when": { "not": { "flag": "chandelier.dropped" } }, "crime": true,
       "do": [{ "set": "chandelier.dropped" }, { "learn": "i.rope" }, { "toast": "CRASH. Crystal everywhere. Nobody hurt; several monocles lost." }] }
   ],
+  "anchorNames": {
+    "safe": "Sunset painting", "fusebox": "Fuse box", "microphone": "Microphone", "stove": "Stove",
+    "rope": "Chandelier rope", "jacket": "Waiter's jacket"
+  },
   "barks": {
     "default": ["Lovely party.", "Have you tried the champagne?", "What a year it's been.", "Mm? Oh, quite."],
     "ashcombe": ["Welcome to Ashcombe Manor!", "Splendid, splendid.", "Do stay for the toast."],

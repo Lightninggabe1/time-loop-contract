@@ -40,12 +40,14 @@ export class IntelBoard {
     return this.defs.filter((d) => ctx.intel.has(d.id));
   }
 
-  /** Next suggested clue: undiscovered, unlocked, lowest lead number (optionally for one contract). */
+  /** Next suggested clue: undiscovered, unlocked, lowest lead number (optionally for one contract).
+   *  A tip someone gave you (flag `tip.<id>`) jumps the queue. */
   lead(ctx: CondCtx, contract?: string): Lead | null {
+    const tipped = (d: IntelDef) => (ctx.flags[`tip.${d.id}`] ? 0 : 1);
     const open = this.defs
-      .filter((d) => !ctx.intel.has(d.id) && d.lead !== undefined && (!d.requires || test(d.requires, ctx)))
+      .filter((d) => !ctx.intel.has(d.id) && d.lead !== undefined && (tipped(d) === 0 || !d.requires || test(d.requires, ctx)))
       .filter((d) => !contract || d.contract === contract)
-      .sort((a, b) => a.lead! - b.lead!);
+      .sort((a, b) => tipped(a) - tipped(b) || a.lead! - b.lead!);
     return open[0] ? { intel: open[0], hint: open[0].hint } : null;
   }
 

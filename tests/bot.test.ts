@@ -5,7 +5,7 @@ import { Session } from "../src/game/session";
 import { MemoryStorage } from "../src/core/storage";
 import { parseTime } from "../src/core/conditions";
 import { RATE } from "../src/core/clock";
-import { contracts, interactions, anchors, spots, npcs } from "../src/content";
+import { contracts, interactions, anchors, spots, npcs, talk, board } from "../src/content";
 import type { Vec3 } from "../src/core/schedule";
 
 class Bot {
@@ -44,7 +44,14 @@ class Bot {
   }
   act(id: string) {
     const offers = this.s.offers().map((o) => o.id);
-    if (!offers.includes(id)) throw new Error(`"${id}" not offered at ${this.s.minute.toFixed(1)} (offers: ${offers.join(", ")})`);
+    const it = interactions.find((x) => x.id === id);
+    if (it?.talk) {
+      // social moves are made from the conversation menu
+      const npc = it.target.npc!;
+      if (!offers.includes(`talk:${npc}`)) throw new Error(`can't talk to ${npc} at ${this.s.minute.toFixed(1)} (offers: ${offers.join(", ")})`);
+      const opt = this.s.talkOptions(npc).find((o) => o.id === id);
+      if (opt?.kind !== "move") throw new Error(`"${id}" not ready in conversation at ${this.s.minute.toFixed(1)}: ${opt?.note ?? "not listed"}`);
+    } else if (!offers.includes(id)) throw new Error(`"${id}" not offered at ${this.s.minute.toFixed(1)} (offers: ${offers.join(", ")})`);
     const r = this.s.perform(id);
     if (!r.ok) throw new Error(`"${id}" failed: ${r.message}`);
     this.witnessed.push(...r.witnessed);
@@ -69,13 +76,13 @@ const runs: Record<string, Record<string, (b: Bot) => void>> = {
     quiet: (b) => {
       b.until("19:31").at([0.9, 0, 7.6]).until("19:33");
       expect(b.s.world.intel.has("i.combo")).toBe(true);
-      b.until("21:40").at("s_passage").nearAnchor("safe").act("safe.open").act("safe.take");
+      b.until("21:40").at("s_passage").nearAnchor("safe").act("painting.swing").act("safe.open").act("safe.take");
     },
     social: (b) => {
       b.until("19:01").at([-13.6, 0, 2.6]).until("19:04");
       expect(b.s.world.intel.has("i.affair")).toBe(true);
       b.until("22:05").near("calloway").act("calloway.blackmail");
-      b.until("22:10").at("s_passage").nearAnchor("safe").act("safe.open").act("safe.take");
+      b.until("22:10").at("s_passage").nearAnchor("safe").act("painting.swing").act("safe.open").act("safe.take");
     },
     loud: (b) => {
       b.until("23:24").near("calloway").act("calloway.rob");
@@ -154,6 +161,48 @@ describe("bot completes every contract through every approach", () => {
     const n = contracts.reduce((s, c) => s + c.approaches.length, 0);
     expect(n).toBe(12);
     expect(Object.values(runs).reduce((s, r) => s + Object.keys(r).length, 0)).toBe(12);
+  });
+});
+
+describe("conversation", () => {
+  it("everyone has at least two things to talk about", () => {
+    for (const n of npcs) expect((talk[n.id] ?? []).length, n.id).toBeGreaterThanOrEqual(2);
+  });
+  it("questions give clues once, and then make way for new ones", () => {
+    const b = new Bot();
+    b.until("18:20").near("pryce");
+    expect(b.s.offers().map((o) => o.id)).toContain("talk:pryce");
+    const before = b.s.talkOptions("pryce").map((o) => o.id);
+    expect(before).toContain("ask:pryce:study");
+    b.s.perform("ask:pryce:study");
+    expect(b.s.world.intel.has("i.safe")).toBe(true);
+    expect(b.s.talkOptions("pryce").map((o) => o.id)).not.toContain("ask:pryce:study");
+    expect(b.s.greet("pryce")).not.toEqual(b.s.greet("pryce"));
+  });
+  it("a tip points the Lead at what they hinted about", () => {
+    const b = new Bot();
+    expect(board.lead(b.s.world.ctx)!.intel.id).toBe("i.calloway");
+    b.near("vivienne");
+    b.s.perform("ask:vivienne:edmund");
+    expect(board.lead(b.s.world.ctx)!.intel.id).toBe("i.debts");
+  });
+  it("a social move you can't make yet is shown greyed out, with why", () => {
+    const b = new Bot();
+    b.s.world.learn("i.affair");
+    b.until("19:40").near("calloway");
+    const opt = b.s.talkOptions("calloway").find((o) => o.id === "calloway.blackmail");
+    expect(opt?.kind).toBe("locked");
+    expect(opt?.note).toMatch(/10:00/);
+    expect(b.s.perform("calloway.blackmail").ok).toBe(false);
+    expect(b.flag("blackmail.calloway")).toBeFalsy();
+  });
+  it("the safe hides behind the painting", () => {
+    const b = new Bot();
+    b.s.world.learn("i.combo");
+    b.until("21:40").at("s_passage").nearAnchor("safe");
+    const ids = b.s.offers().map((o) => o.id);
+    expect(ids).toContain("painting.swing");
+    expect(ids).not.toContain("safe.open");
   });
 });
 

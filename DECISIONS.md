@@ -41,3 +41,12 @@ Newest last. Each entry: what, why.
 - **Workarounds for Babylon 9.31 WebGPU bugs:** (1) glTF transmission materials are converted to alpha glass (they add an opaque-scene pass that collides with clustered lights); (2) sheen is disabled on NPC fabric (WGSL sheen + clustered lights doesn't compile); (3) unlit/transparent materials are kept out of the SSR/SSAO prepass; (4) lights are never added/removed at runtime (frozen materials keep stale light bindings).
 - **NPC glTF roots are never transformed directly** (they hold the handedness conversion the retargeter relies on); a parent node moves them.
 - **High preset ≈ 16.9 ms at MacBook Air retina with the full cast** (mirror refresh every 3rd frame at 0.42 res); Medium ≈ 11 ms; Low ≈ 6 ms (phone-size viewport).
+
+## Readability pass after Checkpoint 2 feedback (2026-10-17)
+Director: "talking to people doesn't do anything", "the sunset painting has no cue", "needs to be more intuitive".
+- **Conversations** (`src/content/talk.json`): Talk opens a menu (clock paused). Every person has 2–4 questions; each is asked once per loop and either notes a clue, or gives a *tip* that moves the Lead to what they hinted at. Big secrets (affair, debts, combination, Hollywood dream) are still only overheard, so watching still matters.
+- **Social moves live in the conversation** (`talk: true` interactions): blackmail, the picture-man lure and telling Vivienne show in gold when ready, and greyed out with the reason ("He smokes alone on the balcony at 10:00") when not. A ❝ on the prompt and the name tag means "you have a move to make here".
+- **The painting hides the safe**: "Swing the painting aside" comes first; it swings out on a hinge and reveals a brass-trimmed safe with a dial. The painting texture was upside down and blown out by the sky reflection; fixed.
+- **Name tags** over nearby people (• = has something new to say) and usable things ("◆ Sunset painting", "◆ Fuse box"…).
+- **Lead marker**: an on-screen pin over whoever or whatever the current Lead is about, sliding to the screen edge when it's off-screen.
+- **Prompt order**: the thing you're looking at comes first, then the nearest.

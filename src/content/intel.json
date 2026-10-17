@@ -38,11 +38,14 @@
    "requires": {
     "intel": "i.ledger"
    },
-   "hint": "Look behind the painting in the study.",
+   "hint": "Swing the sunset painting aside in the study.",
    "contract": "ledger",
    "links": [
     "i.combo"
-   ]
+   ],
+   "pin": {
+    "anchor": "safe"
+   }
   },
   {
    "id": "i.combo",
@@ -197,7 +200,7 @@
    "id": "i.drops",
    "kind": "key",
    "title": "Chef's tonic",
-   "text": "Marcel's 'souffl\u00e9 tonic' sends anyone to sleep. A bottle sits by the stove.",
+   "text": "Marcel's 'soufflé tonic' sends anyone to sleep. A bottle sits by the stove.",
    "lead": 16,
    "requires": {
     "intel": "i.ashcombe"
@@ -327,15 +330,10 @@
    "npc": "marcel",
    "tag": "flambe",
    "radius": 6,
-   "line": "Three drops of tonic in the souffl\u00e9 and the critics sleep like babies. Voil\u00e0!"
+   "line": "Three drops of tonic in the soufflé and the critics sleep like babies. Voilà!"
   }
  ],
  "look": [
-  {
-   "intel": "i.safe",
-   "anchor": "safe",
-   "radius": 2.5
-  },
   {
    "intel": "i.fusebox",
    "anchor": "fusebox",
