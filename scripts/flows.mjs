@@ -48,11 +48,11 @@ await page.evaluate(() => {
   s.world.apply([{ learn: "i.rope" }]);
 });
 await page.evaluate(() => window.__client.session.perform("rope.untie"));
+results.seenAtRope = await page.evaluate(() => window.__client.session.chase?.by ?? null);
+await page.evaluate(() => window.__client.session.escape()); // shake him off so the midnight beat can play
 await page.waitForTimeout(2500);
 await shot("f2_chandelier");
 results.c3 = await page.evaluate(() => window.__client.session.contractStatus().find((c) => c.contract.id === "toast").complete?.id ?? null);
-results.seenAtRope = await page.evaluate(() => window.__client.session.chase?.by ?? null);
-await page.evaluate(() => window.__client.session.escape()); // shake him off so the midnight beat can play
 
 // 3. restart via midnight
 await jump("23:59", [0, 0, -6], [0, 2, 6]);
