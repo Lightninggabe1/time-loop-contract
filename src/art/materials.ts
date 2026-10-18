@@ -39,6 +39,12 @@ const sets: Record<string, TexSet> = {
   kitchenTile: { dir: "interior_tiles", tile: 1.2, tint: hexTint("#F4F0E6"), roughness: 0.5, bump: 0.7 },
   kitchenFloor: { dir: "checkered_pavement_tiles", tile: 1.6, roughness: 0.6, bump: 0.6, env: 0.15 },
   butcherBlock: { dir: "kitchen_wood", tile: 1.0 },
+  // foyer
+  floorChecker: { dir: "gen_floor_checker", tile: 3, clearCoat: 0.6, bump: 0.5, env: 0.06 },
+  inlayStar: { dir: "gen_inlay_star", tile: 1, clearCoat: 0.6, bump: 0.5, env: 0.06 }, // own UVs (whole medallion)
+  // library
+  rug: { dir: "gen_rug", tile: 1, roughness: 1.0, bump: 0.6, env: 0.0 }, // own UVs (whole rug)
+  libraryFloor: { dir: "herringbone_parquet", tile: 1.4, tint: hexTint("#7E5234"), clearCoat: 0.6, roughness: 0.65, bump: 0.5, env: 0.06 },
   // balcony / exterior
   stone: { dir: "stone_tiles_02", tile: 2.0, tint: hexTint("#A79E8F"), roughness: 1.0, bump: 0.8 },
   terrace: { dir: "stone_tiles_02", tile: 1.6, tint: hexTint("#7E776C"), roughness: 1.0, bump: 0.9 },
@@ -176,7 +182,24 @@ const builders: Record<string, () => PBRMaterial> = {
     return m;
   },
   lampGlow: () => emissive("lampGlow", Palette.glowWarm, 4),
+  bankerShade: () => {
+    // green cased glass: glows a little from the bulb inside, still reads as glass
+    const m = solid("bankerShade", Palette.emerald, 0, 0.12);
+    m.emissiveColor = Color3.FromHexString("#2F8A58");
+    m.emissiveIntensity = 0.6;
+    m.clearCoat.isEnabled = true;
+    m.clearCoat.roughness = 0.03;
+    return m;
+  },
+  fireRed: () => {
+    const m = solid("fireRed", Color3.FromHexString("#9A1C18").toLinearSpace(), 0, 0.3);
+    m.clearCoat.isEnabled = true;
+    m.clearCoat.roughness = 0.05;
+    return m;
+  },
   coveGlow: () => emissive("coveGlow", Palette.tungsten, 2.6),
+  // the front-door fanlight: moonlit night glass seen from inside
+  fanGlass: () => emissive("fanGlass", Color3.FromHexString("#5A6FA8"), 0.9),
   candleFlame: () => emissive("candleFlame", Palette.candle, 8),
   clockFace: () => emissive("clockFace", Color3.FromHexString("#FFE9C2"), 1.4),
   skyDome: () => {

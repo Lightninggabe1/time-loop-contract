@@ -36,6 +36,16 @@ export const STYLES: Record<string, RoomStyle> = {
     trimMat: "goldSolid", pilasterMat: "walnutPanel", pilasterBase: "walnut", corniceMat: "walnut", cove: false,
     windowTop: 3.7, sillMat: "walnut", panelFrames: true, sconceY: 2.15,
   },
+  foyer: {
+    H: 9, cornice: 7.7, wains: 1.3, slabMat: "plaster", wainsMat: "marbleBlack", paperMat: "marbleCream", baseMat: "marbleBlack",
+    trimMat: "goldSolid", pilasterMat: "marbleBlack", pilasterBase: "marbleCream", corniceMat: "marbleCream", cove: true,
+    windowTop: 7.0, sillMat: "marbleCream", panelFrames: true, sconceY: 3.3,
+  },
+  library: {
+    H: 7.6, cornice: 7.2, wains: 0.9, slabMat: "plaster", wainsMat: "walnutPanel", paperMat: "walnutPanel", baseMat: "walnut",
+    trimMat: "goldSolid", pilasterMat: "walnutPanel", pilasterBase: "walnut", corniceMat: "walnut", cove: false,
+    windowTop: 6.4, sillMat: "walnut", panelFrames: false, sconceY: 2.3,
+  },
   kitchen: {
     H: 4.2, cornice: 3.95, wains: 1.6, slabMat: "plaster", wainsMat: "kitchenTile", paperMat: "plaster", baseMat: "marbleBlack",
     trimMat: "brass", pilasterMat: "plaster", pilasterBase: "marbleBlack", corniceMat: "plaster", cove: false,
@@ -45,7 +55,7 @@ export const STYLES: Record<string, RoomStyle> = {
 
 export interface LightSpot {
   pos: Vector3;
-  kind: "sconce" | "candle" | "foot" | "cove" | "clock" | "fire" | "lamp" | "garden";
+  kind: "sconce" | "candle" | "foot" | "cove" | "clock" | "fire" | "lamp" | "green" | "moonfill" | "garden";
 }
 
 export interface DoorSpec {
@@ -225,18 +235,27 @@ export function mirror(c: ModuleCtx, x0: number, w: number) {
  * Doorway. With an `id` the leaves become animated door entities (ctx.doors);
  * without one they are sealed decorative doors (merged, collide).
  */
-export function door(c: ModuleCtx, x0: number, w: number, opt: { opening?: number; height?: number; id?: string; glazed?: boolean; leaves?: number; swing?: number; fanlight?: boolean; frameOnly?: boolean }) {
+export function door(c: ModuleCtx, x0: number, w: number, opt: { opening?: number; height?: number; id?: string; glazed?: boolean; leaves?: number; swing?: number; fanlight?: boolean; frameOnly?: boolean; y0?: number }) {
   const k = c.kit, f = c.f, st = c.st, cx = x0 + w / 2;
   const ow = opt.opening ?? 2.4, oh = opt.height ?? 3.6;
+  const y0 = opt.y0 ?? 0; // sill height: doors onto an upper landing
   const ox0 = cx - ow / 2, ox1 = cx + ow / 2;
   slab(c, x0, ox0, 0, st.H);
   slab(c, ox1, x0 + w, 0, st.H);
-  slab(c, ox0, ox1, oh, st.H);
-  wainscot(c, x0, ox0 - 0.2);
-  wainscot(c, ox1 + 0.2, x0 + w);
-  paper(c, x0, ox0 - 0.2);
-  paper(c, ox1 + 0.2, x0 + w);
-  paper(c, ox0 - 0.2, ox1 + 0.2, oh + 0.3, st.cornice);
+  slab(c, ox0, ox1, y0 + oh, st.H);
+  if (y0 > 0) {
+    slab(c, ox0, ox1, 0, y0);
+    wainscot(c, x0, x0 + w);
+    paper(c, x0, x0 + w, st.wains + 0.07, y0);
+    paper(c, x0, ox0 - 0.2, y0, st.cornice);
+    paper(c, ox1 + 0.2, x0 + w, y0, st.cornice);
+  } else {
+    wainscot(c, x0, ox0 - 0.2);
+    wainscot(c, ox1 + 0.2, x0 + w);
+    paper(c, x0, ox0 - 0.2);
+    paper(c, ox1 + 0.2, x0 + w);
+  }
+  paper(c, ox0 - 0.2, ox1 + 0.2, y0 + oh + 0.3, st.cornice);
   const leaves = opt.leaves ?? (ow > 1.6 ? 2 : 1);
   const lz = -T * 0.4, leafW = ow / leaves;
   if (opt.frameOnly) {
@@ -245,29 +264,29 @@ export function door(c: ModuleCtx, x0: number, w: number, opt: { opening?: numbe
     const hinge: Vector3[] = [], open: number[] = [];
     for (let i = 0; i < leaves; i++) {
       const left = i === 0;
-      hinge.push(Kit.toWorld(f, v(left ? ox0 : ox1, 0, lz)));
+      hinge.push(Kit.toWorld(f, v(left ? ox0 : ox1, y0, lz)));
       open.push((left ? 1 : -1) * (opt.swing ?? 1));
     }
     c.doors.push({ id: opt.id, hinge, rotY: f.rotY, leafW, height: oh, leaves, open, glazed: !!opt.glazed });
-    c.anchors[`door.${opt.id}`] = { pos: Kit.toWorld(f, v(cx, 1.2, 0.3)), normal: worldN(c) };
+    c.anchors[`door.${opt.id}`] = { pos: Kit.toWorld(f, v(cx, y0 + 1.2, 0.3)), normal: worldN(c) };
   } else {
     for (let i = 0; i < leaves; i++) {
       const lx = ox0 + leafW * (i + 0.5);
-      k.box("walnut", v(lx, oh / 2, lz), v(leafW - 0.01, oh, 0.08), { collide: true }, f);
-      for (const dx of [-0.25, 0, 0.25]) k.box("goldSolid", v(lx + dx * (leafW / 1.2), oh * 0.55, lz + 0.045), v(0.02, oh * 0.62, 0.01), { shadow: false }, f);
-      k.box("goldSolid", v(lx, oh * 0.2, lz + 0.045), v(leafW - 0.25, 0.03, 0.01), { shadow: false }, f);
+      k.box("walnut", v(lx, y0 + oh / 2, lz), v(leafW - 0.01, oh, 0.08), { collide: true }, f);
+      for (const dx of [-0.25, 0, 0.25]) k.box("goldSolid", v(lx + dx * (leafW / 1.2), y0 + oh * 0.55, lz + 0.045), v(0.02, oh * 0.62, 0.01), { shadow: false }, f);
+      k.box("goldSolid", v(lx, y0 + oh * 0.2, lz + 0.045), v(leafW - 0.25, 0.03, 0.01), { shadow: false }, f);
     }
   }
-  k.box(st.trimMat, v(ox0 - 0.1, oh / 2, 0.05), v(0.2, oh, 0.1), {}, f);
-  k.box(st.trimMat, v(ox1 + 0.1, oh / 2, 0.05), v(0.2, oh, 0.1), {}, f);
-  k.box("marbleBlack", v(cx, oh + 0.15, 0.06), v(ow + 0.6, 0.3, 0.12), {}, f);
-  k.box(st.trimMat, v(cx, oh + 0.34, 0.08), v(ow + 0.8, 0.08, 0.16), {}, f);
+  k.box(st.trimMat, v(ox0 - 0.1, y0 + oh / 2, 0.05), v(0.2, oh, 0.1), {}, f);
+  k.box(st.trimMat, v(ox1 + 0.1, y0 + oh / 2, 0.05), v(0.2, oh, 0.1), {}, f);
+  k.box("marbleBlack", v(cx, y0 + oh + 0.15, 0.06), v(ow + 0.6, 0.3, 0.12), {}, f);
+  k.box(st.trimMat, v(cx, y0 + oh + 0.34, 0.08), v(ow + 0.8, 0.08, 0.16), {}, f);
   if (opt.fanlight === false) return;
-  const r = Math.min(ow / 2, st.cornice - oh - 0.6);
+  const r = Math.min(ow / 2, st.cornice - y0 - oh - 0.6);
   if (r < 0.4) return;
-  const by = oh + 0.4;
+  const by = y0 + oh + 0.4;
   const fan = MeshBuilder.CreateDisc("fan", { radius: r, tessellation: 40, arc: 0.5 }, k.scene);
-  k.add("lacquer", fan, v(cx, by, 0.025), { rotY: Math.PI }, f);
+  k.add(opt.glazed ? "fanGlass" : "lacquer", fan, v(cx, by, 0.025), { rotY: Math.PI }, f);
   const rays = 13;
   for (let i = 0; i < rays; i++) {
     const a = (i / (rays - 1)) * Math.PI - Math.PI / 2;
@@ -328,6 +347,49 @@ export function fireplace(c: ModuleCtx, x0: number, w: number) {
   c.lights.push({ pos: Kit.toWorld(f, v(cx, 0.45, 0.8)), kind: "fire" });
   c.anchors.fireplace = { pos: Kit.toWorld(f, v(cx, 0.6, 0.5)), normal: worldN(c) };
   c.anchors.mantel = { pos: Kit.toWorld(f, v(cx, 1.45, 0.25)), normal: worldN(c) };
+}
+
+/**
+ * Grand fireplace for a tall room: a bigger marble surround plus a walnut
+ * chimney breast up to the cornice with a gilt-framed overmantel mirror.
+ */
+export function chimney(c: ModuleCtx, x0: number, w: number) {
+  const k = c.kit, f = c.f, st = c.st, cx = x0 + w / 2;
+  slab(c, x0, x0 + w, 0, st.H);
+  const D = 0.36, top = st.cornice;
+  // breast: walnut panelling standing proud of the wall, gold reeds at the edges
+  k.box("walnutPanel", v(cx, top / 2, D / 2), v(w, top, D), { collide: true }, f);
+  for (const sx of [-1, 1]) k.box("goldSolid", v(cx + sx * (w / 2 - 0.08), top / 2, D + 0.01), v(0.03, top - 0.4, 0.02), { shadow: false }, f);
+  k.box(st.baseMat, v(cx, 0.12, D + 0.04), v(w, 0.24, 0.08), {}, f);
+  // marble surround and firebox
+  const FW = 2.7, FH = 1.75, z = D;
+  k.box("marbleBlack", v(cx, FH / 2, z + 0.2), v(FW, FH, 0.4), { collide: true }, f);
+  k.box("lacquer", v(cx, 0.6, z + 0.22), v(1.3, 1.05, 0.38), {}, f);
+  k.box("emberGlow", v(cx, 0.18, z + 0.28), v(0.95, 0.1, 0.22), { shadow: false }, f);
+  for (const dx of [-0.26, 0, 0.26]) k.box("walnut", v(cx + dx, 0.24, z + 0.3), v(0.16, 0.1, 0.36), { rotY: dx * 2, shadow: false }, f);
+  for (const dx of [-0.85, -0.45, 0.45, 0.85]) k.box("goldSolid", v(cx + dx, FH / 2, z + 0.405), v(0.035, FH - 0.3, 0.01), { shadow: false }, f);
+  k.box("goldSolid", v(cx, FH + 0.03, z + 0.24), v(FW + 0.2, 0.06, 0.5), {}, f);
+  k.box("marbleCream", v(cx, FH + 0.09, z + 0.26), v(FW + 0.3, 0.07, 0.54), {}, f);
+  // overmantel mirror in a stepped gilt frame
+  const my0 = FH + 0.5, my1 = Math.min(top - 1.0, my0 + 2.8), mw = Math.min(w - 1.0, 2.4);
+  const m = MeshBuilder.CreatePlane("om", { width: mw, height: my1 - my0 }, k.scene);
+  k.add("mirror", m, v(cx, (my0 + my1) / 2, D + 0.035), { rotY: Math.PI, shadow: false }, f);
+  for (const [i, pad] of [[0, 0.08], [1, 0.2]] as const) {
+    const t = 0.07 - i * 0.02;
+    k.box("goldSolid", v(cx, my1 + pad, D + 0.05), v(mw + 2 * pad + t, t, 0.06), {}, f);
+    k.box("goldSolid", v(cx, my0 - pad, D + 0.05), v(mw + 2 * pad + t, t, 0.06), {}, f);
+    k.box("goldSolid", v(cx - mw / 2 - pad, (my0 + my1) / 2, D + 0.05), v(t, my1 - my0 + 2 * pad, 0.06), {}, f);
+    k.box("goldSolid", v(cx + mw / 2 + pad, (my0 + my1) / 2, D + 0.05), v(t, my1 - my0 + 2 * pad, 0.06), {}, f);
+  }
+  // deco crest above the mirror: a fan of gold rays
+  const cy = my1 + 0.35;
+  for (let i = 0; i < 9; i++) {
+    const a = (i / 8) * Math.PI - Math.PI / 2;
+    k.box("goldSolid", v(cx + Math.sin(a) * 0.45, cy + Math.cos(a) * 0.45, D + 0.04), v(0.04, 0.6, 0.02), { rotZ: -a, shadow: false }, f);
+  }
+  c.lights.push({ pos: Kit.toWorld(f, v(cx, 0.55, z + 0.9)), kind: "fire" });
+  c.anchors.fireplace = { pos: Kit.toWorld(f, v(cx, 0.6, z + 0.5)), normal: worldN(c) };
+  c.anchors.mantel = { pos: Kit.toWorld(f, v(cx, FH + 0.13, z + 0.25)), normal: worldN(c) };
 }
 
 /** Panel with a recessed wall safe (a painting hangs over it). */

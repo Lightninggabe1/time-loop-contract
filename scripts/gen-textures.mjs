@@ -281,5 +281,87 @@ async function skyDome() {
   });
 }
 
-const jobs = { floorDeco, wallFan, gold, swatches, sky, painting, skyDome };
+
+// ---------- 8. foyer floor: diagonal cream/black marble checker (1 tile = 3m) ----------
+async function floorChecker() {
+  const S = 2048, n = 3; // 3 diagonal cells per tile edge → ~0.7 m squares
+  const line = 0.0035;
+  await write("gen_floor_checker", S, S, (u, v) => {
+    const a = (u + v) * n, b = (u - v + 1) * n;
+    const fa = a - Math.floor(a), fb = b - Math.floor(b);
+    const black = (Math.floor(a) + Math.floor(b)) % 2 === 0;
+    const e = Math.min(fa, 1 - fa, fb, 1 - fb) / (n * Math.SQRT2); // distance to a cell edge (tile units)
+    if (e < line) {
+      const k = fbm(u, v, 64, 2, 41) * 0.5 + 0.5;
+      return { c: mix3(C.brass, [255, 214, 140], k * 0.3), rough: 0.24, metal: 1, h: 0.3 };
+    }
+    const m = black ? marble(u, v, C.black, C.blackVein, 600, 3) : marble(u, v, C.cream, C.creamVein, 610, 2);
+    const r = { c: m.c, rough: 0.06 + m.vein * 0.08, metal: 0, h: 0 };
+    if (e < line * 1.8) return { ...r, h: -0.4, ao: 0.75 };
+    return r;
+  });
+}
+
+// ---------- 9. foyer medallion: gold compass star in a black marble square (1 tile = the whole inlay) ----------
+async function inlayStar() {
+  const S = 2048;
+  await write("gen_inlay_star", S, S, (u, v) => {
+    const x = u * 2 - 1, y = v * 2 - 1;
+    const r = Math.hypot(x, y), ang = Math.atan2(y, x);
+    const edge = 1 - Math.max(Math.abs(x), Math.abs(y));
+    const k = fbm(u, v, 48, 2, 77) * 0.5 + 0.5;
+    const brass = (h = 0.35) => ({ c: mix3(C.brass, [255, 216, 150], k * 0.35), rough: 0.22, metal: 1, h });
+    if (edge < 0.012 || (edge > 0.045 && edge < 0.06)) return brass();
+    if (edge < 0.045) return { c: marble(u, v, C.cream, C.creamVein, 620, 4).c, rough: 0.08, metal: 0 };
+    // 8-point compass star: long kites on N/E/S/W, shorter ones on the diagonals
+    const seg = (Math.PI * 2) / 8;
+    const a0 = ang + seg / 2;
+    const t = ((a0 % seg) + seg) % seg / seg; // 0..1 across one kite
+    const idx = ((Math.floor(a0 / seg) % 8) + 8) % 8;
+    const long = idx % 2 === 0 ? 0.86 : 0.6;
+    const rayR = (long - 0.16) * (1 - Math.abs(t - 0.5) * 2) ** 1.6 + 0.16;
+    const inStar = r < rayR;
+    if (Math.abs(r - 0.9) < 0.008 || Math.abs(r - 0.94) < 0.004) return brass();
+    if (inStar) {
+      // split each ray into a light and a dark half (gold / emerald) for the faceted look
+      const left = t < 0.5;
+      if (Math.abs(t - 0.5) < 0.006 * (1 / Math.max(r, 0.1))) return brass(0.45);
+      if (r < 0.1) return brass(0.5);
+      return left ? brass(0.4) : { c: marble(u, v, C.emerald, C.emeraldVein, 630, 3).c, rough: 0.07, metal: 0, h: 0.1 };
+    }
+    if (r < 0.9) return { c: marble(u, v, C.cream, C.creamVein, 640, 3).c, rough: 0.07, metal: 0 };
+    return { c: marble(u, v, C.black, C.blackVein, 650, 3).c, rough: 0.07, metal: 0 };
+  });
+}
+
+// ---------- 10. library rug: burgundy field, emerald border, gold deco stepped motifs (whole rug) ----------
+async function rug() {
+  const W = 2048, H = 1536;
+  await write("gen_rug", W, H, (u, v) => {
+    const x = (u - 0.5) * 2 * (W / H), y = (v - 0.5) * 2; // aspect-correct, centre 0
+    const ex = (W / H) - Math.abs(x), ey = 1 - Math.abs(y), e = Math.min(ex, ey);
+    const wool = fbm(u * 3, v * 3, 96, 3, 88) * 0.5 + 0.5; // pile
+    const knot = (Math.sin(u * W * 0.9) * Math.sin(v * H * 0.9)) * 0.03;
+    const shade = 0.9 + wool * 0.18 + knot;
+    const col = (c) => ({ c: c.map((q) => q * shade), rough: 0.95, metal: 0, h: wool * 0.4 });
+    const goldThread = [196, 150, 78], cream = [214, 196, 160], emer = [22, 70, 54], burg = [96, 22, 36], deep = [58, 12, 24];
+    if (e < 0.03) return col(cream);
+    if (e < 0.05) return col(goldThread);
+    if (e < 0.2) {
+      // border: stepped zigzag
+      const along = ex < ey ? y : x;
+      const z = Math.abs(((along * 6) % 2 + 2) % 2 - 1);
+      const band = (e - 0.05) / 0.15;
+      return col(Math.abs(band - 0.5) < 0.18 * (0.4 + z) ? goldThread : emer);
+    }
+    if (e < 0.22) return col(goldThread);
+    // field: concentric stepped diamonds around a medallion
+    const d = Math.abs(x) * 0.8 + Math.abs(y);
+    const step = Math.floor(d * 5);
+    if (Math.abs(d * 5 - step - 0.5) < 0.06 && d < 1.1) return col(goldThread);
+    return col(step % 2 ? burg : deep);
+  });
+}
+
+const jobs = { floorDeco, wallFan, gold, swatches, sky, painting, skyDome, floorChecker, inlayStar, rug };
 for (const [k, f] of Object.entries(jobs)) if (!only.length || only.includes(k)) await f();

@@ -8,10 +8,10 @@
     "build": "tsc --noEmit && vite build",
     "verify": "npm run build && node scripts/shots.mjs --check --dist",
     "preview": "vite preview --port 4173",
-    "assets": "node scripts/fetch-assets.mjs && node scripts/build-assets.mjs && node scripts/gen-textures.mjs && node scripts/bake-env.mjs",
+    "assets": "node scripts/fetch-assets.mjs && node scripts/build-assets.mjs && node scripts/gen-textures.mjs && node scripts/bake-env.mjs && node scripts/prune-anims.mjs",
     "shots": "node scripts/shots.mjs",
     "profile": "node scripts/profile.mjs",
-    "test": "vitest run && npm run verify && node scripts/walktest.mjs"
+    "test": "vitest run && npm run verify && node scripts/walktest.mjs && node scripts/flows-hall.mjs"
   },
   "dependencies": {
     "@babylonjs/addons": "^9.31.0",

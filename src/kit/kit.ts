@@ -14,6 +14,8 @@ export interface Collider {
   center: Vector3;
   size: Vector3;
   rotY: number;
+  /** pitch (stair ramps) */
+  rotX?: number;
 }
 
 export interface PieceOpts {
@@ -25,6 +27,7 @@ export interface PieceOpts {
   tile?: number; // override metres-per-repeat for UVs
   uvRot?: boolean; // swap U/V (e.g. vertical grain)
   uvOffset?: [number, number]; // metres added to projected coords before tiling
+  keepUV?: boolean; // keep the mesh's own UVs (whole-texture pieces: rugs, medallions)
 }
 
 const WORLD: Frame = { origin: Vector3.Zero(), rotY: 0 };
@@ -82,7 +85,7 @@ export class Kit {
     m.rotationQuaternion = Quaternion.RotationYawPitchRoll(f.rotY + (opts.rotY ?? 0), opts.rotX ?? 0, opts.rotZ ?? 0);
     m.position.copyFrom(Kit.toWorld(f, center));
     m.bakeCurrentTransformIntoVertices();
-    boxUV(m, opts.tile ?? TILE[material] ?? 1, opts.uvRot, opts.uvOffset);
+    if (!opts.keepUV) boxUV(m, opts.tile ?? TILE[material] ?? 1, opts.uvRot, opts.uvOffset);
     let b = this.buckets.get(material);
     if (!b) this.buckets.set(material, (b = { meshes: [], shadow: opts.shadow ?? true }));
     b.meshes.push(m);

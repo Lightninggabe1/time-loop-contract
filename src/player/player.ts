@@ -15,7 +15,7 @@ export function addStaticColliders(scene: Scene, colliders: Collider[]) {
   const container = new PhysicsShapeContainer(scene);
   for (const c of colliders) {
     const box = new PhysicsShapeBox(Vector3.Zero(), Quaternion.Identity(), c.size, scene);
-    container.addChild(box, c.center, Quaternion.RotationAxis(Vector3.Up(), c.rotY));
+    container.addChild(box, c.center, Quaternion.RotationYawPitchRoll(c.rotY, c.rotX ?? 0, 0));
   }
   const body = new PhysicsBody(node, PhysicsMotionType.STATIC, false, scene);
   body.shape = container;

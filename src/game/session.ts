@@ -54,11 +54,13 @@ export class Session {
   /** anchors: interactable world positions (from spots.json, mirrored by the level) */
   readonly anchors: Record<string, Vec3>;
   readonly rooms: Record<string, [number, number, number, number]>;
+  readonly doorIds: string[];
 
   constructor(storage: Storage, anchors?: Record<string, Vec3>) {
     this.loop = new LoopManager(C.content, storage);
     this.anchors = anchors ?? C.anchors;
     this.rooms = C.roomBounds;
+    this.doorIds = Object.keys(this.anchors).filter((a) => a.startsWith("door.")).map((a) => a.slice(5));
   }
 
   get meta(): Meta {
@@ -246,7 +248,7 @@ export class Session {
       out.push({ id: `punch:${best}`, label: `Punch ${name}`, dist: bd + 0.02, npc: best, crime: true });
     }
     // doors you can open/close (unlocked ones)
-    for (const d of ["study", "kitchen", "balcony", "passage"]) {
+    for (const d of this.doorIds) {
       const dd = this.anchorDist(`door.${d}`);
       if (dd > 2.0) continue;
       if (w.flags[`door.${d}.locked`]) continue;
@@ -355,8 +357,10 @@ export class Session {
 
   // ---------------------------------------------------------------- contracts & loop end
 
+  /** Contracts on offer this loop (later ones unlock as you go). */
   contractStatus(): ContractStatus[] {
-    return C.contracts.map((c) => contractStatus(c, this.world.ctx));
+    const ctx = this.world.ctx;
+    return C.contracts.filter((c) => !c.unlock || test(c.unlock, ctx)).map((c) => contractStatus(c, ctx));
   }
 
   private checkContracts() {

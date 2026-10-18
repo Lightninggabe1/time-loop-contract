@@ -2,7 +2,8 @@
  "_doc": "Each entry: [time, spot, act, tag?]. Optional 'loop' blocks repeat a route every N minutes. Tags are what intel/events/interactions key on. Schedules are the whole truth: position = f(time).",
  "npcs": [
   {
-   "id": "ashcombe", "short": "Lord Ashcombe",
+   "id": "ashcombe",
+   "short": "Lord Ashcombe",
    "name": "Lord Edmund Ashcombe",
    "role": "The host",
    "body": "male",
@@ -73,7 +74,8 @@
    ]
   },
   {
-   "id": "vivienne", "short": "Lady Vivienne",
+   "id": "vivienne",
+   "short": "Lady Vivienne",
    "name": "Lady Vivienne Ashcombe",
    "role": "The hostess",
    "body": "female",
@@ -131,7 +133,8 @@
    ]
   },
   {
-   "id": "calloway", "short": "Mr Calloway",
+   "id": "calloway",
+   "short": "Mr Calloway",
    "name": "Mr Silas Calloway",
    "role": "The banker",
    "body": "male",
@@ -212,7 +215,8 @@
    ]
   },
   {
-   "id": "dolly", "short": "Dolly",
+   "id": "dolly",
+   "short": "Dolly",
    "name": "Miss Dolores \"Dolly\" Vane",
    "role": "The singer",
    "body": "female",
@@ -275,7 +279,8 @@
    ]
   },
   {
-   "id": "rupert", "short": "Rupert",
+   "id": "rupert",
+   "short": "Rupert",
    "name": "Rupert Ashcombe",
    "role": "The nephew",
    "body": "male",
@@ -333,7 +338,8 @@
    ]
   },
   {
-   "id": "hale", "short": "Inspector Hale",
+   "id": "hale",
+   "short": "Inspector Hale",
    "name": "Inspector Hale",
    "role": "Off duty. Allegedly.",
    "body": "male",
@@ -350,12 +356,19 @@
      "idle"
     ],
     [
-     "20:00",
-     "tE4",
-     "talk"
+     "19:50",
+     "l_chair",
+     "sit",
+     "reading"
     ],
     [
-     "21:00",
+     "20:40",
+     "l_chair",
+     "sit",
+     "doze"
+    ],
+    [
+     "21:20",
      "b_aisle_e0",
      "idle",
      "watching"
@@ -380,7 +393,8 @@
    ]
   },
   {
-   "id": "pryce", "short": "Mrs Pryce",
+   "id": "pryce",
+   "short": "Mrs Pryce",
    "name": "Mrs Penelope Pryce",
    "role": "The gossip columnist",
    "body": "female",
@@ -438,7 +452,8 @@
    ]
   },
   {
-   "id": "hobbs", "short": "Hobbs",
+   "id": "hobbs",
+   "short": "Hobbs",
    "name": "Hobbs",
    "role": "The butler",
    "body": "male",
@@ -508,7 +523,8 @@
    ]
   },
   {
-   "id": "pierre", "short": "Pierre",
+   "id": "pierre",
+   "short": "Pierre",
    "name": "Pierre",
    "role": "Waiter",
    "body": "male",
@@ -553,11 +569,12 @@
    }
   },
   {
-   "id": "marcel", "short": "Chef Marcel",
+   "id": "marcel",
+   "short": "Chef Marcel",
    "name": "Chef Marcel",
    "role": "The chef",
    "body": "male",
-   "blurb": "Keeps a tonic 'for the souffl\u00e9'.",
+   "blurb": "Keeps a tonic 'for the soufflé'.",
    "schedule": [
     [
      "18:00",
@@ -604,7 +621,8 @@
    ]
   },
   {
-   "id": "brock", "short": "Brock",
+   "id": "brock",
+   "short": "Brock",
    "name": "Brock",
    "role": "Doorman & muscle",
    "body": "male",
@@ -612,7 +630,7 @@
    "schedule": [
     [
      "18:00",
-     "b_door_s",
+     "f_front",
      "idle",
      "door"
     ]
@@ -651,7 +669,8 @@
    }
   },
   {
-   "id": "elsie", "short": "Elsie",
+   "id": "elsie",
+   "short": "Elsie",
    "name": "Elsie",
    "role": "Housemaid",
    "body": "female",

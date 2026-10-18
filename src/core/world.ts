@@ -10,6 +10,7 @@ export type Awareness = "calm" | "suspicious" | "alarmed";
 export interface NpcOverride {
   state: "ko" | "distracted" | "chasing" | "fleeing" | "detained" | "gone";
   until?: number; // game minute it wears off (absent = rest of loop)
+  for?: number; // …or this many game minutes from when it starts
   pos?: Vec3; // where they are held (ko, distracted, detained)
   yaw?: number;
   /** walk to this spot (from where they were when the override began) */
@@ -23,6 +24,8 @@ export type Action =
   | { add: string; by: number }
   | { learn: string } // discover an intel item
   | { npc: string; override: NpcOverride | null }
+  /** everyone conscious (except `except`) walks to these spots, in cast order, for a while */
+  | { crowd: { spots: string[]; for: number; except?: string[] } }
   | { say: string; line: string } // speech bubble
   | { toast: string }; // HUD message
 
@@ -114,6 +117,7 @@ export class World {
     else if ("npc" in a) {
       if (a.override) {
         const o: NpcOverride = { ...a.override };
+        if (o.for !== undefined) o.until = this.minute + o.for;
         if (o.goto) {
           o.from = [...this.npcPose(a.npc).pos];
           o.at = this.minute;
@@ -122,6 +126,14 @@ export class World {
         if (o.state === "ko") this.flags[`ko.${a.npc}`] = true;
         this.overrides[a.npc] = o;
       } else delete this.overrides[a.npc];
+    } else if ("crowd" in a) {
+      let i = 0;
+      for (const n of this.npcs) {
+        const cur = this.overrides[n.id]?.state;
+        if (cur === "ko" || cur === "chasing" || a.crowd.except?.includes(n.id)) continue;
+        const spot = a.crowd.spots[i++ % a.crowd.spots.length];
+        this.exec({ npc: n.id, override: { state: "distracted", goto: spot, for: a.crowd.for } });
+      }
     } else if ("say" in a) this.outbox.push({ kind: "say", npc: a.say, line: a.line });
     else if ("toast" in a) this.outbox.push({ kind: "toast", text: a.toast });
   }

@@ -14,6 +14,15 @@
    ]
   },
   {
+   "id": "init.upstairs",
+   "when": true,
+   "do": [
+    {
+     "set": "door.upstairs.locked"
+    }
+   ]
+  },
+  {
    "id": "hobbs.unlocks",
    "when": {
     "all": [
@@ -192,7 +201,7 @@
     },
     {
      "say": "calloway",
-     "line": "Who turned out the\u2014I've dropped it! Where's my ledger?"
+     "line": "Who turned out the—I've dropped it! Where's my ledger?"
     }
    ]
   },
@@ -363,7 +372,7 @@
     },
     {
      "say": "dolly",
-     "line": "\u266a Happy days are here again... \u266a"
+     "line": "♪ Happy days are here again... ♪"
     }
    ]
   },
@@ -530,6 +539,67 @@
    "do": [
     {
      "toast": "Ten o'clock."
+    }
+   ]
+  },
+  {
+   "id": "drill.notebook",
+   "when": {
+    "all": [
+     {
+      "flag": "firedrill"
+     },
+     {
+      "after": "19:50"
+     },
+     {
+      "before": "21:20"
+     },
+     {
+      "not": {
+       "flag": "has.notebook"
+      }
+     },
+     {
+      "not": {
+       "flag": "ko.hale"
+      }
+     }
+    ]
+   },
+   "do": [
+    {
+     "set": "notebook.left"
+    },
+    {
+     "say": "hale",
+     "line": "Fire? Where? ...Blast, my notes."
+    }
+   ]
+  },
+  {
+   "id": "drill.brock",
+   "when": {
+    "flag": "firedrill"
+   },
+   "do": [
+    {
+     "say": "brock",
+     "line": "Line up! Nobody leaves till I've counted you. One... two..."
+    }
+   ]
+  },
+  {
+   "id": "notebook.read",
+   "when": {
+    "flag": "has.notebook"
+   },
+   "do": [
+    {
+     "learn": "i.tally"
+    },
+    {
+     "toast": "Inside: one line about Rupert, crossed out. Then tally marks. Four thousand and eleven, all dated tonight."
     }
    ]
   }

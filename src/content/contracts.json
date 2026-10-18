@@ -70,6 +70,30 @@
                      { "text": "Untie it during the toast", "done": { "flag": "c3.chaos" } } ],
           "complete": { "flag": "c3.chaos" } }
       ]
+    },
+    {
+      "id": "notebook", "title": "The Inspector's Notebook", "client": "Rupert Ashcombe", "target": "hale", "reward": 6, "unlock": {"flag": "loop.n", "gte": 2},
+      "brief": "Inspector Hale has been scribbling about Rupert all night. Get the notebook off him. Discreetly, or not.",
+      "approaches": [
+        { "id": "quiet", "kind": "quiet", "title": "Forty winks",
+          "steps": [ {"text": "Find where he reads", "done": {"intel": "i.notebook"}},
+                     {"text": "Wait till he dozes (8:40)", "done": {"after": "20:40"}},
+                     {"text": "Slip it off his lap", "done": {"flag": "c4.quiet"}} ],
+          "complete": {"flag": "c4.quiet"} },
+        { "id": "social", "kind": "social", "title": "A bigger fish",
+          "steps": [ {"text": "Learn what Lord Ashcombe lost", "done": {"intel": "i.debts"}},
+                     {"text": "Tell Hale (he's awake)", "done": {"flag": "c4.social"}} ],
+          "complete": {"flag": "c4.social"} },
+        { "id": "loud", "kind": "loud", "title": "Off duty, on the floor",
+          "steps": [ {"text": "Find Inspector Hale", "done": {"intel": "i.hale"}},
+                     {"text": "Knock him flat and take it", "done": {"flag": "c4.loud"}} ],
+          "complete": {"flag": "c4.loud"} },
+        { "id": "chaos", "kind": "chaos", "title": "Fire drill",
+          "steps": [ {"text": "Find the fire bell (front hall)", "done": {"intel": "i.firebell"}},
+                     {"text": "Ring it while he reads (7:50–9:20)", "done": {"any": [{"flag": "notebook.left"}, {"flag": "c4.chaos"}]}},
+                     {"text": "Grab what he left behind", "done": {"flag": "c4.chaos"}} ],
+          "complete": {"flag": "c4.chaos"} }
+      ]
     }
   ],
   "perks": [

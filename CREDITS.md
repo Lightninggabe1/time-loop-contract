@@ -28,14 +28,14 @@ All third-party assets are CC0 (public domain). Self-made assets are noted.
 | Model | GothicCabinet_01 | Poly Haven | CC0 | https://polyhaven.com/a/GothicCabinet_01 |
 | Model | Ottoman_01 | Poly Haven | CC0 | https://polyhaven.com/a/Ottoman_01 |
 | Model | coffee_table_round_01 | Poly Haven | CC0 | https://polyhaven.com/a/coffee_table_round_01 |
-| Texture | gen_floor_deco, gen_wall_fan, gen_gold, gen_marble_emerald/black/cream, gen_night_sky | Self-generated (scripts/gen-textures.mjs) | CC0 | — |
-| Geometry | All architecture (walls, pilasters, windows, doors, stage, clock, curtains, tables, champagne tower, balloons) | Self-generated procedural kit (src/kit) | CC0 | — |
+| Texture | gen_floor_deco, gen_wall_fan, gen_gold, gen_marble_emerald/black/cream, gen_night_sky, gen_floor_checker, gen_inlay_star, gen_rug | Self-generated (scripts/gen-textures.mjs) | CC0 | — |
+| Geometry | All architecture (walls, pilasters, windows, doors, stage, clock, curtains, tables, champagne tower, balloons, grand staircase, landing, library gallery, ladders, reading tables, banker's lamps, globe, fire bell, chimney) | Self-generated procedural kit (src/kit, src/level/features.ts) | CC0 | — |
 | Library | Babylon.js, Havok (Babylon build), recast-navigation-js, meshoptimizer | Code dependencies, not art assets | Apache-2.0 / MIT | npm |
 
 Fonts: none shipped. The HUD uses the device's own system fonts.
 | Texture | poly_wool_herringbone | Poly Haven | CC0 | https://polyhaven.com/a/poly_wool_herringbone |
 | Characters | Universal Base Characters (Standard): Superhero male/female bodies, hairstyles | Quaternius | CC0 | https://quaternius.itch.io/universal-base-characters |
-| Animation | Universal Animation Library (Standard), 45 clips | Quaternius | CC0 | https://opengameart.org/content/universal-animation-library |
+| Animation | Universal Animation Library (Standard); the 12 clips used, trimmed by scripts/prune-anims.mjs | Quaternius | CC0 | https://opengameart.org/content/universal-animation-library |
 | Texture | poly_wool_herringbone | Poly Haven | CC0 | https://polyhaven.com/a/poly_wool_herringbone |
 | Characters | 12 dressed NPCs (outfits, baked textures, skirts, hats, accessories) | Self-generated (scripts/build-characters.mjs) on the CC0 bodies above | CC0 | — |
 | Texture | dark_paneled_wood | Poly Haven | CC0 | https://polyhaven.com/a/dark_paneled_wood |

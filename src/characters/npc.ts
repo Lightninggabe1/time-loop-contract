@@ -35,7 +35,7 @@ let animLib: Promise<AssetContainer> | null = null;
 const npcLib = new Map<string, Promise<AssetContainer>>();
 
 function lib(scene: Scene) {
-  animLib ??= LoadAssetContainerAsync("./assets/characters/anim/AnimationLibrary_Godot_Standard.glb", scene).then((c) => {
+  animLib ??= LoadAssetContainerAsync("./assets/characters/anim/anims.glb", scene).then((c) => {
     // the library's own mannequin is never shown
     for (const g of c.animationGroups) g.stop();
     return c;

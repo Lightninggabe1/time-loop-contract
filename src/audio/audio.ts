@@ -132,6 +132,11 @@ export class Audio {
     for (let i = 0; i < 12; i++) setTimeout(() => this.play("bell", 0.5, 0.82), i * 650);
   }
 
+  /** The fire bell: a rapid brass clatter. */
+  alarmBell() {
+    for (let i = 0; i < 14; i++) setTimeout(() => this.play("bell", 0.32, 1.7 + (i % 2) * 0.08), i * 110);
+  }
+
   setMusic(mode: "band" | "song" | "none") {
     if (mode === this.wantMusic) return;
     this.wantMusic = mode;

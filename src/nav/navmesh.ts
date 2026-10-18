@@ -15,6 +15,7 @@ export async function buildNavMesh(scene: Scene, colliders: Collider[]) {
     const b = MeshBuilder.CreateBox(`nav${i}`, { width: c.size.x, height: c.size.y, depth: c.size.z }, scene);
     b.position.copyFrom(c.center);
     b.rotation.y = c.rotY;
+    b.rotation.x = c.rotX ?? 0;
     b.computeWorldMatrix(true);
     return b;
   });

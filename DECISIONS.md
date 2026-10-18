@@ -56,3 +56,22 @@ Director: "talking to people doesn't do anything", "the sunset painting has no c
 - **HUD on phones**: compact clock, tracker collapsed to one line (▾ expands), smaller toasts/prompts/buttons, at most 2 prompts. Touch input listens page-wide, so only real buttons and open panels keep a touch; labels never block the stick or look.
 - **Double taps**: the E and ⏱ buttons each had two handlers (a door opened and shut again; ⏱ skipped 20 min). One handler each now.
 - **Again button**: all overlay buttons fire on touchend (some phones drop the synthesised click while another finger is down), and overlays scroll on short screens.
+
+## Phase 4 — full game (2026-10-18)
+- **Checkpoint 2 approved by the director (2026-10-18).** Full-scope expansion requested; content plan drafted in `CONTENT_PLAN.md` for Checkpoint A.
+- **Mystery: Hobbs the butler rewinds the tower clock** to stop the deed of the Hall passing to Calloway at midnight; he hired the player via the telegrams. Chosen because it reuses the slice's existing clues (ledger, debts, telegrams) as story beats instead of discarding them.
+- **9 Contracts (3 built + 5 new + finale).** Fewer, richer Contracts beat 10 thin ones; the finale is a Contract with 4 approaches so the one ending still respects "many approaches viable".
+- **Every Loud route is bot-tested starting already spotted**, to prove nothing needs stealth.
+- **Perks never gate progress**, only convenience and flavour.
+- **Checkpoint A approved (2026-10-18).** The director also wants a second mystery after this one is built; it gets its own plan and approval after Checkpoint C.
+
+## Phase 4a: streaming, Grand Foyer, Library, Contract 4 (2026-10-18)
+- **Rooms stream in after the game starts.** Only the ballroom and balcony are built before the loading screen lifts; the rest build one at a time, nearest first, behind closed doors (a door stays shut while either side is still loading or compiling shaders). Guests also load behind the intro card. 10 Mbit/s time-to-playable: 57 s → 23 s, with two more rooms in the game.
+- **Streamed rooms' lights take over spare cluster lights made at start** (220 parked slots). Adding lights, or creating key lights and shadow generators, after materials freeze breaks WebGPU bindings (dead light texture; mis-sized uniform buffer). Per-room key lights are created up front for every room that has one and only switch their meshes on when the room arrives.
+- **Rooms outside the moon's shadow map get no direct moonlight** (`noMoon`) — it would leak through walls — and a cool blue fill inside each window instead. Each gets one shadowed key spot (Medium/High, rendered once) that lights only that room's static meshes: people under several shadowed lights would exceed WebGPU's 16-varying limit.
+- **Animation library trimmed to the 12 clips used** (6.7 MB → 2.6 MB, meshopt). Table props get 512 px textures and foliage scans are decimated (`scripts/build-assets.mjs` DIET).
+- **Grand Foyer**: black-and-white marble checker with a gold compass-star medallion, emerald coffered ceiling, a grand staircase to an upper landing (the upstairs door is locked until the upper floor is built). Stairs are a walkable pitched collider with a solid fill underneath.
+- **Library**: two storeys of books, a decorative gallery, rolling ladders, banker's lamps, a grand chimney with an overmantel mirror, a deco rug.
+- **Contract 4 changed slightly from the plan**: the Loud route knocks Hale flat anywhere (the conservatory fishpond comes with the conservatory); the Chaos route is the front-hall fire bell, which marches the whole house into the hall for a 25-minute head count. That's a reusable chaos tool for later Contracts too.
+- **Contracts can unlock**; Contract 4 opens from the second evening (loop 1 stays the guided watch-and-explore loop).
+- **`npm test` now also runs `scripts/flows-hall.mjs`**: streaming finishes and opens the doors, Hale reads in the library, the bell crowds the hall, the notebook is taken, the stairs are climbable, with no GPU errors.

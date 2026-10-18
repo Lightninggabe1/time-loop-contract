@@ -55,11 +55,18 @@
              { "npc": "vivienne", "override": { "state": "distracted", "goto": "s_fire", "until": 1440 } },
              { "npc": "ashcombe", "override": { "state": "distracted", "goto": "s_fire2", "until": 1440 } }] },
     { "id": "rope.untie", "label": "Untie the chandelier rope", "target": { "anchor": "rope" }, "when": { "not": { "flag": "chandelier.dropped" } }, "crime": true,
-      "do": [{ "set": "chandelier.dropped" }, { "learn": "i.rope" }, { "toast": "CRASH. Crystal everywhere. Nobody hurt; several monocles lost." }] }
+      "do": [{ "set": "chandelier.dropped" }, { "learn": "i.rope" }, { "toast": "CRASH. Crystal everywhere. Nobody hurt; several monocles lost." }] },
+
+    {"id": "hale.lift", "label": "Slip the notebook off his lap", "target": {"npc": "hale"}, "npcTag": ["doze"], "when": {"all": [{"flag": "loop.n", "gte": 2}, {"not": {"flag": "has.notebook"}}]}, "crime": true, "do": [{"set": "has.notebook"}, {"set": "c4.quiet"}, {"toast": "Gently does it. He snores on."}]},
+    {"id": "hale.case", "label": "\"Lord Ashcombe lost the house at cards\"", "talk": true, "target": {"npc": "hale"}, "when": {"all": [{"flag": "loop.n", "gte": 2}, {"not": {"flag": "has.notebook"}}, {"intel": "i.debts"}, {"not": {"flag": "ko.hale"}}]}, "show": {"all": [{"flag": "loop.n", "gte": 2}, {"not": {"flag": "has.notebook"}}, {"intel": "i.debts"}]}, "notYet": "He's not in a state to talk.", "do": [{"say": "hale", "line": "The HOUSE? At an illegal table? Now that's a case. Forget the boy. Here, take my old notes, I need a fresh page."}, {"set": "has.notebook"}, {"set": "c4.social"}, {"npc": "hale", "override": {"state": "distracted", "goto": "tE1", "for": 40}}]},
+    {"id": "hale.rob", "label": "Knock him flat (and take the notebook)", "target": {"npc": "hale"}, "when": {"all": [{"flag": "loop.n", "gte": 2}, {"not": {"flag": "has.notebook"}}, {"intel": "i.hale"}]}, "crime": true, "gesture": "punch", "do": [{"npc": "hale", "override": {"state": "ko", "for": 75}}, {"set": "has.notebook"}, {"set": "c4.loud"}, {"say": "hale", "line": "Oof! Assaulting an off-duty... officer..."}]},
+    {"id": "firebell.ring", "label": "Ring the fire bell", "target": {"anchor": "firebell"}, "when": {"not": {"flag": "firedrill"}}, "crime": true, "do": [{"set": "firedrill", "for": 25}, {"learn": "i.firebell"}, {"toast": "CLANG-CLANG-CLANG! \"Fire! Everybody to the front hall!\""}, {"crowd": {"spots": ["evac0", "evac1", "evac2", "evac3", "evac4", "evac5", "evac6", "evac7", "evac8", "evac9", "evac10", "evac11"], "for": 25}}]},
+    {"id": "notebook.take", "label": "Pick up Hale's notebook", "target": {"anchor": "hale_chair"}, "when": {"all": [{"flag": "notebook.left"}, {"not": {"flag": "has.notebook"}}]}, "do": [{"set": "has.notebook"}, {"set": "c4.chaos"}, {"set": "notebook.left", "value": false}, {"toast": "Left on the chair in all the excitement. Careless, Inspector."}]},
+    {"id": "upstairs.try", "label": "Try the door", "target": {"anchor": "door.upstairs"}, "when": {"flag": "door.upstairs.locked"}, "do": [{"toast": "Locked. The family floor is private tonight."}]}
   ],
   "anchorNames": {
     "safe": "Sunset painting", "fusebox": "Fuse box", "microphone": "Microphone", "stove": "Stove",
-    "rope": "Chandelier rope", "jacket": "Waiter's jacket"
+    "rope": "Chandelier rope", "jacket": "Waiter's jacket", "firebell": "Fire bell", "hale_chair": "Hale's notebook"
   },
   "barks": {
     "default": ["Lovely party.", "Have you tried the champagne?", "What a year it's been.", "Mm? Oh, quite."],

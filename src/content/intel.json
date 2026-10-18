@@ -234,6 +234,81 @@
    },
    "hint": "Look behind the right-hand stage curtain.",
    "contract": "toast"
+  },
+  {
+   "id": "i.hale",
+   "kind": "person",
+   "title": "Inspector Hale",
+   "text": "\"Off duty.\" Has filled half a notebook since he arrived. Rupert is convinced it's all about him.",
+   "lead": 30,
+   "requires": {
+    "flag": "loop.n",
+    "gte": 2
+   },
+   "hint": "Rupert wants a word about the Inspector. He's usually by the tables.",
+   "contract": "notebook",
+   "links": [
+    "i.notebook"
+   ],
+   "pin": {
+    "npc": "hale"
+   }
+  },
+  {
+   "id": "i.notebook",
+   "kind": "schedule",
+   "title": "Hale's notebook",
+   "text": "He reads it in the library from 7:50, by the fire. At 8:40 he nods off with it open on his lap.",
+   "lead": 31,
+   "requires": {
+    "all": [
+     {
+      "flag": "loop.n",
+      "gte": 2
+     },
+     {
+      "intel": "i.hale"
+     }
+    ]
+   },
+   "hint": "Go to the library (off the front hall) around 8:00.",
+   "contract": "notebook",
+   "links": [
+    "i.firebell"
+   ],
+   "pin": {
+    "anchor": "hale_chair"
+   }
+  },
+  {
+   "id": "i.firebell",
+   "kind": "place",
+   "title": "Fire bell",
+   "text": "A big brass bell in the front hall, by the library door. Ring it and the whole house files into the hall for a head count.",
+   "lead": 32,
+   "requires": {
+    "all": [
+     {
+      "flag": "loop.n",
+      "gte": 2
+     },
+     {
+      "intel": "i.hale"
+     }
+    ]
+   },
+   "hint": "There's a red fire bell in the front hall.",
+   "contract": "notebook"
+  },
+  {
+   "id": "i.tally",
+   "kind": "secret",
+   "title": "Four thousand and eleven",
+   "text": "Hale's notebook: one line about Rupert, crossed out. The rest is tally marks. 4,011 of them, every one dated tonight. He's been counting too.",
+   "hint": "Get hold of Inspector Hale's notebook.",
+   "links": [
+    "i.hale"
+   ]
   }
  ],
  "observe": [
@@ -331,6 +406,20 @@
    "tag": "flambe",
    "radius": 6,
    "line": "Three drops of tonic in the soufflé and the critics sleep like babies. Voilà!"
+  },
+  {
+   "intel": "i.notebook",
+   "npc": "hale",
+   "tag": "reading",
+   "radius": 5,
+   "line": "Ashcombe, R.: forgery? No... Tally: four thousand and— that can't be right."
+  },
+  {
+   "intel": "i.hale",
+   "npc": "hale",
+   "tag": "reading",
+   "radius": 6,
+   "line": "Mm. Just reading. Off duty."
   }
  ],
  "look": [
@@ -363,6 +452,11 @@
    "intel": "i.passage",
    "anchor": "door.passage",
    "radius": 2.5
+  },
+  {
+   "intel": "i.firebell",
+   "anchor": "firebell",
+   "radius": 3
   }
  ]
 }

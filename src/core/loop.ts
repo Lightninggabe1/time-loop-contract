@@ -3,7 +3,7 @@
 import { World, EventDef } from "./world";
 import { NpcDef, Spot, Router } from "./schedule";
 import { ContractDef, contractStatus } from "./contracts";
-import { FlagValue } from "./conditions";
+import { FlagValue, test } from "./conditions";
 import { Storage } from "./storage";
 
 export interface PerkDef {
@@ -105,6 +105,7 @@ export class LoopManager {
     const completed: LoopSummary["completed"] = [];
     let earned = newIntel.length; // 1 point per new clue
     for (const c of this.content.contracts) {
+      if (c.unlock && !test(c.unlock, w.ctx)) continue;
       const st = contractStatus(c, w.ctx);
       if (!st.complete) continue;
       const key = `${c.id}/${st.complete.id}`;

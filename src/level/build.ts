@@ -7,6 +7,7 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { Kit, Frame, Collider } from "../kit/kit";
+import { buildFeatures, FeatureDefs } from "./features";
 import * as M from "../kit/modules";
 import { mat } from "../art/materials";
 import { Palette } from "../art/palette";
@@ -16,11 +17,13 @@ type V3 = [number, number, number];
 
 export interface PropDef { model: string; pos: V3; rotY?: number; scale?: number; plinth?: boolean; id?: string; light?: M.LightSpot["kind"] }
 export interface WallDef { id: string; from: V2; to: V2; mirrorMat?: string; modules: { type: string; w: number; [k: string]: unknown }[] }
-export interface RoomDef {
+export interface RoomDef extends FeatureDefs {
   id: string;
   name: string;
   style: string;
   bounds: [number, number, number, number]; // x0, z0, x1, z1
+  /** "start" rooms are built before the loading screen lifts; the rest stream in nearest-first */
+  zone?: "start";
   outdoor?: boolean;
   floor: { material: string; uvOffset?: V2; danceFloor?: { material: string; size: V2; center: V2 } };
   ceiling: { type: "coffered" | "beams" | "plain" | "none"; beamsZ?: number[]; beamsX?: number[]; material?: string; beamMat?: string };
@@ -37,6 +40,10 @@ export interface RoomDef {
   painting?: { model: string; anchor: string; scale: number };
   spill?: V3[];
   garden?: { groundY: number; trees: V2[]; shrubs: V2[]; statue: V2; lamps: V2[] };
+  /** rooms outside the moon's shadow map: no direct moonlight, a cool fill at each window instead */
+  noMoon?: boolean;
+  /** one shadow-casting key light for the room (Medium/High), rendered once */
+  key?: { pos: V3; target: V3; angle: number; intensity: number; range: number };
 }
 export interface WingDef {
   id: string;
@@ -64,6 +71,8 @@ export interface BuiltWing {
   anchors: Record<string, { pos: Vector3; normal: Vector3 }>;
   props: Record<string, TransformNode>;
   roomMeshes: Record<string, AbstractMesh[]>;
+  /** rooms built so far (the rest stream in after the game starts) */
+  built: Set<string>;
   roomOf(p: Vector3): RoomDef | null;
 }
 
@@ -137,18 +146,54 @@ async function place(scene: Scene, id: string, pos: Vector3, rotY = 0, scale = 1
 
 const deg = (d?: number) => ((d ?? 0) * Math.PI) / 180;
 
-export async function buildWing(scene: Scene, W: WingDef): Promise<BuiltWing> {
+/** An empty wing (sky dome only); rooms are added with buildRooms(). */
+export function createWing(scene: Scene, W: WingDef): BuiltWing {
   const out: BuiltWing = {
     casters: [], colliders: [], lights: [], chandeliers: [], windows: [], clockHands: null, candles: [], doors: [],
-    anchors: {}, props: {}, roomMeshes: {},
+    anchors: {}, props: {}, roomMeshes: {}, built: new Set(),
     roomOf: (p) => W.rooms.find((r) => p.x >= r.bounds[0] - 0.3 && p.x <= r.bounds[2] + 0.3 && p.z >= r.bounds[1] - 0.3 && p.z <= r.bounds[3] + 0.3) ?? null,
   };
+  // sky dome around the whole manor (seen through every window and from outside)
+  const sky = MeshBuilder.CreateSphere("sky", { diameter: 300, segments: 32, sideOrientation: Mesh.BACKSIDE }, scene);
+  sky.material = mat("skyDome");
+  sky.isPickable = false;
+  return out;
+}
+
+/** What one buildRooms() call added (so lights, colliders and doors can be registered incrementally). */
+export interface RoomsDelta {
+  rooms: string[];
+  /** meshes of rooms the moon must not reach (see RoomDef.noMoon) */
+  noMoon: AbstractMesh[];
+  keys: { room: string; def: NonNullable<RoomDef["key"]>; meshes: AbstractMesh[] }[];
+  meshes: AbstractMesh[];
+  casters: AbstractMesh[];
+  colliders: Collider[];
+  lights: M.LightSpot[];
+  candles: Vector3[];
+  doors: BuiltDoor[];
+}
+
+/** Build the whole wing at once (tools and screenshots). */
+export async function buildWing(scene: Scene, W: WingDef): Promise<BuiltWing> {
+  const out = createWing(scene, W);
+  await buildRooms(scene, W, W.rooms.map((r) => r.id), out);
+  return out;
+}
+
+/** Build some rooms into an existing wing. */
+export async function buildRooms(scene: Scene, W: WingDef, ids: string[], out: BuiltWing): Promise<RoomsDelta> {
+  const mark = { casters: out.casters.length, colliders: out.colliders.length, lights: out.lights.length, candles: out.candles.length, doors: out.doors.length };
+  const hadClock = !!out.clock;
   const jobs: Promise<unknown>[] = [];
   const doorSpecs: M.DoorSpec[] = [];
 
   const onlyRooms = new URLSearchParams(globalThis.location?.search ?? "").get("rooms")?.split(",");
   for (const R of W.rooms) {
+    if (!ids.includes(R.id) || out.built.has(R.id)) continue;
     if (onlyRooms && !onlyRooms.includes(R.id)) continue;
+    out.built.add(R.id);
+    const winMark = out.windows.length;
     const kit = new Kit(scene, R.id);
     const st = M.STYLES[R.style];
     const [x0, z0, x1, z1] = R.bounds;
@@ -192,6 +237,7 @@ export async function buildWing(scene: Scene, W: WingDef): Promise<BuiltWing> {
           case "stage": M.stage(ctx, x, mod.w); break;
           case "shelves": M.shelves(ctx, x, mod.w, { seed: o.seed as number }); break;
           case "fireplace": M.fireplace(ctx, x, mod.w); break;
+          case "chimney": M.chimney(ctx, x, mod.w); break;
           case "safe": M.safePanel(ctx, x, mod.w); break;
           case "counter": M.counter(ctx, x, mod.w, { stove: !!o.stove, fuse: !!o.fuse }); break;
           case "balustrade": M.balustrade(ctx, x, mod.w); break;
@@ -341,6 +387,15 @@ export async function buildWing(scene: Scene, W: WingDef): Promise<BuiltWing> {
 
     for (const sp of R.spill ?? []) out.lights.push({ pos: new Vector3(...sp), kind: "lamp" });
 
+    buildFeatures(
+      { kit, scene, H: st.H, lights: out.lights, anchors: out.anchors, place: (m, pos, rotY, scale) => void jobs.push(place(scene, m, pos, rotY, scale, out.casters, sink)) },
+      R,
+    );
+    if (R.noMoon) {
+      // moon-blue fill just inside each window, so the glass still reads as night
+      for (const wdw of out.windows.slice(winMark)) out.lights.push({ pos: wdw.center.add(wdw.normal.scale(1.4)), kind: "moonfill" });
+    }
+
     // garden below the balcony
     if (R.garden) {
       const g = R.garden, gy = g.groundY;
@@ -367,11 +422,6 @@ export async function buildWing(scene: Scene, W: WingDef): Promise<BuiltWing> {
     sink.push(...built.meshes);
     out.colliders.push(...kit.colliders);
   }
-
-  // sky dome around the whole wing (seen through every window and from the balcony)
-  const sky = MeshBuilder.CreateSphere("sky", { diameter: 300, segments: 32, sideOrientation: Mesh.BACKSIDE }, scene);
-  sky.material = mat("skyDome");
-  sky.isPickable = false;
 
   // doors
   for (const spec of doorSpecs) {
@@ -414,7 +464,7 @@ export async function buildWing(scene: Scene, W: WingDef): Promise<BuiltWing> {
   }
 
   // clock hands
-  if (out.clock) {
+  if (out.clock && !hadClock) {
     const clock = out.clock;
     const mk = (len: number, wid: number) => {
       const m = MeshBuilder.CreateBox("hand", { width: wid, height: len, depth: 0.02 }, scene);
@@ -429,7 +479,20 @@ export async function buildWing(scene: Scene, W: WingDef): Promise<BuiltWing> {
 
   await Promise.all(jobs);
   for (const m of scene.meshes) if (m.name.startsWith("Chandelier")) m.receiveShadows = false;
-  return out;
+  const built = ids.filter((id) => out.roomMeshes[id]);
+  const doors = out.doors.slice(mark.doors);
+  const defs = built.map((id) => W.rooms.find((r) => r.id === id)!);
+  return {
+    rooms: built,
+    noMoon: defs.filter((r) => r.noMoon).flatMap((r) => out.roomMeshes[r.id]),
+    keys: defs.filter((r) => r.key).map((r) => ({ room: r.id, def: r.key!, meshes: out.roomMeshes[r.id] })),
+    meshes: [...built.flatMap((id) => out.roomMeshes[id]), ...doors.flatMap((d) => d.pivots.flatMap((p) => p.getChildMeshes()))],
+    casters: out.casters.slice(mark.casters),
+    colliders: out.colliders.slice(mark.colliders),
+    lights: out.lights.slice(mark.lights),
+    candles: out.candles.slice(mark.candles),
+    doors,
+  };
 }
 
 function champagneTower(kit: Kit, at: Vector3) {

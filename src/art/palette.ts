@@ -24,6 +24,7 @@ export const Palette = {
   candle: Color3.FromHexString("#FFA552"),
   moon: Color3.FromHexString("#7894FF"),
   glowWarm: Color3.FromHexString("#FFD9A0"),
+  bankerGreen: Color3.FromHexString("#E4E6A2"), // tungsten under green glass
   // UI (CSS)
   ui: {
     ink: "#F6EEDC",

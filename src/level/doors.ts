@@ -9,7 +9,15 @@ const OPEN_ANGLE = (100 * Math.PI) / 180;
 export class Doors {
   private state = new Map<string, { door: BuiltDoor; t: number; target: number }>();
 
-  constructor(scene: Scene, doors: BuiltDoor[]) {
+  /** Doors into rooms that haven't streamed in yet stay shut whatever the flags say. */
+  blocked: (id: string) => boolean = () => false;
+
+  constructor(private scene: Scene, doors: BuiltDoor[]) {
+    this.add(doors);
+  }
+
+  add(doors: BuiltDoor[]) {
+    const scene = this.scene;
     for (const d of doors) {
       d.pivots.forEach((pivot, i) => {
         const sx = i === 0 ? 1 : -1;
@@ -34,7 +42,7 @@ export class Doors {
   setOpen(id: string, open: boolean, instant = false) {
     const s = this.state.get(id);
     if (!s) return;
-    s.target = open ? 1 : 0;
+    s.target = open && !this.blocked(id) ? 1 : 0;
     if (instant) s.t = s.target;
   }
 

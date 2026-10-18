@@ -12,8 +12,13 @@ class Bot {
   s = new Session(new MemoryStorage());
   witnessed: string[] = [];
   log: string[] = [];
-  constructor() {
+  constructor(loop = 1) {
     this.s.start();
+    // later contracts unlock from the second evening on
+    for (let i = 1; i < loop; i++) {
+      this.s.end("restart");
+      this.s.start();
+    }
   }
   at(p: Vec3 | string) {
     const pos = typeof p === "string" ? spots[p].pos : p;
@@ -72,6 +77,27 @@ class Bot {
 }
 
 const runs: Record<string, Record<string, (b: Bot) => void>> = {
+  notebook: {
+    quiet: (b) => {
+      b.until("19:56").at("l_mid").until("19:58");
+      expect(b.s.world.intel.has("i.notebook")).toBe(true);
+      b.until("20:45").behind("hale", 1.0).act("hale.lift");
+    },
+    social: (b) => {
+      b.until("20:46").at([15.4, 0, 3.2]).until("20:50");
+      b.until("21:40").near("hale", 0.7).act("hale.case");
+    },
+    loud: (b) => {
+      b.until("18:30").near("rupert");
+      expect(b.s.perform("ask:rupert:hale").ok).toBe(true);
+      b.until("21:40").near("hale", 0.7).act("hale.rob");
+    },
+    chaos: (b) => {
+      b.until("20:05").nearAnchor("firebell").act("firebell.ring");
+      expect(b.flag("notebook.left")).toBe(true);
+      b.nearAnchor("hale_chair").act("notebook.take");
+    },
+  },
   ledger: {
     quiet: (b) => {
       b.until("19:31").at([0.9, 0, 7.6]).until("19:33");
@@ -150,17 +176,17 @@ describe("bot completes every contract through every approach", () => {
   for (const c of contracts) {
     for (const a of c.approaches) {
       it(`${c.title} — ${a.kind}`, () => {
-        const b = new Bot();
+        const b = new Bot(c.unlock ? 2 : 1);
         runs[c.id][a.id](b);
         expect(b.done(c.id), b.log.join("; ")).toBe(a.id);
         if (a.kind === "quiet") expect(b.witnessed, "quiet must be unseen").toEqual([]);
       });
     }
   }
-  it("covers all 12 contract × approach pairs", () => {
+  it("covers every contract × approach pair", () => {
     const n = contracts.reduce((s, c) => s + c.approaches.length, 0);
-    expect(n).toBe(12);
-    expect(Object.values(runs).reduce((s, r) => s + Object.keys(r).length, 0)).toBe(12);
+    expect(n).toBe(contracts.length * 4);
+    expect(Object.values(runs).reduce((s, r) => s + Object.keys(r).length, 0)).toBe(n);
   });
 });
 

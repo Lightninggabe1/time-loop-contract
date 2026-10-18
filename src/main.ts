@@ -6,7 +6,7 @@ import HavokPhysics from "@babylonjs/havok";
 import havokWasmUrl from "@babylonjs/havok/lib/esm/HavokPhysics.wasm?url";
 
 import wingJson from "./level/layouts/wing.json";
-import { buildWing, WingDef } from "./level/build";
+import { createWing, buildRooms, WingDef, RoomDef } from "./level/build";
 import { Doors } from "./level/doors";
 import { initMaterials, freezeMaterials } from "./art/materials";
 import { setupLighting } from "./render/lighting";
@@ -88,8 +88,26 @@ async function main() {
   initMaterials(scene);
   progress(0.15, "Polishing the chandeliers…");
   const layout = wingJson as unknown as WingDef;
-  const room = await buildWing(scene, layout);
+  const room = createWing(scene, layout);
+  // the starting rooms come first; screenshot mode builds everything up front
+  const startIds = layout.rooms.filter((r) => shot || r.zone === "start").map((r) => r.id);
+  const bootRooms = await buildRooms(scene, layout, startIds, room);
   const doors = new Doors(scene, room.doors);
+  // a door stays shut while the room on either side of it is still streaming in
+  const doorRooms = new Map<string, RoomDef[]>();
+  const sidesOf = (id: string) => {
+    let r = doorRooms.get(id);
+    if (!r) {
+      const d = room.doors.find((x) => x.spec.id === id)!;
+      const h = d.spec.hinge, mid = h.length > 1 ? h[0].add(h[1]).scale(0.5) : h[0];
+      const n = new Vector3(Math.sin(d.spec.rotY), 0, Math.cos(d.spec.rotY));
+      r = [room.roomOf(mid.add(n.scale(1.2))), room.roomOf(mid.subtract(n.scale(1.2)))].filter((x): x is RoomDef => !!x);
+      doorRooms.set(id, r);
+    }
+    return r;
+  };
+  doors.blocked = (id) => sidesOf(id).some((r) => !room.built.has(r.id) || streaming.has(r.id));
+  const streaming = new Set<string>();
   for (const id of doors.ids()) doors.setOpen(id, id !== "study", true);
   progress(0.7, "Chilling the champagne…");
 
@@ -101,7 +119,8 @@ async function main() {
   addStaticColliders(scene, room.colliders);
   hud.bindInput(input);
 
-  const lighting = setupLighting(scene, room, room.casters);
+  const lighting = setupLighting(scene, room, room.casters, layout.rooms.filter((r) => r.key).map((r) => ({ room: r.id, def: r.key! })));
+  lighting.addRooms(bootRooms, true);
   lighting.addDynamic(room.doors.flatMap((d) => d.pivots.flatMap((p) => p.getChildMeshes())));
   const shafts = createShafts(scene, room, lighting.moon.direction.clone());
   const post = new Post(scene, player.camera);
@@ -256,8 +275,10 @@ async function main() {
   };
   setInterval(() => hud.setFps(avg(60), quality, debug.__engine as string), 500);
 
+  // guests keep arriving behind the intro card (it's 6 PM: they *are* arriving);
+  // screenshot runs with a cast wait for everyone
   progress(0.95, "Seating the guests…");
-  await Promise.race([castLoad, new Promise((r) => setTimeout(r, 12000))]);
+  await Promise.race([castLoad, new Promise((r) => setTimeout(r, shot ? 60000 : 1500))]);
   progress(1, "Doors open");
   clearTimeout(stallTimer);
   document.getElementById("loading")!.classList.add("done");
@@ -286,8 +307,38 @@ async function main() {
     setTimeout(probe, 7000);
   }
 
-  // navmesh in the background (deviations only)
-  buildNavMesh(scene, room.colliders)
+  // stream the remaining rooms in, nearest first, while the intro card is up
+  const pending = layout.rooms.filter((r) => !room.built.has(r.id));
+  const zoneInfo = { loaded: [...room.built], pending: pending.length };
+  debug.__zones = zoneInfo;
+  const centre = (r: RoomDef) => new Vector3((r.bounds[0] + r.bounds[2]) / 2, 0, (r.bounds[1] + r.bounds[3]) / 2);
+  const streamRooms = async () => {
+    while (pending.length) {
+      const me = player.camera.position;
+      pending.sort((a, b) => Vector3.Distance(centre(a), me) - Vector3.Distance(centre(b), me));
+      const next = pending.shift()!;
+      streaming.add(next.id);
+      await new Promise((r) => setTimeout(r, 30)); // let a frame through between rooms
+      const delta = await buildRooms(scene, layout, [next.id], room);
+      doors.add(delta.doors);
+      lighting.addDynamic(delta.doors.flatMap((d) => d.pivots.flatMap((p) => p.getChildMeshes())));
+      lighting.addRooms(delta);
+      addStaticColliders(scene, delta.colliders);
+      excludeFromPrepass();
+      // compile its shaders before anyone can see in (the doors stay shut until then)
+      const meshes = delta.meshes.filter((m) => m.subMeshes?.length);
+      const t0 = performance.now();
+      while (meshes.some((m) => !m.isReady(true)) && performance.now() - t0 < 20000) await new Promise((r) => setTimeout(r, 100));
+      freezeMaterials();
+      streaming.delete(next.id);
+      zoneInfo.loaded.push(next.id);
+      zoneInfo.pending = pending.length;
+      for (const id of doors.ids()) if (sidesOf(id).some((r) => r.id === next.id)) doors.setOpen(id, doors.isOpen(id) || id !== "study");
+    }
+  };
+  // navmesh (deviations only) once every room is in
+  streamRooms()
+    .then(() => buildNavMesh(scene, room.colliders))
     .then(() => (debug.__nav = true))
     .catch((e) => console.error("navmesh failed", e));
 
@@ -308,7 +359,7 @@ async function main() {
   };
   let settled = 0;
   scene.onAfterRenderObservable.add(() => {
-    if (++settled === 40) debug.__ready = true;
+    if (++settled >= 40 && !debug.__ready && (!game || game.isReady)) debug.__ready = true;
   });
 }
 

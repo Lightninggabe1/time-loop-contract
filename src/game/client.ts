@@ -264,6 +264,7 @@ export class GameClient {
       this.audio.play(Math.random() < 0.5 ? "punch" : "punch2", 0.8);
     }
     if (id === "fuse.pull") this.audio.play("switch", 0.8);
+    if (id === "firebell.ring" && r.ok) this.audio.alarmBell();
     if (id.startsWith("door:")) this.audio.play("open", 0.4);
     if (r.ok && !npc && !id.startsWith("ask:") && !id.startsWith("door:")) this.audio.play("click", 0.3);
     if (r.witnessed.length) {
@@ -490,9 +491,11 @@ export class GameClient {
     const all = [...this.scene.lights, ...this.scene.lights.flatMap((l) => ((l as unknown as { lights?: typeof l[] }).lights ?? []))];
     for (const l of all) {
       if (l.name.startsWith("moon") || l.getClassName() === "ClusteredLightContainer") continue;
-      if (!this.baseIntensity.has(l)) this.baseIntensity.set(l, l.intensity);
-      const keep = l.name.startsWith("fire") || l.name.startsWith("garden") || l.name.startsWith("candle");
-      l.intensity = on && !keep ? this.baseIntensity.get(l)! * 0.02 : this.baseIntensity.get(l)!;
+      // streamed rooms' lights carry their own base (they may arrive mid-blackout)
+      const base = (l as unknown as { _tlcBase?: number })._tlcBase ?? this.baseIntensity.get(l) ?? l.intensity;
+      if (!this.baseIntensity.has(l)) this.baseIntensity.set(l, base);
+      const keep = /^(fire|garden|candle|moonfill)/.test(l.name);
+      l.intensity = on && !keep ? base * 0.02 : base;
     }
     if (!this.baseIntensity.has(this.scene)) this.baseIntensity.set(this.scene, this.scene.environmentIntensity);
     this.scene.environmentIntensity = on ? this.baseIntensity.get(this.scene)! * 0.2 : this.baseIntensity.get(this.scene)!;
