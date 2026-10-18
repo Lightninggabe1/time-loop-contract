@@ -22,6 +22,25 @@ const el = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, html?: 
   if (html !== undefined) e.innerHTML = html;
   return e;
 };
+/** Fire on a tap or a click, once. Touch "click"s are dropped by some phones while
+ *  another finger is down (e.g. still on the joystick), so react to touchend directly. */
+export function tap(e: Element, fn: () => void) {
+  let touched = 0, sx = 0, sy = 0;
+  e.addEventListener("touchstart", (ev) => {
+    const t = (ev as TouchEvent).changedTouches[0];
+    (sx = t.clientX), (sy = t.clientY);
+  }, { passive: true });
+  e.addEventListener("touchend", (ev) => {
+    const t = (ev as TouchEvent).changedTouches[0];
+    if (Math.hypot(t.clientX - sx, t.clientY - sy) > 14) return; // that was a scroll, not a tap
+    ev.preventDefault();
+    touched = performance.now();
+    fn();
+  });
+  e.addEventListener("click", () => {
+    if (performance.now() - touched > 600) fn();
+  });
+}
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
 
 const KIND_ICON: Record<ApproachKind, string> = { quiet: "◐", social: "❝", loud: "✊", chaos: "✸" };
@@ -52,15 +71,11 @@ export class GameUI {
     for (const e of [this.tags, this.pin, this.bubbles, this.talkEl, this.prompt, this.toasts, this.tracker, this.board, this.end, this.introEl, this.flashEl]) this.root.appendChild(e);
     this.board.hidden = this.end.hidden = this.introEl.hidden = this.talkEl.hidden = this.pin.hidden = true;
     document.getElementById("hint")?.remove();
-    // touch buttons
-    const ctx = document.getElementById("btn-context")!;
-    ctx.addEventListener("touchstart", (e) => (e.preventDefault(), this.offers[0] && hooks.onAct(this.offers[0].id)));
-    const item = document.getElementById("btn-item")!;
-    item.textContent = "⏱";
-    item.addEventListener("touchstart", (e) => (e.preventDefault(), hooks.onWait()));
+    // touch buttons (their presses go through Input, see hud.ts — one handler each, or a tap acts twice)
+    document.getElementById("btn-item")!.textContent = "⏱";
     const touch = document.getElementById("touch")!;
     const boardBtn = el("button", "g-touch-board", "Board");
-    boardBtn.addEventListener("touchstart", (e) => (e.preventDefault(), this.toggleBoard(this.lastBoard!, this.lastCtx!)));
+    tap(boardBtn, () => this.lastBoard && this.toggleBoard(this.lastBoard, this.lastCtx!));
     touch.appendChild(boardBtn);
     addEventListener("keydown", (e) => {
       if (!this.end.hidden && (e.code === "Space" || e.code === "Enter")) hooks.onAgain();
@@ -83,8 +98,7 @@ export class GameUI {
     offers.forEach((o, i) => {
       const b = el("button", `g-offer${o.crime ? " risky" : ""}${i === 0 ? " primary" : ""}`);
       b.innerHTML = `<kbd>${i === 0 ? "E" : i + 1}</kbd><span>${esc(o.label)}</span>${o.crime ? '<i title="Risky if seen">!</i>' : ""}`;
-      b.addEventListener("click", () => this.hooks.onAct(o.id));
-      b.addEventListener("touchstart", (e) => (e.preventDefault(), this.hooks.onAct(o.id)));
+      tap(b, () => this.hooks.onAct(o.id));
       this.prompt.appendChild(b);
     });
     this.prompt.classList.toggle("show", offers.length > 0);
@@ -94,7 +108,7 @@ export class GameUI {
   toast(text: string, kind?: "intel" | "warn") {
     const t = el("div", `g-toast${kind ? " " + kind : ""}`, esc(text));
     this.toasts.prepend(t);
-    while (this.toasts.children.length > 3) this.toasts.lastElementChild!.remove();
+    while (this.toasts.children.length > (matchMedia("(pointer: coarse)").matches ? 2 : 3)) this.toasts.lastElementChild!.remove();
     setTimeout(() => t.classList.add("out"), 3600);
     setTimeout(() => t.remove(), 4200);
   }
@@ -150,8 +164,7 @@ export class GameUI {
       <div class="g-opts">${opts}${options.length ? "" : `<p class="g-none">Nothing more to ask right now.</p>`}<button class="g-opt bye"><kbd>E</kbd><span>Goodbye</span></button></div></div>`;
     this.talkEl.querySelectorAll<HTMLButtonElement>(".g-opt").forEach((b) => {
       const go = () => pick(b.dataset.i === undefined ? null : options[Number(b.dataset.i)]);
-      b.addEventListener("click", go);
-      b.addEventListener("touchstart", (e) => (e.preventDefault(), go()));
+      tap(b, go);
     });
     if (this.talkEl.hidden) {
       this.talkEl.hidden = false;
@@ -227,16 +240,20 @@ export class GameUI {
       html += `<div class="g-approaches">${c.approaches.map((x) => `<span class="${x === a ? "on" : ""}${x.complete ? " done" : ""}" title="${KIND_NAME[x.approach.kind]}">${KIND_ICON[x.approach.kind]}</span>`).join("")}</div>`;
       html += `<p class="g-appr">${KIND_NAME[a.approach.kind]}: ${esc(a.approach.title)}</p><ul>${a.steps.map((s) => `<li class="${s.done ? "ok" : ""}">${esc(s.text)}</li>`).join("")}</ul>`;
     }
+    html += `<button class="g-more" aria-label="Show details"></button>`;
     if (lead) html += `<div class="g-lead"><span>Lead</span>${esc(lead.intel.title)}<button class="g-hint" title="Free hint">?</button></div>`;
     if (flags["has.jacket"]) html += `<div class="g-badge">Disguised as a waiter</div>`;
     this.tracker.innerHTML = html;
     this.tracker.querySelectorAll(".g-cycle").forEach((b) =>
-      b.addEventListener("click", () => {
+      tap(b, () => {
         this.focus = (this.focus + (b.classList.contains("next") ? 1 : list.length - 1)) % list.length;
         this.lastTrack = "";
       }),
     );
-    this.tracker.querySelector(".g-hint")?.addEventListener("click", () => this.hooks.onHint());
+    const hint = this.tracker.querySelector(".g-hint");
+    if (hint) tap(hint, () => this.hooks.onHint());
+    const more = this.tracker.querySelector(".g-more");
+    if (more) tap(more, () => this.tracker.classList.toggle("open"));
   }
 
   // ---------------------------------------------------------------- board
@@ -263,7 +280,7 @@ export class GameUI {
     html += `</div><button class="g-close">Back to the party</button></div>`;
     this.board.innerHTML = html;
     this.board.hidden = false;
-    this.board.querySelector(".g-close")!.addEventListener("click", () => this.closeBoard());
+    tap(this.board.querySelector(".g-close")!, () => this.closeBoard());
     document.exitPointerLock?.();
     this.hooks.onPause(true);
   }
@@ -285,7 +302,7 @@ export class GameUI {
          <p>${contracts} contracts are open. Each can be done <b>quietly</b>, <b>socially</b>, <b>loudly</b> or with <b>chaos</b>. Being seen isn't the end — it just gets lively.</p>
          <button>Again, then</button></div>`;
     this.introEl.hidden = false;
-    this.introEl.querySelector("button")!.addEventListener("click", () => this.hideIntro());
+    tap(this.introEl.querySelector("button")!, () => this.hideIntro());
     this.hooks.onPause(true);
   }
   hideIntro() {
@@ -306,8 +323,8 @@ export class GameUI {
     html += `</div><button class="g-again">Again <kbd>Space</kbd></button></div>`;
     this.end.innerHTML = html;
     this.end.hidden = false;
-    this.end.querySelector(".g-again")!.addEventListener("click", () => this.hooks.onAgain());
-    this.end.querySelectorAll(".g-perk").forEach((b) => b.addEventListener("click", () => this.hooks.onBuy((b as HTMLElement).dataset.id!)));
+    tap(this.end.querySelector(".g-again")!, () => this.hooks.onAgain());
+    this.end.querySelectorAll(".g-perk").forEach((b) => tap(b, () => !(b as HTMLButtonElement).disabled && this.hooks.onBuy((b as HTMLElement).dataset.id!)));
   }
   hideEnd() {
     this.end.hidden = true;

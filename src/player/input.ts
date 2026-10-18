@@ -59,10 +59,13 @@ export class Input {
     });
     addEventListener("mouseup", () => (this.dragging = false));
 
-    canvas.addEventListener("touchstart", (e) => this.touch(e, "start"), { passive: false });
-    canvas.addEventListener("touchmove", (e) => this.touch(e, "move"), { passive: false });
-    canvas.addEventListener("touchend", (e) => this.touch(e, "end"), { passive: false });
-    canvas.addEventListener("touchcancel", (e) => this.touch(e, "end"), { passive: false });
+    // Listen on the whole page, so a touch that lands on a HUD label still walks or looks.
+    // Only real controls (buttons, open panels) keep their touches.
+    const control = (t: EventTarget | null) => t instanceof Element && !!t.closest("button, a, .g-talk, .g-board, .g-end, .g-intro, #settings");
+    document.addEventListener("touchstart", (e) => this.touch(e, "start", control), { passive: false });
+    document.addEventListener("touchmove", (e) => this.touch(e, "move"), { passive: false });
+    document.addEventListener("touchend", (e) => this.touch(e, "end"), { passive: false });
+    document.addEventListener("touchcancel", (e) => this.touch(e, "end"), { passive: false });
   }
 
   press(button: "interact" | "item" | "board" | "punch") {
@@ -72,11 +75,12 @@ export class Input {
     this.edges.number = n;
   }
 
-  private touch(e: TouchEvent, phase: "start" | "move" | "end") {
-    e.preventDefault();
+  private touch(e: TouchEvent, phase: "start" | "move" | "end", isControl?: (t: EventTarget | null) => boolean) {
     const w = this.canvas.clientWidth;
     for (const t of Array.from(e.changedTouches)) {
       if (phase === "start") {
+        if (isControl?.(t.target)) continue;
+        if (e.cancelable) e.preventDefault();
         if (t.clientX < w * 0.42 && this.stick.id < 0) {
           this.stick = { id: t.identifier, ox: t.clientX, oy: t.clientY, x: 0, y: 0 };
           this.showStick(t.clientX, t.clientY, 0, 0);
@@ -84,6 +88,7 @@ export class Input {
           this.lookTouch = { id: t.identifier, x: t.clientX, y: t.clientY };
         }
       } else if (phase === "move") {
+        if ((t.identifier === this.stick.id || t.identifier === this.lookTouch.id) && e.cancelable) e.preventDefault();
         if (t.identifier === this.stick.id) {
           const R = 56;
           let dx = (t.clientX - this.stick.ox) / R, dy = (t.clientY - this.stick.oy) / R;

@@ -50,3 +50,9 @@ Director: "talking to people doesn't do anything", "the sunset painting has no c
 - **Name tags** over nearby people (• = has something new to say) and usable things ("◆ Sunset painting", "◆ Fuse box"…).
 - **Lead marker**: an on-screen pin over whoever or whatever the current Lead is about, sliding to the screen edge when it's off-screen.
 - **Prompt order**: the thing you're looking at comes first, then the nearest.
+
+## Phone fixes after Checkpoint 2 replay (2026-10-18)
+- **Loading hang on phones**: phones now default to WebGL2 and the Low preset (far fewer, quicker shaders); the shader wait gives up after 10 s (unfinished meshes pop in a moment later) and shows a percentage; after 25 s on one step a "lighter version" link appears; a lost GPU context reloads on WebGL2/Low. WebKit iPhone emulation: 28 s → 7 s to playable.
+- **HUD on phones**: compact clock, tracker collapsed to one line (▾ expands), smaller toasts/prompts/buttons, at most 2 prompts. Touch input listens page-wide, so only real buttons and open panels keep a touch; labels never block the stick or look.
+- **Double taps**: the E and ⏱ buttons each had two handlers (a door opened and shut again; ⏱ skipped 20 min). One handler each now.
+- **Again button**: all overlay buttons fire on touchend (some phones drop the synthesised click while another finger is down), and overlays scroll on short screens.

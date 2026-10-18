@@ -235,3 +235,55 @@ body.talking .g-prompt, body.talking .g-tags, body.talking .g-pin, body.talking 
   body.talking .g-toasts { top: 8px; }
 }
 .g-pin span em { font-style: normal; color: var(--gold); margin-right: 6px; }
+#stall { display: block; margin-top: 14px; color: var(--gold); font-size: 13px; letter-spacing: 0.06em; }
+
+/* ---------- phones: a small HUD that leaves the screen to your thumbs ---------- */
+.g-tracker { pointer-events: none; }
+.g-tracker button { pointer-events: auto; }
+.g-more { display: none; }
+@media (pointer: coarse) {
+  #clock { top: max(6px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); padding: 3px 10px 3px 8px; }
+  #clocktime { font-size: 17px; }
+  #clock small { font-size: 10px; }
+  #clock em { font-size: 9px; margin-left: 6px; }
+  #settings-btn { top: max(6px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); width: 32px; height: 32px; font-size: 15px; }
+  .g-tracker { top: max(42px, calc(env(safe-area-inset-top) + 36px)); left: max(10px, env(safe-area-inset-left)); width: min(210px, 34vw); padding: 6px 8px; font-size: 11px; background: linear-gradient(90deg, rgba(10,6,8,0.55), rgba(10,6,8,0)); }
+  .g-tracker h3 { font-size: 10px; margin-bottom: 2px; }
+  .g-tracker .g-brief, .g-tracker .g-goal, .g-tracker .g-appr, .g-tracker ul, .g-tracker .g-badge { display: none; }
+  .g-tracker.open .g-brief, .g-tracker.open .g-goal, .g-tracker.open .g-appr, .g-tracker.open ul, .g-tracker.open .g-badge { display: block; }
+  .g-tracker .g-approaches { margin-bottom: 0; }
+  .g-lead { margin-top: 4px; padding-top: 4px; gap: 6px; font-size: 11px; }
+  .g-lead span { font-size: 9px; }
+  .g-hint { width: 22px; height: 22px; font-size: 11px; }
+  .g-more { display: block; position: absolute; top: 2px; right: 2px; width: 26px; height: 22px; background: none; border: 0; color: var(--gold); font: inherit; font-size: 11px; }
+  .g-more::before { content: "▾"; }
+  .g-tracker.open .g-more::before { content: "▴"; }
+  .g-toasts { top: max(6px, env(safe-area-inset-top)); width: min(380px, 52vw); gap: 4px; }
+  .g-toast { padding: 4px 10px; font-size: 11.5px; }
+  .g-prompt { bottom: max(14px, env(safe-area-inset-bottom)); gap: 4px; }
+  .g-offer { padding: 5px 11px; font-size: 12px; }
+  .g-offer.primary { font-size: 13px; }
+  .g-offer:nth-child(n+3) { display: none; }
+  .g-bubble { max-width: 200px; font-size: 11.5px; padding: 5px 8px; }
+  .g-tag { font-size: 9.5px; }
+  .g-pin span { font-size: 9.5px; padding: 2px 7px; }
+  #btn-context { width: 68px; height: 68px; font-size: 18px; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); }
+  #btn-item { width: 46px; height: 46px; font-size: 14px; right: max(100px, calc(env(safe-area-inset-right) + 80px)); bottom: max(18px, env(safe-area-inset-bottom)); }
+  .g-touch-board { right: max(20px, env(safe-area-inset-right)); bottom: max(100px, calc(env(safe-area-inset-bottom) + 96px)); padding: 5px 10px; font-size: 11px; }
+  #hint { font-size: 11px; padding: 5px 12px; bottom: max(96px, env(safe-area-inset-bottom)); }
+  /* overlays fit a short landscape screen and scroll if they must */
+  .g-end, .g-intro, .g-board { overflow-y: auto; place-items: start center; padding: 10px 0; -webkit-overflow-scrolling: touch; touch-action: pan-y; }
+  .g-card { padding: 16px 16px 14px; margin: auto; }
+  .g-card .sun { width: 60px; height: 30px; margin-bottom: 6px; }
+  .g-card p { margin: 6px 0; font-size: 13px; }
+  .g-quip { font-size: 15px; }
+  .g-stats { margin: 8px 0; }
+  .g-stats b { font-size: 20px; }
+  .g-perk span { display: none; }
+  .g-close, .g-again, .g-card button { margin-top: 10px; padding: 12px 26px; }
+}
+@media (pointer: coarse) and (orientation: portrait) {
+  .g-prompt { bottom: max(108px, calc(env(safe-area-inset-bottom) + 100px)); }
+  .g-toasts { top: max(120px, calc(env(safe-area-inset-top) + 112px)); width: 76vw; }
+  .g-touch-board { bottom: max(104px, calc(env(safe-area-inset-bottom) + 96px)); }
+}

@@ -62,7 +62,7 @@ export function isMobile() {
 
 /** First guess before probing. */
 export function initialQuality(): Quality {
-  return savedQuality() ?? (isMobile() ? "medium" : "high");
+  return savedQuality() ?? (isMobile() ? "low" : "high"); // phones: fewest shaders, fastest start; Settings can raise it
 }
 
 /** Given average frame ms at a preset, decide whether to step down. */

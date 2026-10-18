@@ -13,7 +13,7 @@ import { setupLighting } from "./render/lighting";
 import { Post } from "./render/pipeline";
 import { createShafts } from "./render/shafts";
 import { Mirrors } from "./render/mirrors";
-import { PRESETS, Quality, initialQuality, saveQuality, savedQuality, stepDown } from "./render/quality";
+import { PRESETS, Quality, initialQuality, isMobile, saveQuality, savedQuality, stepDown } from "./render/quality";
 import { Input } from "./player/input";
 import { Player, addStaticColliders } from "./player/player";
 import { buildNavMesh } from "./nav/navmesh";
@@ -32,13 +32,29 @@ MeshoptCompression.Configuration.decoder.url = new URL("./vendor/meshopt_decoder
 
 const loadbar = document.getElementById("loadbar")!;
 const loadmsg = document.getElementById("loadmsg")!;
+// If loading stalls (slow phone GPU), offer the simpler renderer after a while.
+let stallTimer = 0;
+const armStall = () => {
+  clearTimeout(stallTimer);
+  stallTimer = window.setTimeout(() => {
+    if (document.getElementById("stall")) return;
+    const a = document.createElement("a");
+    a.id = "stall";
+    a.href = `${location.pathname}?engine=webgl&quality=low`;
+    a.textContent = "Taking a while? Tap here for the lighter version";
+    loadmsg.after(a);
+  }, 25000);
+};
 const progress = (p: number, msg: string) => {
+  armStall();
   loadbar.style.width = `${Math.round(p * 100)}%`;
   loadmsg.textContent = msg;
 };
 
 async function createEngine(canvas: HTMLCanvasElement): Promise<AbstractEngine> {
-  const want = params.get("engine");
+  // Phones default to WebGL2: mature, and much quicker to compile shaders than
+  // mobile WebGPU, which could sit on "Compiling shaders" for minutes.
+  const want = params.get("engine") ?? (isMobile() ? "webgl" : "webgpu");
   if (want !== "webgl" && (await WebGPUEngine.IsSupportedAsync)) {
     try {
       const e = new WebGPUEngine(canvas, { antialias: false, adaptToDeviceRatio: false, powerPreference: "high-performance" });
@@ -57,6 +73,10 @@ async function main() {
   const [engine, havok] = await Promise.all([createEngine(canvas), HavokPhysics({ locateFile: () => havokWasmUrl })]);
   debug.__engine = engine.isWebGPU ? "webgpu" : "webgl2";
 
+  // the GPU can reset under memory pressure on phones: come back on the lighter renderer
+  engine.onContextLostObservable.add(() => {
+    if (params.get("engine") !== "webgl") location.replace(`${location.pathname}?engine=webgl&quality=low`);
+  });
   const scene = new Scene(engine);
   scene.clearColor = new Color4(0.02, 0.015, 0.02, 1);
   scene.fogMode = Scene.FOGMODE_EXP2;
@@ -128,7 +148,14 @@ async function main() {
   freezeMaterials();
   booted = true;
   progress(0.85, "Compiling shaders…");
-  await scene.whenReadyAsync();
+  // Don't wait forever: after 10 s start anyway (anything unfinished pops in a moment later)
+  const meshes = scene.meshes.filter((m) => m.isEnabled() && m.isVisible && m.subMeshes?.length);
+  const tick = setInterval(() => {
+    const done = meshes.filter((m) => m.isReady(true)).length;
+    progress(0.85 + 0.1 * (done / Math.max(1, meshes.length)), `Compiling shaders… ${Math.round((100 * done) / Math.max(1, meshes.length))}%`);
+  }, 400);
+  await Promise.race([scene.whenReadyAsync(), new Promise((r) => setTimeout(r, 10000))]);
+  clearInterval(tick);
 
   // game clock: 6 PM → midnight over 9 real minutes
   const LOOP_SECONDS = 9 * 60;
@@ -232,6 +259,7 @@ async function main() {
   progress(0.95, "Seating the guests…");
   await Promise.race([castLoad, new Promise((r) => setTimeout(r, 12000))]);
   progress(1, "Doors open");
+  clearTimeout(stallTimer);
   document.getElementById("loading")!.classList.add("done");
   hud.show();
   if (game) game.ui.intro(game.session.meta.loop, 3);
