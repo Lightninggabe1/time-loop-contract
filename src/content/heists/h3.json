@@ -1,0 +1,326 @@
+{
+  "id": "h3",
+  "n": 3,
+  "title": "Champagne Tower",
+  "blurb": "The Maharaja's ruby crowns the champagne tower. Guests admire it, the Inspector prowls, and Hobbs guards the kitchen door.",
+  "goal": "Lift the ruby and send it down the kitchen dumbwaiter",
+  "cap": 3,
+  "par": 2,
+  "timeGoal": 30,
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      -12.5
+    ],
+    "yaw": 0
+  },
+  "exit": {
+    "pos": [
+      19.6,
+      0,
+      9.2
+    ],
+    "r": 1.5,
+    "label": "Kitchen dumbwaiter"
+  },
+  "rooms": [
+    "ballroom",
+    "kitchen",
+    "balcony"
+  ],
+  "doors": {
+    "study": {
+      "open": false
+    },
+    "balcony": {
+      "open": true
+    },
+    "kitchen": {
+      "open": true
+    },
+    "passage": {
+      "open": false
+    }
+  },
+  "devices": [
+    {
+      "id": "fireworks",
+      "kind": "announce",
+      "label": "Light the fireworks",
+      "pos": [
+        -14.4,
+        0.8,
+        -2
+      ],
+      "look": [
+        -9.6,
+        2,
+        0
+      ],
+      "for": 14
+    },
+    {
+      "id": "rope",
+      "kind": "chandelier",
+      "label": "Cut the chandelier rope",
+      "pos": [
+        5.6,
+        1.8,
+        13.9
+      ],
+      "look": [
+        2.8,
+        0,
+        8.8
+      ],
+      "r": 4.2,
+      "for": 12
+    }
+  ],
+  "items": [
+    {
+      "id": "ruby",
+      "label": "ruby",
+      "pos": [
+        0,
+        1.6,
+        8.2
+      ],
+      "main": true
+    }
+  ],
+  "guards": [
+    {
+      "npc": "hale",
+      "patrol": [
+        [
+          "b_aisle_wn",
+          4
+        ],
+        [
+          "b_aisle_ws",
+          3
+        ],
+        [
+          "b_aisle_es",
+          3
+        ],
+        [
+          "b_aisle_en",
+          4
+        ]
+      ],
+      "offset": 0
+    },
+    {
+      "npc": "hobbs",
+      "patrol": [
+        [
+          "b_kitchen_guard",
+          600
+        ]
+      ]
+    }
+  ],
+  "guests": [
+    {
+      "npc": "dolly",
+      "spot": "tower2",
+      "yaw": 120
+    },
+    {
+      "npc": "rupert",
+      "spot": "tower3",
+      "yaw": -120
+    },
+    {
+      "npc": "marcel",
+      "spot": "k_stove"
+    }
+  ],
+  "tips": {
+    "1": "Grab the ruby in front of the guests and they'll shout for the Inspector.",
+    "*": "Give everyone something else to look at, or keep the Inspector too busy to come."
+  },
+  "solutions": {
+    "quiet": [
+      [
+        [
+          "go",
+          "b_balcony_door",
+          "run"
+        ],
+        [
+          "go",
+          "fireworks",
+          "run"
+        ],
+        [
+          "until",
+          7
+        ],
+        [
+          "use",
+          "fireworks"
+        ],
+        [
+          "end"
+        ]
+      ],
+      [
+        [
+          "go",
+          "b_tower_e",
+          "run"
+        ],
+        [
+          "until",
+          7.2
+        ],
+        [
+          "take",
+          "ruby"
+        ],
+        [
+          "go",
+          "exit",
+          "run"
+        ]
+      ]
+    ],
+    "social": [
+      [
+        [
+          "go",
+          "hale",
+          "run"
+        ],
+        [
+          "chat",
+          "hale"
+        ],
+        [
+          "end"
+        ]
+      ],
+      [
+        [
+          "to",
+          [
+            7.2,
+            0,
+            11.4
+          ]
+        ],
+        [
+          "chat",
+          "hobbs"
+        ],
+        [
+          "end"
+        ]
+      ],
+      [
+        [
+          "until",
+          8.5
+        ],
+        [
+          "go",
+          "b_tower_e",
+          "run"
+        ],
+        [
+          "take",
+          "ruby"
+        ],
+        [
+          "go",
+          "exit",
+          "run"
+        ]
+      ]
+    ],
+    "loud": [
+      [
+        [
+          "to",
+          [
+            7.2,
+            0,
+            11.4
+          ],
+          "run"
+        ],
+        [
+          "punch",
+          "hobbs"
+        ],
+        [
+          "end"
+        ]
+      ],
+      [
+        [
+          "wait",
+          1
+        ],
+        [
+          "go",
+          "b_tower_e",
+          "run"
+        ],
+        [
+          "take",
+          "ruby"
+        ],
+        [
+          "go",
+          "exit",
+          "run"
+        ]
+      ]
+    ],
+    "chaos": [
+      [
+        [
+          "go",
+          "curtain_rope",
+          "run"
+        ],
+        [
+          "go",
+          "rope"
+        ],
+        [
+          "use",
+          "rope"
+        ],
+        [
+          "end"
+        ]
+      ],
+      [
+        [
+          "go",
+          "b_tower_e",
+          "run"
+        ],
+        [
+          "waitFor",
+          "rope"
+        ],
+        [
+          "take",
+          "ruby"
+        ],
+        [
+          "go",
+          "exit",
+          "run"
+        ]
+      ]
+    ]
+  }
+}

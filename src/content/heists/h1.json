@@ -1,0 +1,31 @@
+{
+  "id": "h1",
+  "n": 1,
+  "title": "The Plate Door",
+  "blurb": "Lady Vivienne's pearls sit on the study desk. The study door only opens while someone stands on the brass plate.",
+  "goal": "Take the pearls out over the balcony",
+  "cap": 2,
+  "par": 1,
+  "timeGoal": 30,
+  "spawn": { "pos": [0, 0, -12.5], "yaw": 0 },
+  "exit": { "pos": [-15, 0, 0.6], "r": 1.6, "label": "Rope off the balcony" },
+  "rooms": ["ballroom", "study", "balcony"],
+  "doors": { "balcony": { "open": true }, "kitchen": { "open": false }, "passage": { "open": false } },
+  "devices": [
+    { "id": "plate", "kind": "plate", "label": "Brass plate", "pos": [0, 0, -9], "r": 0.8, "doors": ["study"] }
+  ],
+  "items": [
+    { "id": "pearls", "label": "pearls", "pos": [17.1, 0.82, 0.6], "main": true }
+  ],
+  "guards": [],
+  "tips": {
+    "1": "Next round, your echo will do exactly what you just did. Let it hold the plate.",
+    "*": "Stand on the plate, then end the round with ⟲. Your echo keeps standing there."
+  },
+  "solutions": {
+    "tutorial": [
+      [["go", "plate"], ["wait", 1], ["end"]],
+      [["go", "pearls", "run"], ["take", "pearls"], ["go", "exit", "run"]]
+    ]
+  }
+}

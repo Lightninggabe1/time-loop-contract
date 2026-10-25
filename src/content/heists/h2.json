@@ -1,0 +1,422 @@
+{
+  "id": "h2",
+  "n": 2,
+  "title": "The Study Safe",
+  "blurb": "Lord Ashcombe keeps the deed box in the wall safe behind the sunset painting. Brock checks the study every half minute.",
+  "goal": "Crack the safe and carry the deed box out over the balcony",
+  "cap": 3,
+  "par": 2,
+  "timeGoal": 40,
+  "spawn": {
+    "pos": [
+      0,
+      0,
+      -12.5
+    ],
+    "yaw": 0
+  },
+  "exit": {
+    "pos": [
+      -15,
+      0,
+      0.6
+    ],
+    "r": 1.6,
+    "label": "Rope off the balcony"
+  },
+  "rooms": [
+    "ballroom",
+    "study",
+    "kitchen",
+    "balcony"
+  ],
+  "restricted": [
+    "study",
+    "kitchen"
+  ],
+  "doors": {
+    "study": {
+      "open": true
+    },
+    "balcony": {
+      "open": true
+    },
+    "kitchen": {
+      "open": true
+    },
+    "passage": {
+      "open": true
+    }
+  },
+  "devices": [
+    {
+      "id": "safe",
+      "kind": "safe",
+      "label": "Crack the safe",
+      "pos": [
+        20.4,
+        1.9,
+        0
+      ],
+      "time": 16,
+      "loot": "deedbox"
+    },
+    {
+      "id": "fuse",
+      "kind": "blackout",
+      "label": "Pull the main fuse",
+      "pos": [
+        20.1,
+        1.7,
+        13.4
+      ],
+      "for": 25
+    },
+    {
+      "id": "gramophone",
+      "kind": "noise",
+      "label": "Put a record on",
+      "pos": [
+        -8.3,
+        0.8,
+        -12.6
+      ],
+      "lure": [
+        "brock"
+      ],
+      "spot": "sofa_w",
+      "for": 22
+    }
+  ],
+  "items": [
+    {
+      "id": "deedbox",
+      "label": "deed box",
+      "pos": [
+        20.0,
+        1.9,
+        0
+      ],
+      "main": true,
+      "inside": "safe"
+    }
+  ],
+  "guards": [
+    {
+      "npc": "brock",
+      "patrol": [
+        [
+          "s_watch",
+          6
+        ],
+        [
+          "b_aisle_e0",
+          5
+        ]
+      ]
+    }
+  ],
+  "tips": {
+    "1": "One pair of hands takes 16 s on that safe. Two take 8.",
+    "*": "Brock can't watch the safe if he's busy: chat, music, lights out, or a punch."
+  },
+  "solutions": {
+    "quiet": [
+      [
+        [
+          "go",
+          "be_mirror"
+        ],
+        [
+          "until",
+          10.4
+        ],
+        [
+          "go",
+          "safe",
+          "run"
+        ],
+        [
+          "use",
+          "safe"
+        ],
+        [
+          "wait",
+          8.5
+        ],
+        [
+          "go",
+          "s_passage",
+          "run"
+        ],
+        [
+          "go",
+          "k_passage",
+          "run"
+        ],
+        [
+          "end"
+        ]
+      ],
+      [
+        [
+          "go",
+          "be_mirror"
+        ],
+        [
+          "until",
+          10.4
+        ],
+        [
+          "go",
+          "safe",
+          "run"
+        ],
+        [
+          "use",
+          "safe"
+        ],
+        [
+          "waitFor",
+          "deedbox"
+        ],
+        [
+          "take",
+          "deedbox"
+        ],
+        [
+          "go",
+          "s_passage",
+          "run"
+        ],
+        [
+          "go",
+          "k_passage",
+          "run"
+        ],
+        [
+          "go",
+          "b_kitchen_door",
+          "run"
+        ],
+        [
+          "go",
+          "exit",
+          "run"
+        ]
+      ]
+    ],
+    "social": [
+      [
+        [
+          "to",
+          [
+            4.6,
+            0,
+            -1.4
+          ]
+        ],
+        [
+          "until",
+          13.5
+        ],
+        [
+          "chat",
+          "brock"
+        ],
+        [
+          "end"
+        ]
+      ],
+      [
+        [
+          "go",
+          "be_mirror"
+        ],
+        [
+          "until",
+          10.4
+        ],
+        [
+          "go",
+          "safe",
+          "run"
+        ],
+        [
+          "use",
+          "safe"
+        ],
+        [
+          "waitFor",
+          "deedbox"
+        ],
+        [
+          "take",
+          "deedbox"
+        ],
+        [
+          "go",
+          "s_passage",
+          "run"
+        ],
+        [
+          "go",
+          "k_passage",
+          "run"
+        ],
+        [
+          "go",
+          "b_kitchen_door",
+          "run"
+        ],
+        [
+          "go",
+          "exit",
+          "run"
+        ]
+      ]
+    ],
+    "loud": [
+      [
+        [
+          "to",
+          [
+            4.6,
+            0,
+            -1.4
+          ]
+        ],
+        [
+          "until",
+          13.5
+        ],
+        [
+          "punch",
+          "brock"
+        ],
+        [
+          "end"
+        ]
+      ],
+      [
+        [
+          "go",
+          "be_mirror"
+        ],
+        [
+          "until",
+          10.4
+        ],
+        [
+          "go",
+          "safe",
+          "run"
+        ],
+        [
+          "use",
+          "safe"
+        ],
+        [
+          "waitFor",
+          "deedbox"
+        ],
+        [
+          "take",
+          "deedbox"
+        ],
+        [
+          "go",
+          "s_passage",
+          "run"
+        ],
+        [
+          "go",
+          "k_passage",
+          "run"
+        ],
+        [
+          "go",
+          "b_kitchen_door",
+          "run"
+        ],
+        [
+          "go",
+          "exit",
+          "run"
+        ]
+      ]
+    ],
+    "chaos": [
+      [
+        [
+          "go",
+          "b_kitchen_door",
+          "run"
+        ],
+        [
+          "go",
+          "fuse",
+          "run"
+        ],
+        [
+          "until",
+          8
+        ],
+        [
+          "use",
+          "fuse"
+        ],
+        [
+          "end"
+        ]
+      ],
+      [
+        [
+          "go",
+          "be_mirror"
+        ],
+        [
+          "until",
+          10.6
+        ],
+        [
+          "go",
+          "safe",
+          "run"
+        ],
+        [
+          "use",
+          "safe"
+        ],
+        [
+          "waitFor",
+          "deedbox"
+        ],
+        [
+          "take",
+          "deedbox"
+        ],
+        [
+          "go",
+          "s_passage",
+          "run"
+        ],
+        [
+          "go",
+          "k_passage",
+          "run"
+        ],
+        [
+          "go",
+          "b_kitchen_door",
+          "run"
+        ],
+        [
+          "go",
+          "exit",
+          "run"
+        ]
+      ]
+    ]
+  }
+}

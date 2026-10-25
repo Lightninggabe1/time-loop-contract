@@ -18,7 +18,7 @@ import { Input } from "./player/input";
 import { Player, addStaticColliders } from "./player/player";
 import { buildNavMesh } from "./nav/navmesh";
 import { Hud } from "./ui/hud";
-import { GameClient } from "./game/client";
+import { HeistClient } from "./game/heist-client";
 
 const params = new URLSearchParams(location.search);
 const shot = params.get("shot");
@@ -176,13 +176,10 @@ async function main() {
   await Promise.race([scene.whenReadyAsync(), new Promise((r) => setTimeout(r, 10000))]);
   clearInterval(tick);
 
-  // game clock: 6 PM → midnight over 9 real minutes
-  const LOOP_SECONDS = 9 * 60;
+  // the tower clock: one minute to midnight
   let t = 0;
   const setClock = (seconds: number) => {
-    const gameMin = 18 * 60 + (seconds / LOOP_SECONDS) * 360;
-    const h = Math.floor(gameMin / 60), m = Math.floor(gameMin % 60);
-    hud.setTime(h, m);
+    const gameMin = 23 * 60 + 59 + Math.min(60, seconds) / 60;
     if (room.clockHands && room.clock) {
       const n = room.clock.normal.scale(-1);
       const base = Quaternion.FromLookDirectionLH(n, Vector3.Up());
@@ -203,8 +200,8 @@ async function main() {
     if (params.has("time")) setClock(Number(params.get("time")));
   }
 
-  // the game: rules (Session) + presentation (actors, HUD)
-  const game = shot && !params.has("cast") ? null : new GameClient(scene, room, doors, player, input, lighting);
+  // the game: rules (src/core/heist) + presentation (actors, HUD)
+  const game = shot && !params.has("cast") ? null : new HeistClient(scene, room, doors, player, input, lighting);
   const castLoad = game ? game.loadCast().then(excludeFromPrepass).catch((e) => console.error("cast failed", e)) : Promise.resolve();
   debug.__client = game;
   const muteBtn = document.getElementById("mute");
@@ -221,8 +218,8 @@ async function main() {
       player.update(dt);
       if (game) {
         game.update(dt);
-        t = (game.session.minute - 18 * 60) / (360 / LOOP_SECONDS);
-      } else t = (t + dt) % LOOP_SECONDS;
+        t = game.round.seconds;
+      } else t = (t + dt) % 60;
       setClock(t);
     }
     lighting.update(shot ? 1 : performance.now() / 1000);
@@ -275,15 +272,13 @@ async function main() {
   };
   setInterval(() => hud.setFps(avg(60), quality, debug.__engine as string), 500);
 
-  // guests keep arriving behind the intro card (it's 6 PM: they *are* arriving);
-  // screenshot runs with a cast wait for everyone
+  // people load behind the briefing card; screenshot runs with a cast wait for everyone
   progress(0.95, "Seating the guests…");
   await Promise.race([castLoad, new Promise((r) => setTimeout(r, shot ? 60000 : 1500))]);
   progress(1, "Doors open");
   clearTimeout(stallTimer);
   document.getElementById("loading")!.classList.add("done");
   hud.show();
-  if (game) game.ui.intro(game.session.meta.loop, 3);
 
   // probe: step down quality automatically if the device struggles
   if (!savedQuality() && !shot) {
@@ -295,7 +290,7 @@ async function main() {
     };
     let strikes = 0;
     const probe = () => {
-      if (game?.ui && (document.querySelector(".g-intro:not([hidden])") || document.hidden)) return setTimeout(probe, 2000);
+      if (game?.ui && (game.ui.open || document.hidden)) return setTimeout(probe, 2000);
       const next = stepDown(quality, median(120));
       strikes = next ? strikes + 1 : 0;
       if (next && strikes >= 2) {

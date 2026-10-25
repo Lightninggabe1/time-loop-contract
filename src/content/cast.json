@@ -30,6 +30,8 @@
     { "id": "zelda", "body": "female", "skin": "Dark", "hair": "Hair_Long", "hairColor": "#120C0A",
       "outfit": "gown", "colors": { "dress": "#141214", "trim": "#E2B25C", "gloves": "#3A0A16" }, "length": "floor", "pearls": true, "headband": "#124A3A", "scale": 1.0 },
     { "id": "tom", "body": "male", "skin": "Light", "hair": "Hair_Buzzed", "hairColor": "#B8B4AE", "beard": true,
-      "outfit": "lounge", "colors": { "jacket": "#5A4630", "accent": "#124A3A" }, "scale": 0.96 }
+      "outfit": "lounge", "colors": { "jacket": "#5A4630", "accent": "#124A3A" }, "scale": 0.96 },
+    { "id": "fixer", "body": "male", "skin": "Light", "hair": "Hair_SimpleParted", "hairColor": "#2A1C12", "beard": false,
+      "outfit": "lounge", "colors": { "jacket": "#1B2433", "accent": "#E2B25C" }, "scale": 1.0 }
   ]
 }

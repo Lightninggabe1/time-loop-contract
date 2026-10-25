@@ -8,7 +8,10 @@ import {
 import "@babylonjs/loaders/glTF";
 import { UAL_TO_UBC } from "./retarget";
 import type { Activity, NpcPose } from "../core/schedule";
-import type { Awareness, NpcOverride } from "../core/world";
+import type { Awareness } from "../core/heist/round";
+
+/** What a person is doing off their routine (drives the animation). */
+export interface NpcOverride { state: "ko" | "chasing" | "fleeing" | "distracted" }
 
 /** Gameplay clip → source clip in the Universal Animation Library. */
 const CLIPS = {
@@ -93,12 +96,13 @@ export class NpcActor {
   readonly meshes: AbstractMesh[] = [];
   oneShot: { clip: Clip; until: number } | null = null;
 
-  constructor(readonly scene: Scene, readonly id: string) {}
+  /** `model` is the look to load (echoes share the fixer's); defaults to the id */
+  constructor(readonly scene: Scene, readonly id: string, readonly model = id) {}
 
   async init(start: NpcPose) {
     const scene = this.scene;
-    let p = npcLib.get(this.id);
-    if (!p) npcLib.set(this.id, (p = LoadAssetContainerAsync(`./assets/characters/npc/${this.id}.gltf`, scene)));
+    let p = npcLib.get(this.model);
+    if (!p) npcLib.set(this.model, (p = LoadAssetContainerAsync(`./assets/characters/npc/${this.model}.gltf`, scene)));
     const [c, anims] = await Promise.all([p, lib(scene)]);
     // keep original node names: retargeting matches bones by name
     const inst = c.instantiateModelsToScene((n) => n, false);

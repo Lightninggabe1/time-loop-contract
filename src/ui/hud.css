@@ -287,3 +287,61 @@ body.talking .g-prompt, body.talking .g-tags, body.talking .g-pin, body.talking 
   .g-toasts { top: max(120px, calc(env(safe-area-inset-top) + 112px)); width: 76vw; }
   .g-touch-board { bottom: max(104px, calc(env(safe-area-inset-bottom) + 96px)); }
 }
+
+/* ---------- heists ---------- */
+.h-timer { position: absolute; top: max(14px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 18px 7px; background: var(--shadow); border: 1px solid var(--gold-dim); outline: 1px solid var(--gold-dim); outline-offset: 3px; }
+.h-timer b { font-weight: 500; font-size: 30px; letter-spacing: 0.08em; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
+.h-timer span { display: block; width: 120px; height: 3px; background: rgba(226,178,92,0.18); }
+.h-timer span i { display: block; height: 100%; background: var(--gold); transition: width 0.9s linear; }
+.h-timer small { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; opacity: 0.65; }
+.h-timer.late b { color: #ff8a6a; animation: hpulse 1s ease-in-out infinite; }
+.h-timer.late span i { background: #e8573c; }
+@keyframes hpulse { 50% { opacity: 0.55; } }
+.h-panel { position: absolute; top: max(14px, env(safe-area-inset-top)); left: max(16px, env(safe-area-inset-left)); width: min(300px, 40vw); padding: 10px 14px 12px; background: linear-gradient(90deg, var(--shadow), rgba(10,6,8,0.2)); border-left: 2px solid var(--gold); font-size: 13px; }
+.h-panel h3 { margin: 0 0 4px; font-weight: 500; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); }
+.h-goal { margin: 0 0 8px; line-height: 1.35; opacity: 0.9; }
+.h-crew { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.h-round { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.7; margin-right: 2px; }
+.h-chip { position: relative; min-width: 26px; height: 26px; padding: 0 6px; display: grid; place-items: center; border-radius: 13px; border: 2px solid var(--c); color: var(--c); font-size: 13px; background: rgba(10,6,8,0.6); }
+.h-chip.you { background: var(--c); color: #1a1208; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; }
+.h-chip em { position: absolute; right: -6px; top: -7px; font-style: normal; font-size: 11px; color: #ffd2c4; text-shadow: 0 1px 2px #000; }
+.h-chip.caught, .h-chip.stalled { opacity: 0.6; }
+.h-chip.out { background: var(--c); color: #1a1208; }
+.h-btns { display: flex; gap: 8px; margin-top: 10px; }
+.h-btns button { pointer-events: auto; padding: 6px 12px; background: rgba(92,18,34,0.75); border: 1px solid var(--gold-dim); color: var(--ink); font: inherit; font-size: 12px; letter-spacing: 0.12em; cursor: pointer; }
+.h-btns .h-hint { width: 30px; padding: 6px 0; border-radius: 50%; background: none; color: var(--gold); }
+.g-tag.echo { color: #1a1208; background: var(--c); font-weight: 600; font-size: 13px; padding: 1px 8px; border-radius: 10px; letter-spacing: 0.05em; }
+.g-tag.guard { color: #ffd2c4; border-bottom: 1px solid #e8573c; }
+.g-tag.loot { color: #fff1c8; background: rgba(92,18,34,0.7); }
+.g-tag.exit { color: #b9e8c2; border: 1px solid #b9e8c2; background: rgba(18,74,58,0.7); font-size: 12px; }
+.h-card .g-card h2 { margin-top: 2px; }
+.h-kicker { margin: 0; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); opacity: 0.85; }
+.h-goalcard { display: inline-block; padding: 6px 12px; border: 1px dashed var(--gold-dim); color: #f7e2b0; }
+.h-how { font-size: 14px; }
+.h-tip { padding: 8px 12px; border-left: 2px solid var(--gold); background: rgba(226,178,92,0.08); text-align: left; color: #f7e2b0; }
+.h-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.h-row.small button { font-size: 12px; padding: 8px 14px; }
+.h-card .g-card button.ghost { background: none; }
+.h-card .g-card button.h-slot { background: none; border-color: var(--c); color: var(--c); }
+.h-stars { color: var(--gold); letter-spacing: 0.15em; }
+.h-stars i { font-style: normal; color: rgba(226,178,92,0.25); }
+.h-bigstars { font-size: 34px; margin: 6px 0; }
+.h-list-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 14px; }
+.h-card .g-card .h-pick { margin: 0; display: flex; flex-direction: column; gap: 4px; text-align: left; padding: 12px; background: rgba(246,238,220,0.04); letter-spacing: 0; }
+.h-pick b { color: var(--gold); font-weight: 500; }
+.h-pick span { font-size: 12px; opacity: 0.85; }
+.h-pick.locked { opacity: 0.4; }
+@media (pointer: coarse) {
+  .h-timer { top: max(6px, env(safe-area-inset-top)); padding: 3px 12px 4px; }
+  .h-timer b { font-size: 20px; }
+  .h-timer span { width: 80px; }
+  .h-timer small { display: none; }
+  .h-panel { top: max(6px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left)); width: min(220px, 34vw); padding: 6px 8px; font-size: 11px; }
+  .h-panel h3 { font-size: 10px; }
+  .h-goal { margin-bottom: 4px; }
+  .h-chip { min-width: 22px; height: 22px; font-size: 11px; }
+  .h-btns { margin-top: 6px; }
+  .h-btns .h-rewind { display: none; }
+  .h-card .g-card .h-how { font-size: 13px; }
+}
+@media (pointer: coarse) { .h-card kbd { display: none; } }

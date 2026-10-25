@@ -1,4 +1,4 @@
-# CLAUDE.md — Time-Loop Contract (working title)
+# CLAUDE.md — One Minute to Midnight (working title)
 
 These are the standing rules from the product director. Re-read them at the
 start of every session. Check every decision against THE AIM.
@@ -21,53 +21,59 @@ never feels punished or confused. Tie-breakers, in order:
 1. instantly readable  2. beautiful at a glance  3. smooth to run
 4. many approaches viable.
 
-## Concept
-- Player is a "fixer" stuck repeating one evening: New Year's Eve gala at an
-  art-deco manor. Loop = 6 PM → midnight game time, ~8–10 real minutes.
-- Guests and staff follow fixed schedules. Each loop the player learns
-  secrets, fills an intel board, tries to complete a Contract.
-- Failure is never harsh: witty one-liner, restart in < 5 s.
+## Concept (revamped 2026-10-25, see `CONTENT_PLAN.md`)
+- Player is a "fixer" pulling heists at a New Year's Eve gala in an art-deco
+  manor. Each heist is ONE real minute: 23:59 → midnight.
+- Every round adds an **echo**: a ghost of the player that replays an earlier
+  round exactly. Round N = you + up to N-1 echoes, so every attempt builds on
+  the last until the crew pulls it off together. Each heist caps its echoes.
+- Guards and guests follow fixed 60 s routines. Echoes stall ("?") when their
+  recorded action is now impossible; anyone a guard catches is out for the round.
+- A campaign of ~8 heists across a much bigger manor, easiest first; stars for
+  doing it with fewer echoes / faster.
+- Failure is never harsh: witty one-liner, restart in < 2 s.
 - Tone: grim-but-witty, dry banter. No gore, horror or sexual content.
   "Eliminations" are stylized comic accidents or knockouts, never bloody.
 
 ## Camera and controls
 - First-person only.
-- Desktop: WASD, mouse look, E interact, Shift sprint, Q/F use item,
-  Tab intel board. Handle pointer lock gracefully.
+- Desktop: WASD, mouse look, E interact, Shift sprint, F punch, Q rewind
+  (end the round now). Handle pointer lock gracefully.
 - Touch: left virtual stick, right-side look, one big context button, one
-  item button. Gamepad optional.
+  rewind button. Gamepad optional.
 
 ## Not stealth-only (hard rule)
-Every Contract solvable at least 4 ways:
+Every heist (after the one-idea tutorial) solvable at least 4 ways:
 - Quiet: disguise, distraction, timing
-- Social: persuasion or blackmail using collected intel
+- Social: chat up a guard so he watches you, not your crew
 - Loud: brawl/chase with improvised weapons; being spotted is NOT an instant
   fail, it triggers a chase/brawl
-- Chaos: sabotage (lights, fire alarm, fireworks, chandelier drop)
+- Chaos: sabotage (lights, fire bell, fireworks, chandelier drop)
 Awareness = simple 3-state icon above NPC heads (calm / suspicious /
 alarmed). No stealth meters, no line-of-sight puzzles.
 
 ## Easy to learn
-Loop 1 is a guided "just watch and explore" loop. Intel board fills
-automatically. A "Lead" pins the next suggested clue. Free hint button always
-available. Contracts show a simple checklist. Short text; teach by doing.
+Heist 1 teaches the one idea by doing (a door held open by a plate: round 1
+you hold it, round 2 your echo does). Free hint button always available. The
+HUD shows the goal in a few words, the timer and the crew. Short text.
 
 ## Core systems (data-driven, deterministic)
-- World clock + NPC schedules: NPC position/animation is a pure function of
-  game time from JSON schedules → loops exactly reproducible. Player actions
-  set flags / trigger events that branch outcomes. Navmesh only for
-  deviations (chase, flee).
-- Intel board: clues, schedules, secrets, keys; links between clues.
-- Contracts: JSON-defined objectives, approaches, rewards.
-- Meta progression: "memory points" spent on perks between loops.
-- Loop manager: snapshot/reset; persist intel + perks via a storage adapter
-  (localStorage).
+- `src/core/heist/`, pure TypeScript, no Babylon: fixed 30 Hz round sim.
+  Same echo tracks + same player = same round, always.
+- Recording: the player's pose every tick + actions with their tick → Track.
+  Echoes replay tracks kinematically and fire actions at the same ticks.
+- Guards: patrol loops (pure function of time) on the waypoint graph; perceive
+  in a cone, chase, catch, give up. Guests witness and shout.
+- Gadgets: doors, plates, safes, noise, blackout, announcements, chandelier,
+  bell, loot, keys. Heists are JSON (`src/content/heists/`) incl. scripted bot
+  plans per approach.
+- Crew + stars persisted via the storage adapter (localStorage).
 
 ## Scope
-- Vertical slice first: ONE finished wing (ballroom, study, kitchen,
-  balcony), ~10 NPCs, 3 Contracts × 4 approaches, ~15 intel items, 2 perks.
-- Expand only after the slice passes the quality gates.
-- Final target: whole manor (3 floors + grounds), 8–10 Contracts, 30+ hours.
+- R1: echo core + heists 1–3 in the existing rooms → checkpoint ("is the echo
+  idea fun and clear?").
+- Then: bigger manor (cellar, conservatory + grounds, upper floor, more
+  rooms), heists 4–8, polish. Final: whole manor (3 floors + grounds).
 
 ## Tech stack (decided — do not re-debate)
 Babylon.js 9.x + TypeScript + Vite. Havok physics (WASM). Recast navmesh
@@ -104,7 +110,8 @@ fallback.
 - Dev server + headless Chromium (Playwright) screenshots from preset camera
   spots in every room → `/screenshots/`. Look at them; fix anything flat,
   dark, noisy, clipped or broken.
-- Test harness: scripted bot completes every Contract via every approach.
+- Test harness: scripted bot wins every heist via every approach, and no
+  heist (after the tutorial) can be won without echoes.
   `npm test` must pass.
 - Fail the build on any console error.
 - Report relative frame time per preset every milestone.

@@ -75,3 +75,17 @@ Director: "talking to people doesn't do anything", "the sunset painting has no c
 - **Contract 4 changed slightly from the plan**: the Loud route knocks Hale flat anywhere (the conservatory fishpond comes with the conservatory); the Chaos route is the front-hall fire bell, which marches the whole house into the hall for a 25-minute head count. That's a reusable chaos tool for later Contracts too.
 - **Contracts can unlock**; Contract 4 opens from the second evening (loop 1 stays the guided watch-and-explore loop).
 - **`npm test` now also runs `scripts/flows-hall.mjs`**: streaming finishes and opens the doors, Hale reads in the library, the bell crowds the hall, the notebook is taken, the stairs are climbable, with no GPU errors.
+
+## Revamp: one-minute echo heists (2026-10-25)
+- **The director changed the game**: 60-second heists where every round adds an echo of yourself replaying an earlier round. Director's picks: a growing crew of echoes (not one character you take over), a campaign of ~8 heists, keep the manor and cast, retire the contracts, intel board, talk trees and the Hobbs mystery. Plan in `CONTENT_PLAN.md`.
+- **Working title "One Minute to Midnight"** on the loading screen and docs; the repo and Pages URL keep their old name so the link doesn't change.
+- **Fixed 30 Hz sim, echoes replay positions kinematically** (not inputs through physics): physics isn't bit-exact between runs, a recorded path is. Positions are recorded to the millimetre so an echo sees exactly what the live round saw.
+- **An echo that can't do its next thing stalls in place with a "?"** (door now shut, loot already taken). No paradox rules to learn; the stuck echo is visible and the HUD chip says why.
+- **A door that just shut stays passable for 0.8 s in the sim**, matching how long the leaves take to swing, so squeezing through a closing door replays the same way.
+- **Doors held by plates, not by holding a button**: standing still replays perfectly and needs no hold gesture on a phone. Ending a round early leaves the echo standing where you stopped — that is how the tutorial teaches the idea.
+- **Safes reset if nobody is cracking them**, and two crackers work twice as fast: otherwise heist 2 could be cracked solo across two patrol gaps.
+- **Guests shout for the nearest guard who isn't knocked out, chasing, or being chatted up.** That makes "chat up the guard" a real Social route (and a funny one).
+- **The tutorial is the one heist with a single approach** (CLAUDE.md's four-ways rule now reads "after the one-idea tutorial"); heists 2+ are bot-tested via quiet/social/loud/chaos and proven impossible with no echoes.
+- **Echoes use a new "fixer" look** (navy pinstripe lounge suit, gold tie) built by the existing character pipeline, a coloured ring at their feet and a numbered tag. Loot is simple procedural props for now (pearls, deed box, ruby); real models come with the bigger manor.
+- **Removed**: `session.ts`, `client.ts`, `game-ui.ts`, world/intel/contracts/loop cores, their content JSON, the contract bot test and the old browser flows. `npm test` now runs `tests/heist.test.ts` and `scripts/flows-heist.mjs`.
+- **Headless WebKit (iPhone emulation) drops its first GPU context and logs WebGL sampler warnings after the restore.** The pre-revamp build does exactly the same, so it's the emulator; `scripts/mobile.mjs` now starts on the phone defaults (WebGL2 + Low). Echoes and people now load per heist (only as many echoes as the heist allows) to keep phone GPU memory down.

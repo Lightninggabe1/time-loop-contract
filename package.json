@@ -11,7 +11,7 @@
     "assets": "node scripts/fetch-assets.mjs && node scripts/build-assets.mjs && node scripts/gen-textures.mjs && node scripts/bake-env.mjs && node scripts/prune-anims.mjs",
     "shots": "node scripts/shots.mjs",
     "profile": "node scripts/profile.mjs",
-    "test": "vitest run && npm run verify && node scripts/walktest.mjs && node scripts/flows-hall.mjs"
+    "test": "vitest run && npm run verify && node scripts/walktest.mjs && node scripts/flows-heist.mjs"
   },
   "dependencies": {
     "@babylonjs/addons": "^9.31.0",
