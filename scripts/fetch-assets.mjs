@@ -41,6 +41,21 @@ const MODELS = [
   "strawberry_chocolate_cake", "croissant", "food_apple_01", "wooden_bowl_01", "metal_trash_can",
   // balcony & garden
   "planter_box_01", "potted_plant_04", "street_lamp_01", "horse_statue_01", "shrub_01", "shrub_03",
+  // conservatory + Dr Faraday's kit
+  "island_tree_01", "island_tree_02", "pachira_aquatica_01", "potted_plant_02", "fern_02", "calathea_orbifolia_01", "anthurium_botany_01",
+  "planter_box_02", "painted_wooden_bench", "brass_vase_01", "ceramic_vase_02", "Lantern_01",
+  "vintage_spacecraft_instrument", "retro_multimeter", "chemistry_set", "bunsen_burner", "vintage_electric_kettle", "metal_tool_chest",
+  // boiler room
+  "modular_industrial_pipes_01", "barrel_stove", "power_box_01", "Barrel_01", "oil_tin", "pipe_wrench", "caged_hanging_light", "steel_frame_shelves_01", "small_oil_can_01",
+  // wine cellar + casino
+  "Barrel_02", "barrel_03", "wooden_display_shelves_01", "Chandelier_03", "vintage_wooden_drawer_01", "side_table_01", "GreenChair_01", "ClassicConsole_01",
+  // upper floor
+  "GothicBed_01", "ClassicNightstand_01", "ornate_mirror_01", "vintage_day_bed", "GothicCommode_01", "Ottoman_01",
+  "hanging_picture_frame_01", "hanging_picture_frame_02", "fancy_picture_frame_01", "lantern_chandelier_01", "standing_picture_frame_01", "vintage_suitcase", "vintage_oil_lamp",
+  // grounds
+  "fir_tree_01", "pine_tree_01", "covered_car", "garden_gnome", "street_lamp_02", "lifebuoy", "wooden_ladder", "stone_fire_pit", "wicker_basket_01", "tool_cart", "wooden_picnic_table",
+  // clock tower
+  "alarm_clock_01", "wall_clock",
 ];
 
 const exists = (p) => access(p).then(() => true, () => false);

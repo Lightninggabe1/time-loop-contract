@@ -24,6 +24,12 @@
     { "id": "brock", "body": "male", "skin": "Dark", "hair": "Hair_Buzzed", "hairColor": "#120E0C", "beard": false,
       "outfit": "doorman", "colors": { "jacket": "#5C1222", "accent": "#E2B25C" }, "scale": 1.06 },
     { "id": "elsie", "body": "female", "skin": "Light", "hair": "Hair_Buns", "hairColor": "#C99A5B",
-      "outfit": "maid", "colors": { "dress": "#141216", "trim": "#F4F1EA", "gloves": "#F4F1EA" }, "length": "calf", "scale": 0.95 }
+      "outfit": "maid", "colors": { "dress": "#141216", "trim": "#F4F1EA", "gloves": "#F4F1EA" }, "length": "calf", "scale": 0.95 },
+    { "id": "faraday", "body": "female", "skin": "Light", "hair": "Hair_Buns", "hairColor": "#7A5A3A",
+      "outfit": "gown", "colors": { "dress": "#4A3B2C", "trim": "#C9A15A" }, "length": "calf", "headband": "#C9A15A", "scale": 0.98 },
+    { "id": "zelda", "body": "female", "skin": "Dark", "hair": "Hair_Long", "hairColor": "#120C0A",
+      "outfit": "gown", "colors": { "dress": "#141214", "trim": "#E2B25C", "gloves": "#3A0A16" }, "length": "floor", "pearls": true, "headband": "#124A3A", "scale": 1.0 },
+    { "id": "tom", "body": "male", "skin": "Light", "hair": "Hair_Buzzed", "hairColor": "#B8B4AE", "beard": true,
+      "outfit": "lounge", "colors": { "jacket": "#5A4630", "accent": "#124A3A" }, "scale": 0.96 }
   ]
 }
