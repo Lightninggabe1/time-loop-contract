@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bg" cx="0.5" cy="0.42" r="0.75">
+      <stop offset="0" stop-color="#3a1d2c"/><stop offset="0.55" stop-color="#1a0f15"/><stop offset="1" stop-color="#0e0a0c"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3d892"/><stop offset="1" stop-color="#b8893f"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- deco sunburst -->
+  <g stroke="#c9a45c" stroke-opacity=".28" stroke-width="3">
+    <path d="M256 256 256 40M256 256 364 69M256 256 443 148M256 256 472 256M256 256 443 364M256 256 364 443M256 256 256 472M256 256 148 443M256 256 69 364M256 256 40 256M256 256 69 148M256 256 148 69"/>
+  </g>
+  <!-- stepped deco frame -->
+  <circle cx="256" cy="256" r="168" fill="#120b10" stroke="url(#gold)" stroke-width="10"/>
+  <circle cx="256" cy="256" r="146" fill="none" stroke="#c9a45c" stroke-opacity=".55" stroke-width="3"/>
+  <!-- hour ticks -->
+  <g stroke="url(#gold)" stroke-linecap="round">
+    <path d="M256 124v26" stroke-width="12"/>
+    <path d="M322 141.7l-8 13.9M370.3 190l-13.9 8M388 256h-16M370.3 322l-13.9-8M322 370.3l-8-13.9M256 388v-16M190 370.3l8-13.9M141.7 322l13.9-8M124 256h16M141.7 190l13.9 8M190 141.7l8 13.9" stroke-width="7"/>
+  </g>
+  <!-- echo (past self) minute hand -->
+  <path d="M256 256 L221 142" stroke="#7fd6cf" stroke-opacity=".45" stroke-width="7" stroke-linecap="round"/>
+  <path d="M256 256 L236 136" stroke="#7fd6cf" stroke-opacity=".25" stroke-width="7" stroke-linecap="round"/>
+  <!-- hands at 11:59 -->
+  <path d="M256 256 L253 176" stroke="url(#gold)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M256 256 L244 132" stroke="#f3d892" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="14" fill="url(#gold)"/>
+  <circle cx="256" cy="256" r="5" fill="#120b10"/>
+</svg>
